@@ -115,7 +115,7 @@ This should be a reproducible and working example
 <code class="sourceCode R"><span><span class="va">web_ppt1</span> <span class="op">&lt;-</span> <span class="st">"https://yxlxppt01.vpu-online.cn/login/LoginPage.web"</span></span>
 <span><span class="va">username1</span> <span class="op">&lt;-</span> <span class="st">"隆鑫场测定一区"</span></span>
 <span><span class="va">password1</span> <span class="op">&lt;-</span> <span class="st">"yangxianglongxin1234"</span></span>
-<span><span class="va">station_create5</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map_chr</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">101L</span>,<span class="fl">103L</span>,<span class="fl">1L</span><span class="op">)</span>, <span class="va">c</span><span class="op">)</span></span>
+<span><span class="va">station_create5</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map_chr</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">101L</span>,<span class="fl">102L</span>,<span class="fl">1L</span><span class="op">)</span>, <span class="va">c</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: Automatic coercion from integer to character was deprecated in purrr 1.0.0.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Please use an explicit call to `as.character()` within `map_chr()` instead.</span></span>
 <span><span class="fu"><a href="../reference/download_by_hand.html">download_by_hand</a></span><span class="op">(</span>location <span class="op">=</span> <span class="va">station_create5</span>, </span>
@@ -138,12 +138,12 @@ This should be a reproducible and working example
 <span><span class="co">#&gt; [1] "110.0.5481.77 (65ed616c6e8ee3fe0ad64fe83796c020644d42af-refs/branch-heads/5481@{#839})"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $chrome$userDataDir</span></span>
-<span><span class="co">#&gt; [1] "C:\\Program Files (x86)\\scoped_dir16996_1081358614"</span></span>
+<span><span class="co">#&gt; [1] "C:\\Program Files (x86)\\scoped_dir20952_2069350175"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $`goog:chromeOptions`</span></span>
 <span><span class="co">#&gt; $`goog:chromeOptions`$debuggerAddress</span></span>
-<span><span class="co">#&gt; [1] "localhost:3883"</span></span>
+<span><span class="co">#&gt; [1] "localhost:12136"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $networkConnectionEnabled</span></span>
@@ -188,12 +188,15 @@ This should be a reproducible and working example
 <span><span class="co">#&gt; [1] TRUE</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $webdriver.remote.sessionid</span></span>
-<span><span class="co">#&gt; [1] "d124c758fc8e3904fc8e1d604ffd1d13"</span></span>
+<span><span class="co">#&gt; [1] "a6000c8b163d80f64105a4347e99f64e"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $id</span></span>
-<span><span class="co">#&gt; [1] "d124c758fc8e3904fc8e1d604ffd1d13"</span></span>
+<span><span class="co">#&gt; [1] "a6000c8b163d80f64105a4347e99f64e"</span></span>
 <span><span class="co">#&gt; [[1]]</span></span>
 <span><span class="co">#&gt; NULL</span></span></code></pre></div>
+<!--
+Here are some unit tests to verify the function works as expected.
+-->
 <p>That’s it ! This the end of the documented story of our package. All
 components are there.</p>
 <!-- 

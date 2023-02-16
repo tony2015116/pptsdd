@@ -31,13 +31,14 @@ Note: when you will use other flat templates, this part will be in a separate fi
 fusen::fill_description(
   pkg = here::here(),
   fields = list(
-    Title = "neadap ",
+    Title = "neadap",
     Description = "A Set of tools to understand packages structure. Use Rmarkdown First method to build a package from a defined template. Start your package with documentation. Everything can be set from a Rmarkdown file in your project.",
     `Authors@R` = c(
       person("GuoGuo", email = "tony2015116@163.com", role = c("aut", "cre")),
       person(given = "GuoGuo", role = "cph")
     )
-  )
+  ),
+  overwrite=T
 )
 # Define License with use_*_license()
 usethis::use_mit_license("Guoguo")
