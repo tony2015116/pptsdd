@@ -1,6 +1,6 @@
 .Rproj.user
 inst/doc
-docs
+#.docs
 .Rhistory
 .Rdata
 .httr-oauth
