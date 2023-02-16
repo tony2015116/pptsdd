@@ -31,16 +31,16 @@ Note: when you will use other flat templates, this part will be in a separate fi
 fusen::fill_description(
   pkg = here::here(),
   fields = list(
-    Title = "Learn how to build A Package From Rmarkdown file",
+    Title = "neadap ",
     Description = "A Set of tools to understand packages structure. Use Rmarkdown First method to build a package from a defined template. Start your package with documentation. Everything can be set from a Rmarkdown file in your project.",
     `Authors@R` = c(
-      person("Sebastien", "Rochette", email = "sebastien@thinkr.fr", role = c("aut", "cre")),
-      person(given = "ThinkR", role = "cph")
+      person("GuoGuo", email = "tony2015116@163.com", role = c("aut", "cre")),
+      person(given = "GuoGuo", role = "cph")
     )
   )
 )
 # Define License with use_*_license()
-usethis::use_mit_license("Sébastien Rochette")
+usethis::use_mit_license("Guoguo")
 ```
 
 # Add one to any value
@@ -155,11 +155,11 @@ Here is an example on how to use the function.
 This should be a reproducible and working example
 -->
 
-```{r examples-add_one}
+```{r examples-download_by_hand}
 web_ppt1 <- "https://yxlxppt01.vpu-online.cn/login/LoginPage.web"
 username1 <- "隆鑫场测定一区"
 password1 <- "yangxianglongxin1234"
-station_create5 <- purrr::map_chr(seq(101L,103L,1L), c)
+station_create5 <- purrr::map_chr(seq(101L,102L,1L), c)
 download_by_hand(location = station_create5, 
                  data_date = "2023-02-11", 
                  url = web_ppt1, 
@@ -168,6 +168,21 @@ download_by_hand(location = station_create5,
 
 ```
 
+
+<!--
+Here are some unit tests to verify the function works as expected.
+-->
+
+```{r tests-download_by_hand}
+test_that("download_by_hand works", {
+  expect_no_error(download_by_hand(location = "101L",
+                                   data_date = "2023-02-11",
+                                   url = "https://yxlxppt01.vpu-online.cn/login/LoginPage.web",
+                                   username = "隆鑫场测定一区",
+                                   password = "yangxianglongxin1234"), 
+                  message = "somethings go wrong")
+})
+```
 
 That's it ! This the end of the documented story of our package. All components are there.
 

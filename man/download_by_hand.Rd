@@ -29,7 +29,7 @@ Add one to any value
 web_ppt1 <- "https://yxlxppt01.vpu-online.cn/login/LoginPage.web"
 username1 <- "隆鑫场测定一区"
 password1 <- "yangxianglongxin1234"
-station_create5 <- purrr::map_chr(seq(101L,103L,1L), c)
+station_create5 <- purrr::map_chr(seq(101L,102L,1L), c)
 download_by_hand(location = station_create5, 
                  data_date = "2023-02-11", 
                  url = web_ppt1, 
