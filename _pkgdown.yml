@@ -1,4 +1,7 @@
 url: ~
 template:
-  bootstrap: 5
+  package: preferably
+  params:
+    toggle: manual
+
 
