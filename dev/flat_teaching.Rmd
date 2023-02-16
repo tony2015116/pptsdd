@@ -1,0 +1,192 @@
+---
+title: "flat_teaching.Rmd for working package"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+<!-- 
+Run this 'development' chunk
+
+Store every call to library() that you need to run chunks line by line, as in a classical Rmd for analysis
+-->
+
+```{r development, include=FALSE}
+library(testthat)
+library(purrr)
+library(RSelenium)
+```
+
+<!--
+# Description of your package
+
+This will fill the description of your package.
+Fill and run the content of this chunk, before anything else. 
+
+Note: when you will use other flat templates, this part will be in a separate file. Do not be surprised!
+--> 
+
+```{r description, eval=FALSE}
+# Describe your package
+fusen::fill_description(
+  pkg = here::here(),
+  fields = list(
+    Title = "Learn how to build A Package From Rmarkdown file",
+    Description = "A Set of tools to understand packages structure. Use Rmarkdown First method to build a package from a defined template. Start your package with documentation. Everything can be set from a Rmarkdown file in your project.",
+    `Authors@R` = c(
+      person("Sebastien", "Rochette", email = "sebastien@thinkr.fr", role = c("aut", "cre")),
+      person(given = "ThinkR", role = "cph")
+    )
+  )
+)
+# Define License with use_*_license()
+usethis::use_mit_license("Sébastien Rochette")
+```
+
+# Add one to any value
+
+This is the first tool of our wonderful package. 
+You can add `1` to any `value` using function `add_one()`.
+
+<!-- 
+This first section shows:
+
+- the three parts necessary for a package: 'function', 'examples' and 'tests'.  
+  + Note that the three following chunks have names accordingly.
+
+-->
+
+```{r function-download_by_hand}
+#' Add one to any value
+#' 
+#' @param location A numeric value
+#' @param data_date The date of data download
+#' @param url The url of pig performance test station website
+#' @param username The username of pig performance test station website
+#' @param password The password of pig performance test station website
+#' @param ... other parameters
+#'
+#' @return csv datas
+#' @export
+
+download_by_hand <- function(location, data_date, url, username, password, ...){
+  remDr <- RSelenium::remoteDriver(remoteServerAddr = "127.0.0.1"
+                        , port = 4444
+                        , browserName = "chrome")#连接Server
+
+  remDr$open() #打开浏览器
+  remDr$navigate(url) #打开网址
+
+  login_user <- '//*[@id="frmLogin"]/div[2]/input'
+  login_passwd <- '//*[@id="frmLogin"]/div[3]/input'
+
+  login_user_ele<-remDr$findElement("xpath",login_user)
+  login_passwd_ele<-remDr$findElement("xpath",login_passwd)
+  user<-list(username)
+  pass<-list(password)
+  login_user_ele$sendKeysToElement(user)
+  login_passwd_ele$sendKeysToElement(pass)
+
+  login <- '//*[@id="login_button"]'
+  login_ele<-remDr$findElement("xpath",login)
+  remDr$mouseMoveToLocation(webElement = login_ele)
+  remDr$click()
+
+  #Sys.sleep(5)
+  Sys.sleep(sample(10,1))
+
+  iter_download <- function(station, data_date, ...){
+    #选择nedap网站《报告》
+    choose_item <- '/html/body/div[1]/div[1]/ul/li[4]/a'
+    choose_ele<-remDr$findElement("xpath",choose_item)
+    remDr$mouseMoveToLocation(webElement = choose_ele)
+    remDr$click()
+
+    #选择<报告>中的<下载csv数据>
+    download_item <- '//*[@id="reports_page"]/div[2]/div/div[3]/ol/li[4]/a'
+    #download_item <- '//*[@id="reports_page"]/div[2]/div/div[3]/ol/li[1]/a'
+    download_ele<-remDr$findElement("xpath",download_item)
+    remDr$mouseMoveToLocation(webElement = download_ele)
+    remDr$click()
+
+    #choose_locations
+    location_start <- '//*[@id="criteria"]/report-selection-range/div/div/div/div[1]/input'
+    location_end <- '//*[@id="criteria"]/report-selection-range/div/div/div/div[2]/input'
+    location_ele_start<-remDr$findElement("xpath",location_start)
+    location_ele_end<-remDr$findElement("xpath",location_end)
+
+    location_ele_start$clearElement() #清空输入框内容
+    location_ele_end$clearElement() #清空输入框内容
+
+    location_start_num <- list(station, key = "enter")
+    location_ele_start$sendKeysToElement(location_start_num)
+    location_ele_end$clickElement()#单击鼠标
+    #选择下载日期
+    date_start <- '//*[@id="datetimepicker0"]/input'
+    date_end <- '//*[@id="datetimepicker1"]/input'
+    date_ele_start<-remDr$findElement("xpath",date_start)
+    date_ele_end<-remDr$findElement("xpath",date_end)
+
+    date_ele_start$clearElement() #清空输入框内容
+
+    date_need_to_download <- stringr::str_replace_all(as.character(data_date),"-",".")
+
+    date_start_num <- list(date_need_to_download, key = "enter")
+    date_end_num <- list(date_need_to_download, key = "enter")
+    date_ele_start$sendKeysToElement(date_start_num)
+    date_ele_end$clearElement()
+    date_ele_end$sendKeysToElement(date_end_num)
+
+    #download csv数据
+    download_button <- '//*[@id="reports_download_csv_data"]/div[4]/button'
+    download_button_ele<-remDr$findElement("xpath",download_button)
+    remDr$mouseMoveToLocation(webElement = download_button_ele)
+    remDr$click()
+
+    remDr$refresh() #刷新网页
+  }
+  purrr::walk2(location, data_date, iter_download, ...)
+  remDr$quit()
+}
+```
+
+<!--
+Here is an example on how to use the function.
+This should be a reproducible and working example
+-->
+
+```{r examples-add_one}
+web_ppt1 <- "https://yxlxppt01.vpu-online.cn/login/LoginPage.web"
+username1 <- "隆鑫场测定一区"
+password1 <- "yangxianglongxin1234"
+station_create5 <- purrr::map_chr(seq(101L,103L,1L), c)
+download_by_hand(location = station_create5, 
+                 data_date = "2023-02-11", 
+                 url = web_ppt1, 
+                 username = username1, 
+                 password = password1)
+
+```
+
+
+That's it ! This the end of the documented story of our package. All components are there.
+
+<!-- 
+# Inflate your package
+
+You're one inflate from paper to box.
+Build your package from this very Rmd using `fusen::inflate()` 
+-->
+
+
+```{r development-inflate, eval=FALSE}
+# Execute in the console directly
+fusen::inflate(flat_file = "dev/flat_teaching.Rmd")
+```
+
+<!-- 
+- Verify your `"DESCRIPTION"` file has been updated
+- Verify your function is in `"R/"` directory
+- Verify your test is in `"tests/testthat/"` directory
+- Verify this Rmd appears in `"vignettes/"` directory 
+-->
