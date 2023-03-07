@@ -1,11 +1,29 @@
-url: ~
+url: https://github.com/tony2015116/pptsdd
 template:
   package: preferably
   params:
     toggle: manual
 
+    opengraph:
+    #image:
+    #  src: man/figures/card.png
+    #  alt: "Alternative text describing the image"
+    twitter:
+      creator: "@tonyituite"
+      card: summary_large_image
+
+home:
+  links:
+  # - text: GitHub Repo
+    # href: https://github.com/wviechtb/metafor
+  - text: Report a bug
+    href: https://github.com/tony2015116/pptsdd/issues
+  - text: Author Website
+    href: https://www.rusersplace.com
+
 navbar:
-  structure:
-    right: [github]
-
-
+  right:
+   - icon: fa-twitter
+     href: https://twitter.com/wviechtb
+   - icon: fa-github
+     href: https://github.com/tony2015116/pptsdd

@@ -7,7 +7,7 @@ Authors@R: c(
   )
 Description: An R package that can automatically download Pig Performance
     Test Station of Nedap.
-License: MIT + file LICENSE
+License: CC BY-NC-ND 4.0 + file LICENSE
 Imports: 
     purrr,
     RSelenium,
