@@ -157,15 +157,11 @@ This should be a reproducible and working example
 -->
 
 ```{r examples-download_by_hand}
-web_ppt1 <- "https://yxlxppt01.vpu-online.cn/login/LoginPage.web"
-username1 <- "隆鑫场测定一区"
-password1 <- "yangxianglongxin1234"
-station_create5 <- purrr::map_chr(seq(101L,102L,1L), c)
-download_by_hand(location = station_create5, 
-                 data_date = "2023-02-11", 
-                 url = web_ppt1, 
-                 username = username1, 
-                 password = password1)
+download_by_hand(location = Sys.getenv("stations"), 
+                 data_date = Sys.getenv("download_date"), 
+                 url = Sys.getenv("web_url"),
+                 username = Sys.getenv("user_name"), 
+                 password = Sys.getenv("user_password"))
 
 ```
 
@@ -176,11 +172,11 @@ Here are some unit tests to verify the function works as expected.
 
 ```{r tests-download_by_hand}
 test_that("download_by_hand works", {
-  expect_no_error(download_by_hand(location = "101L",
-                                   data_date = "2023-02-11",
-                                   url = "https://yxlxppt01.vpu-online.cn/login/LoginPage.web",
-                                   username = "隆鑫场测定一区",
-                                   password = "yangxianglongxin1234"), 
+  expect_no_error(download_by_hand(location = Sys.getenv("stations"),
+                                   data_date = Sys.getenv("download_date"),
+                                   url = Sys.getenv("web_url"),
+                                   username = Sys.getenv("user_name"),
+                                   password = Sys.getenv("user_password")), 
                   message = "somethings go wrong")
 })
 ```

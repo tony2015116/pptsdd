@@ -26,14 +26,10 @@ csv datas
 Add one to any value
 }
 \examples{
-web_ppt1 <- "https://yxlxppt01.vpu-online.cn/login/LoginPage.web"
-username1 <- "隆鑫场测定一区"
-password1 <- "yangxianglongxin1234"
-station_create5 <- purrr::map_chr(seq(101L,102L,1L), c)
-download_by_hand(location = station_create5, 
-                 data_date = "2023-02-11", 
-                 url = web_ppt1, 
-                 username = username1, 
-                 password = password1)
+download_by_hand(location = Sys.getenv("stations"), 
+                 data_date = Sys.getenv("download_date"), 
+                 url = Sys.getenv("web_url"),
+                 username = Sys.getenv("user_name"), 
+                 password = Sys.getenv("user_password"))
 
 }
