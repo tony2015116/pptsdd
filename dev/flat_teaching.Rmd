@@ -31,17 +31,18 @@ Note: when you will use other flat templates, this part will be in a separate fi
 fusen::fill_description(
   pkg = here::here(),
   fields = list(
-    Title = "neadap",
-    Description = "A Set of tools to understand packages structure. Use Rmarkdown First method to build a package from a defined template. Start your package with documentation. Everything can be set from a Rmarkdown file in your project.",
+    Title = "Breeding Tools",
+    Description = "An R package that can automatically download Pig Performance Test Station of Nedap.",
     `Authors@R` = c(
-      person("GuoGuo", email = "tony2015116@163.com", role = c("aut", "cre")),
-      person(given = "GuoGuo", role = "cph")
+      person("Guo Meng", email = "tony2015116@163.com", role = c("aut", "cre")),
+      person(given = "Guo Meng", role = "cph")
     )
   ),
   overwrite=T
 )
 # Define License with use_*_license()
-usethis::use_mit_license("Guoguo")
+usethis::use_mit_license("Guo Meng")
+#usethis::use_ccby_license()
 ```
 
 # Add one to any value

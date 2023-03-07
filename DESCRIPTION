@@ -1,15 +1,13 @@
 Package: pptsdd
-Title: Neadap
+Title: Breeding Tools
 Version: 0.0.0.9000
 Authors@R: c(
-    person("GuoGuo", , , "tony2015116@163.com", role = c("aut", "cre")),
-    person("GuoGuo", role = "cph")
+    person("Guo Meng", , , "tony2015116@163.com", role = c("aut", "cre")),
+    person("Guo Meng", role = "cph")
   )
-Description: A Set of tools to understand packages structure. Use
-    Rmarkdown First method to build a package from a defined template.
-    Start your package with documentation. Everything can be set from a
-    Rmarkdown file in your project.
-License: CC BY-NC-ND 4.0 + file LICENSE
+Description: An R package that can automatically download Pig Performance
+    Test Station of Nedap.
+License: MIT + file LICENSE
 Imports: 
     purrr,
     RSelenium,

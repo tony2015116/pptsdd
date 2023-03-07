@@ -4,4 +4,8 @@ template:
   params:
     toggle: manual
 
+navbar:
+  structure:
+    right: [github]
+
 
