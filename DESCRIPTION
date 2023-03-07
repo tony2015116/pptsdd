@@ -9,7 +9,7 @@ Description: A Set of tools to understand packages structure. Use
     Rmarkdown First method to build a package from a defined template.
     Start your package with documentation. Everything can be set from a
     Rmarkdown file in your project.
-License: MIT + file LICENSE
+License: CC BY-NC-ND 4.0 + file LICENSE
 Imports: 
     purrr,
     RSelenium,
