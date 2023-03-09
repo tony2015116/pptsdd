@@ -29,3 +29,9 @@ navbar:
    #   href: https://twitter.com/tonyituite
    - icon: fa-github
      href: https://github.com/tony2015116/pptsdd
+
+reference:
+- title: Download functions
+  contents:
+  - download_free_hands
+  - download_free_brain

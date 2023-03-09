@@ -261,28 +261,6 @@ fusen::inflate(flat_file = "dev/flat_full.Rmd",
 
 ```
 
-```{r development-inflate, eval=FALSE}
-# Path of the flat file
-path_flat_rmd <- here::here("dev/flat_full.Rmd")
-
-# Name of future functions to add - example
-fun_nms <- c(
-  "download_free_hands",
-  "download_free_brain"
-)
-
-# Create content
-l_chunks <- purrr::map_chr(fun_nms, fusen:::build_fusen_chunks)
-chunks <- paste(l_chunks, collapse = "")
-
-# Add in the flat file
-flat_rmd <- readLines(path_flat_rmd)
-flat_rmd <- sub("^HERE$", chunks, flat_rmd)
-writeLines(flat_rmd, path_flat_rmd)
-
-
-```
-
 ```{=html}
 <!-- 
 - Verify your `"DESCRIPTION"` file has been updated
