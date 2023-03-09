@@ -39,7 +39,7 @@ Note: when you will use other flat templates, this part will be in a separate fi
 -->
 ```
 
-# download_free_hands()
+# download_free_hands
 
 This is the first function of our package. You can free up you hands and download pig performance test station data using function `download_free_hands()`.
 
@@ -94,9 +94,6 @@ Build your package from this very Rmd using `fusen::inflate()`
 # download_free_brain
 
     
-
-  
-
 ```{r example-download_free_brain}
 user_name = "隆鑫场测定一区"
 stations = purrr::map_chr(seq(101L,103L,1L), c)
@@ -111,8 +108,6 @@ download_free_brain(location = stations,
   
 
   
-
-
 
 ```{=html}
 <!-- 

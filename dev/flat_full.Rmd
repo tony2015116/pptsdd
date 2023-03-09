@@ -47,7 +47,7 @@ usethis::use_mit_license("Guo Meng")
 #usethis::use_ccby_license()
 ```
 
-# download_free_hands()
+# download_free_hands
 
 This is the first function of our package. You can free up you hands and download pig performance test station data using function `download_free_hands()`.
 
@@ -62,6 +62,10 @@ This first section shows:
 ```
 ```{r function-download_free_hands}
 #' download_free_hands
+#' 
+#' @description
+#'
+#' `download_free_hands()` is deprecated. We will soon be totally
 #' 
 #' @param location Numeric value in string format
 #' @param data_date The dates of data download
@@ -210,6 +214,10 @@ Build your package from this very Rmd using `fusen::inflate()`
 ```{r function-download_free_brain}
 #' download_free_brain
 #' 
+#' @description
+#'
+#' `download_free_brain()` is deprecated. We will soon be totally
+#' 
 #' @param location Numeric value in string format
 #' @param data_date The dates of data download
 #' @param ... other parameters
@@ -281,9 +289,6 @@ writeLines(flat_rmd, path_flat_rmd)
 
 
 ```
-
-
-
 
 
 ```{=html}
