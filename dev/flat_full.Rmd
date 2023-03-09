@@ -1,22 +1,24 @@
 ---
-title: "flat_teaching.Rmd for working package"
+title: "flat_full.Rmd for working package"
 output: html_document
 editor_options: 
   chunk_output_type: console
 ---
 
+```{=html}
 <!-- 
 Run this 'development' chunk
 
 Store every call to library() that you need to run chunks line by line, as in a classical Rmd for analysis
 -->
-
+```
 ```{r development, include=FALSE}
 library(testthat)
 library(purrr)
 library(RSelenium)
 ```
 
+```{=html}
 <!--
 # Description of your package
 
@@ -24,8 +26,8 @@ This will fill the description of your package.
 Fill and run the content of this chunk, before anything else. 
 
 Note: when you will use other flat templates, this part will be in a separate file. Do not be surprised!
---> 
-
+-->
+```
 ```{r description, eval=FALSE}
 # Describe your package
 fusen::fill_description(
@@ -45,11 +47,11 @@ usethis::use_mit_license("Guo Meng")
 #usethis::use_ccby_license()
 ```
 
-# Add one to any value
+# download_free_hands()
 
-This is the first tool of our wonderful package. 
-You can add `1` to any `value` using function `add_one()`.
+This is the first function of our package. You can free up you hands and download pig performance test station data using function `download_free_hands()`.
 
+```{=html}
 <!-- 
 This first section shows:
 
@@ -57,21 +59,21 @@ This first section shows:
   + Note that the three following chunks have names accordingly.
 
 -->
-
-```{r function-download_by_hand}
-#' Add one to any value
+```
+```{r function-download_free_hands}
+#' download_free_hands
 #' 
-#' @param location A numeric value
-#' @param data_date The date of data download
+#' @param location Numeric value in string format
+#' @param data_date The dates of data download
 #' @param url The url of pig performance test station website
 #' @param username The username of pig performance test station website
 #' @param password The password of pig performance test station website
 #' @param ... other parameters
 #'
-#' @return csv datas
+#' @return CSV files in the download path of your Google Chrome web browser.
 #' @export
 
-download_by_hand <- function(location, data_date, url, username, password, ...){
+download_free_hands <- function(location, data_date, url, username, password, ...){
   remDr <- RSelenium::remoteDriver(remoteServerAddr = "127.0.0.1"
                         , port = 4444
                         , browserName = "chrome")#连接Server
@@ -152,31 +154,40 @@ download_by_hand <- function(location, data_date, url, username, password, ...){
 }
 ```
 
+```{=html}
 <!--
 Here is an example on how to use the function.
 This should be a reproducible and working example
 -->
-
-```{r examples-download_by_hand}
-download_by_hand(location = Sys.getenv("stations"), 
-                 data_date = Sys.getenv("download_date"), 
-                 url = Sys.getenv("web_url"),
-                 username = Sys.getenv("user_name"), 
-                 password = Sys.getenv("user_password"))
+```
+```{r examples-download_free_hands}
+user_name = "隆鑫场测定一区"
+stations = "101"
+download_date = "2023-02-11"
+download_free_hands(location = stations, 
+                    data_date = download_date, 
+                    url = Sys.getenv("web_url"), 
+                    username = user_name, 
+                    password = Sys.getenv("user_password"))
 
 ```
 
-
+```{=html}
 <!--
 Here are some unit tests to verify the function works as expected.
 -->
+```
 
-```{r tests-download_by_hand}
-test_that("download_by_hand works", {
-  expect_no_error(download_by_hand(location = Sys.getenv("stations"),
-                                   data_date = Sys.getenv("download_date"),
+```{r tests-download_free_hands}
+user_name = "隆鑫场测定一区"
+stations = "101"
+download_date = "2023-02-11"
+test_that("download_free_hand works", {
+  expect_no_error(
+    download_free_hands(location = stations, 
+                                   data_date = download_date, 
                                    url = Sys.getenv("web_url"),
-                                   username = Sys.getenv("user_name"),
+                                   username = user_name, 
                                    password = Sys.getenv("user_password")), 
                   message = "somethings go wrong")
 })
@@ -184,22 +195,104 @@ test_that("download_by_hand works", {
 
 That's it ! This the end of the documented story of our package. All components are there.
 
+```{=html}
 <!-- 
 # Inflate your package
 
 You're one inflate from paper to box.
 Build your package from this very Rmd using `fusen::inflate()` 
 -->
+```
+
+
+# download_free_brain
+    
+```{r function-download_free_brain}
+#' download_free_brain
+#' 
+#' @param location Numeric value in string format
+#' @param data_date The dates of data download
+#' @param ... other parameters
+#' 
+#' @return CSV files in the download path of your Google Chrome web browser.
+#' @export
+
+download_free_brain <- function(location, data_date, ...){ 
+  purrr::map(data_date, ~download_free_hands(location, ...), ...)
+}
+```
+  
+```{r example-download_free_brain}
+user_name = "隆鑫场测定一区"
+stations = purrr::map_chr(seq(101L,103L,1L), c)
+download_date = seq(as.Date("2023-02-01"),as.Date("2023-02-03"),1)
+download_free_brain(location = stations, 
+                    data_date = download_date, 
+                    url = Sys.getenv("web_url"), 
+                    username = user_name, 
+                    password = Sys.getenv("user_password"))
+```
+  
+```{r tests-download_free_brain}
+user_name = "隆鑫场测定一区"
+stations = purrr::map_chr(seq(101L,103L,1L), c)
+download_date = seq(as.Date("2023-02-01"),as.Date("2023-02-03"),1)
+test_that("download_free_brain works", {
+  expect_no_error(
+    download_free_brain(location = stations, 
+                                   data_date = download_date, 
+                                   url = Sys.getenv("web_url"),
+                                   username = user_name, 
+                                   password = Sys.getenv("user_password")), 
+                  message = "somethings go wrong")
+})
+```
+  
 
 
 ```{r development-inflate, eval=FALSE}
-# Execute in the console directly
-fusen::inflate(flat_file = "dev/flat_teaching.Rmd")
+fusen::inflate(flat_file = "dev/flat_full.Rmd",
+               #vignette_name = "Start using download_free_hands()",
+               check = F)
+
+#fusen::load_flat_functions(flat_file = "dev/flat_full.Rmd")
+
 ```
 
+
+```{r development-inflate, eval=FALSE}
+# Path of the flat file
+path_flat_rmd <- here::here("dev/flat_full.Rmd")
+
+# Name of future functions to add - example
+fun_nms <- c(
+  "download_free_hands",
+  "download_free_brain"
+)
+
+# Create content
+l_chunks <- purrr::map_chr(fun_nms, fusen:::build_fusen_chunks)
+chunks <- paste(l_chunks, collapse = "")
+
+# Add in the flat file
+flat_rmd <- readLines(path_flat_rmd)
+flat_rmd <- sub("^HERE$", chunks, flat_rmd)
+writeLines(flat_rmd, path_flat_rmd)
+
+
+```
+
+
+
+
+
+```{=html}
 <!-- 
 - Verify your `"DESCRIPTION"` file has been updated
 - Verify your function is in `"R/"` directory
 - Verify your test is in `"tests/testthat/"` directory
 - Verify this Rmd appears in `"vignettes/"` directory 
 -->
+```
+
+
