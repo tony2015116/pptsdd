@@ -181,7 +181,6 @@ download_free_hands(location = stations,
 Here are some unit tests to verify the function works as expected.
 -->
 ```
-
 ```{r tests-download_free_hands}
 user_name = "隆鑫场测定一区"
 stations = "101"
@@ -207,10 +206,8 @@ You're one inflate from paper to box.
 Build your package from this very Rmd using `fusen::inflate()` 
 -->
 ```
-
-
 # download_free_brain
-    
+
 ```{r function-download_free_brain}
 #' download_free_brain
 #' 
@@ -229,7 +226,7 @@ download_free_brain <- function(location, data_date, ...){
   purrr::map(data_date, ~download_free_hands(location, ...), ...)
 }
 ```
-  
+
 ```{r example-download_free_brain}
 user_name = "隆鑫场测定一区"
 stations = purrr::map_chr(seq(101L,103L,1L), c)
@@ -240,7 +237,7 @@ download_free_brain(location = stations,
                     username = user_name, 
                     password = Sys.getenv("user_password"))
 ```
-  
+
 ```{r tests-download_free_brain}
 user_name = "隆鑫场测定一区"
 stations = purrr::map_chr(seq(101L,103L,1L), c)
@@ -255,18 +252,14 @@ test_that("download_free_brain works", {
                   message = "somethings go wrong")
 })
 ```
-  
-
 
 ```{r development-inflate, eval=FALSE}
 fusen::inflate(flat_file = "dev/flat_full.Rmd",
-               #vignette_name = "Start using download_free_hands()",
                check = F)
 
 #fusen::load_flat_functions(flat_file = "dev/flat_full.Rmd")
 
 ```
-
 
 ```{r development-inflate, eval=FALSE}
 # Path of the flat file
@@ -290,7 +283,6 @@ writeLines(flat_rmd, path_flat_rmd)
 
 ```
 
-
 ```{=html}
 <!-- 
 - Verify your `"DESCRIPTION"` file has been updated
@@ -299,5 +291,3 @@ writeLines(flat_rmd, path_flat_rmd)
 - Verify this Rmd appears in `"vignettes/"` directory 
 -->
 ```
-
-
