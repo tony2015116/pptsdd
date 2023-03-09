@@ -2,6 +2,10 @@
 
 #' download_free_brain
 #' 
+#' @description
+#'
+#' `download_free_brain()` is deprecated. We will soon be totally
+#' 
 #' @param location Numeric value in string format
 #' @param data_date The dates of data download
 #' @param ... other parameters

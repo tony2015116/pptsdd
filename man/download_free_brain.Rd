@@ -17,7 +17,7 @@ download_free_brain(location, data_date, ...)
 CSV files in the download path of your Google Chrome web browser.
 }
 \description{
-download_free_brain
+\code{download_free_brain()} is deprecated. We will soon be totally
 }
 \examples{
 user_name = "隆鑫场测定一区"

@@ -94,6 +94,9 @@ Build your package from this very Rmd using `fusen::inflate()`
 # download_free_brain
 
     
+
+  
+
 ```{r example-download_free_brain}
 user_name = "隆鑫场测定一区"
 stations = purrr::map_chr(seq(101L,103L,1L), c)
@@ -108,6 +111,8 @@ download_free_brain(location = stations,
   
 
   
+
+
 
 ```{=html}
 <!-- 

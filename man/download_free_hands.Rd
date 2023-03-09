@@ -23,7 +23,7 @@ download_free_hands(location, data_date, url, username, password, ...)
 CSV files in the download path of your Google Chrome web browser.
 }
 \description{
-download_free_hands
+\code{download_free_hands()} is deprecated. We will soon be totally
 }
 \examples{
 user_name = "隆鑫场测定一区"
