@@ -24,11 +24,20 @@ home:
     href: https://www.rusersplace.com
 
 navbar:
+  left:
+    - text: "Introduction"
+      href: articles/get-started.html
+    - text: "Functions"
+      href: reference/index.html
+    - text: "Articles"
+      menu:
+      - text: "Get started"
+        href: articles/get-started.html
   right:
-   # - icon: fa-twitter
-   #   href: https://twitter.com/tonyituite
-   - icon: fa-github
-     href: https://github.com/tony2015116/pptsdd
+    - icon: fa-twitter
+      href: https://twitter.com/tonyituite
+    - icon: fab fa-github
+      href: https://github.com/tony2015116/pptsdd
 
 reference:
 - title: Download functions

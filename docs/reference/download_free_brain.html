@@ -35,7 +35,10 @@
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav"><li>
-  <a href="../reference/index.html">Reference</a>
+  <a href="../articles/get-started.html">Introduction</a>
+</li>
+<li>
+  <a href="../reference/index.html">Functions</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -54,8 +57,14 @@
         </li>
         
         <li>
+  <a href="https://twitter.com/tonyituite" class="external-link">
+    <span class="fa fa-twitter"></span>
+     
+  </a>
+</li>
+<li>
   <a href="https://github.com/tony2015116/pptsdd">
-    <span class="fa fa-github"></span>
+    <span class="fab fa-github"></span>
      
   </a>
 </li>
@@ -108,242 +117,14 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">user_name</span> <span class="op">=</span> <span class="st">"隆鑫场测定一区"</span></span></span>
-<span class="r-in"><span><span class="va">stations</span> <span class="op">=</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map_chr</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">101L</span>,<span class="fl">103L</span>,<span class="fl">1L</span><span class="op">)</span>, <span class="va">c</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Automatic coercion from integer to character was deprecated in purrr 1.0.0.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Please use an explicit call to `as.character()` within `map_chr()` instead.</span>
-<span class="r-in"><span><span class="va">download_date</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2023-02-01"</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2023-02-03"</span><span class="op">)</span>,<span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">download_free_brain</span><span class="op">(</span>location <span class="op">=</span> <span class="va">stations</span>, </span></span>
-<span class="r-in"><span>                    data_date <span class="op">=</span> <span class="va">download_date</span>, </span></span>
-<span class="r-in"><span>                    url <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"web_url"</span><span class="op">)</span>, </span></span>
-<span class="r-in"><span>                    username <span class="op">=</span> <span class="va">user_name</span>, </span></span>
-<span class="r-in"><span>                    password <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"user_password"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Connecting to remote server"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $acceptInsecureCerts</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $browserName</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "chrome"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $browserVersion</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "110.0.5481.178"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $chrome</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $chrome$chromedriverVersion</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "110.0.5481.77 (65ed616c6e8ee3fe0ad64fe83796c020644d42af-refs/branch-heads/5481@{#839})"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $chrome$userDataDir</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "C:\\Program Files (x86)\\scoped_dir9916_182335441"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $`goog:chromeOptions`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $`goog:chromeOptions`$debuggerAddress</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "localhost:10861"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $networkConnectionEnabled</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $pageLoadStrategy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "normal"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $platformName</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "windows"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $proxy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> named list()</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $setWindowRect</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $strictFileInteractability</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $timeouts</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $timeouts$implicit</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $timeouts$pageLoad</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 300000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $timeouts$script</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 30000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $unhandledPromptBehavior</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "dismiss and notify"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $`webauthn:extension:credBlob`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $`webauthn:extension:largeBlob`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $`webauthn:virtualAuthenticators`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $webdriver.remote.sessionid</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "143552db816bbe6ce4be9812da4f744f"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $id</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "143552db816bbe6ce4be9812da4f744f"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Connecting to remote server"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $acceptInsecureCerts</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $browserName</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "chrome"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $browserVersion</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "110.0.5481.178"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $chrome</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $chrome$chromedriverVersion</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "110.0.5481.77 (65ed616c6e8ee3fe0ad64fe83796c020644d42af-refs/branch-heads/5481@{#839})"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $chrome$userDataDir</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "C:\\Program Files (x86)\\scoped_dir26820_2029218637"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $`goog:chromeOptions`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $`goog:chromeOptions`$debuggerAddress</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "localhost:10972"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $networkConnectionEnabled</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $pageLoadStrategy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "normal"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $platformName</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "windows"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $proxy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> named list()</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $setWindowRect</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $strictFileInteractability</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $timeouts</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $timeouts$implicit</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $timeouts$pageLoad</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 300000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $timeouts$script</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 30000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $unhandledPromptBehavior</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "dismiss and notify"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $`webauthn:extension:credBlob`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $`webauthn:extension:largeBlob`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $`webauthn:virtualAuthenticators`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $webdriver.remote.sessionid</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "7c22d59dd34fdaea5f31a065f64c756b"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $id</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "7c22d59dd34fdaea5f31a065f64c756b"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Connecting to remote server"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $acceptInsecureCerts</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $browserName</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "chrome"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $browserVersion</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "110.0.5481.178"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $chrome</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $chrome$chromedriverVersion</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "110.0.5481.77 (65ed616c6e8ee3fe0ad64fe83796c020644d42af-refs/branch-heads/5481@{#839})"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $chrome$userDataDir</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "C:\\Program Files (x86)\\scoped_dir24472_1938122929"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $`goog:chromeOptions`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $`goog:chromeOptions`$debuggerAddress</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "localhost:11066"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $networkConnectionEnabled</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $pageLoadStrategy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "normal"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $platformName</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "windows"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $proxy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> named list()</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $setWindowRect</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $strictFileInteractability</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $timeouts</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $timeouts$implicit</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $timeouts$pageLoad</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 300000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $timeouts$script</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 30000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $unhandledPromptBehavior</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "dismiss and notify"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $`webauthn:extension:credBlob`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $`webauthn:extension:largeBlob`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $`webauthn:virtualAuthenticators`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $webdriver.remote.sessionid</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "ebe2c7d794fe9b45baab0cfc943ee462"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $id</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "ebe2c7d794fe9b45baab0cfc943ee462"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[1]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[1]][[1]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[2]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[2]][[1]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[3]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[3]][[1]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-</code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="va">user_name</span> <span class="op">=</span> <span class="st">"隆鑫场测定一区"</span></span>
+<span><span class="va">stations</span> <span class="op">=</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map_chr</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">101L</span>,<span class="fl">103L</span>,<span class="fl">1L</span><span class="op">)</span>, <span class="va">c</span><span class="op">)</span></span>
+<span><span class="va">download_date</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2023-02-01"</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2023-02-03"</span><span class="op">)</span>,<span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu">download_free_brain</span><span class="op">(</span>location <span class="op">=</span> <span class="va">stations</span>, </span>
+<span>                    data_date <span class="op">=</span> <span class="va">download_date</span>, </span>
+<span>                    url <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"web_url"</span><span class="op">)</span>, </span>
+<span>                    username <span class="op">=</span> <span class="va">user_name</span>, </span>
+<span>                    password <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"user_password"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
     </div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
