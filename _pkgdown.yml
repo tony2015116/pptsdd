@@ -33,6 +33,8 @@ navbar:
       menu:
       - text: "Get started"
         href: articles/get-started.html
+    - text: "Changelog"
+      href: news/index.html
   right:
     - icon: fa-twitter
       href: https://twitter.com/tonyituite
