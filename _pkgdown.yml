@@ -12,6 +12,10 @@ template:
     #   creator: "@tonyituite"
     #   card: summary_large_image
 
+
+development:
+  mode: auto
+
 home:
   links:
   # - text: GitHub Repo
@@ -36,13 +40,20 @@ navbar:
     - text: "Changelog"
       href: news/index.html
   right:
-    - icon: fa-twitter
+    - icon: fa-twitter fa-lg
       href: https://twitter.com/tonyituite
-    - icon: fab fa-github
+    - icon: fab fa-github fa-lg
       href: https://github.com/tony2015116/pptsdd
 
 reference:
-- title: Download functions
-  contents:
-  - download_free_hands
-  - download_free_brain
+  - title: Download functions
+    desc: download csv data from nedap pig performance test station
+    contents:
+      - download_free_hands
+      - download_free_brain
+
+
+news:
+  releases:
+  - text: "Version 0.1.1"
+    href: https://github.com/tony2015116/pptsdd/releases/tag/v0.1.1

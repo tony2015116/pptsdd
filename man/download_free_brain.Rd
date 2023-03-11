@@ -2,7 +2,7 @@
 % Please edit documentation in R/download_free_brain.R
 \name{download_free_brain}
 \alias{download_free_brain}
-\title{download_free_brain}
+\title{download free brain}
 \usage{
 download_free_brain(location, data_date, ...)
 }

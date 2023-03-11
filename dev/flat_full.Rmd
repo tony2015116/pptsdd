@@ -61,7 +61,7 @@ This first section shows:
 -->
 ```
 ```{r function-download_free_hands}
-#' download_free_hands
+#' download free hands
 #' 
 #' @description
 #'
@@ -209,7 +209,7 @@ Build your package from this very Rmd using `fusen::inflate()`
 # download_free_brain
 
 ```{r function-download_free_brain}
-#' download_free_brain
+#' download free brain
 #' 
 #' @description
 #'

@@ -2,7 +2,7 @@
 % Please edit documentation in R/download_free_hands.R
 \name{download_free_hands}
 \alias{download_free_hands}
-\title{download_free_hands}
+\title{download free hands}
 \usage{
 download_free_hands(location, data_date, url, username, password, ...)
 }
