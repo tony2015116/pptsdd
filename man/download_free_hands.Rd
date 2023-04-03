@@ -4,7 +4,15 @@
 \alias{download_free_hands}
 \title{download free hands}
 \usage{
-download_free_hands(location, data_date, url, username, password, ...)
+download_free_hands(
+  location,
+  data_date,
+  url,
+  username,
+  password,
+  csv_position,
+  ...
+)
 }
 \arguments{
 \item{location}{Numeric value in string format}

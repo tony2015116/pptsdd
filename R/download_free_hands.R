@@ -26,7 +26,7 @@
 #'                     username = user_name, 
 #'                     password = Sys.getenv("user_password"))
 #' 
-download_free_hands <- function(location, data_date, url, username, password, ...){
+download_free_hands <- function(location, data_date, url, username, password, csv_position, ...){
   remDr <- RSelenium::remoteDriver(remoteServerAddr = "127.0.0.1"
                         , port = 4444
                         , browserName = "chrome")#连接Server
@@ -60,8 +60,7 @@ download_free_hands <- function(location, data_date, url, username, password, ..
     remDr$click()
 
     #选择<报告>中的<下载csv数据>
-    download_item <- '//*[@id="reports_page"]/div[2]/div/div[3]/ol/li[4]/a'
-    #download_item <- '//*[@id="reports_page"]/div[2]/div/div[3]/ol/li[1]/a'
+    download_item <- paste0('//*[@id="reports_page"]/div[2]/div/div[3]/ol/li[', {{csv_position}}, ']/a')
     download_ele<-remDr$findElement("xpath",download_item)
     remDr$mouseMoveToLocation(webElement = download_ele)
     remDr$click()
