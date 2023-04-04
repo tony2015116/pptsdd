@@ -4,18 +4,6 @@ template:
   params:
     toggle: manual
 
-    opengraph:
-    #image:
-    #  src: man/figures/card.png
-    #  alt: "Alternative text describing the image"
-    # twitter:
-    #   creator: "@tonyituite"
-    #   card: summary_large_image
-
-
-development:
-  mode: auto
-
 home:
   links:
   # - text: GitHub Repo
@@ -49,8 +37,7 @@ reference:
   - title: Download functions
     desc: download csv data from nedap pig performance test station
     contents:
-      - download_free_hands
-      - download_free_brain
+      - download_csv_auto
 
 
 news:

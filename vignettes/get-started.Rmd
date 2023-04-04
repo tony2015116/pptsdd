@@ -39,9 +39,9 @@ Note: when you will use other flat templates, this part will be in a separate fi
 -->
 ```
 
-# download_free_hands
+# download_csv_auto
 
-This is the first function of our package. You can free up you hands and download pig performance test station data using function `download_free_hands()`.
+This is the first function of our package. You can free up you hands and download pig performance test station data using function `download_csv_auto()`.
 
 
 ```{=html}
@@ -61,22 +61,21 @@ This should be a reproducible and working example
 -->
 ```
 
-```{r examples-download_free_hands}
-user_name = "隆鑫场测定一区"
-stations = "101"
-download_date = "2023-02-11"
-download_free_hands(location = stations, 
-                    data_date = download_date, 
-                    url = Sys.getenv("web_url"), 
-                    username = user_name, 
-                    password = Sys.getenv("user_password"))
+```{r examples-download_csv_auto}
+stations = c("1801","1802")
+data_date = c("2023-03-29","2023-03-30")
+download_path = "C:/Users/Dell/Downloads/"
+save_path = "C:/Users/Dell/Downloads/test/"
 
-```
+download_csv_auto(url = Sys.getenv("web_url"), 
+                  username = Sys.getenv("user_name"), 
+                  password = Sys.getenv("user_password"),
+                  csv_position = "1",
+                  location = stations, 
+                  data_date = data_date, 
+                  download_path = download_path,
+                  save_path = save_path)
 
-```{=html}
-<!--
-Here are some unit tests to verify the function works as expected.
--->
 ```
 
 That's it ! This the end of the documented story of our package. All components are there.
@@ -89,19 +88,6 @@ That's it ! This the end of the documented story of our package. All components 
 You're one inflate from paper to box.
 Build your package from this very Rmd using `fusen::inflate()` 
 -->
-```
-
-# download_free_brain
-
-```{r example-download_free_brain}
-user_name = "隆鑫场测定一区"
-stations = purrr::map_chr(seq(101L,103L,1L), c)
-download_date = seq(as.Date("2023-02-01"),as.Date("2023-02-03"),1)
-download_free_brain(location = stations, 
-                    data_date = download_date, 
-                    url = Sys.getenv("web_url"), 
-                    username = user_name, 
-                    password = Sys.getenv("user_password"))
 ```
 
 ```{=html}

@@ -1,6 +1,6 @@
 Package: pptsdd
 Title: Breeding Tools
-Version: 0.1.1
+Version: 0.1.2
 Authors@R: c(
     person("Guo Meng", , , "tony2015116@163.com", role = c("aut", "cre")),
     person("Guo Meng", role = "cph")
@@ -10,13 +10,15 @@ Description: An R package that can automatically download Pig Performance
 License: CC BY-NC-ND 4.0 + file LICENSE
 URL: https://tony2015116.github.io/pptsdd/
 Imports: 
+    here,
+    lubridate,
     purrr,
     RSelenium,
-    stringr
+    stringr,
+    tools
 Suggests: 
     knitr,
-    rmarkdown,
-    testthat
+    rmarkdown
 VignetteBuilder: 
     knitr
 Encoding: UTF-8
