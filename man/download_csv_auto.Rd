@@ -2,7 +2,7 @@
 % Please edit documentation in R/download_csv_auto.R
 \name{download_csv_auto}
 \alias{download_csv_auto}
-\title{download ppt csv data acorrding the way you want}
+\title{Automatically download CSV}
 \usage{
 download_csv_auto(
   url,
@@ -36,24 +36,8 @@ download_csv_auto(
 \item{...}{other parameters}
 }
 \value{
-CSV files in the download path of your Google Chrome web browser.
+CSV files in the path of save_path
 }
 \description{
-\code{download_csv_auto} is deprecated. We will soon be totally
-}
-\examples{
-stations = c("1801","1802")
-data_date = c("2023-03-29","2023-03-30")
-download_path = "C:/Users/Dell/Downloads/"
-save_path = "C:/Users/Dell/Downloads/test/"
-
-download_csv_auto(url = Sys.getenv("web_url"), 
-                  username = Sys.getenv("user_name"), 
-                  password = Sys.getenv("user_password"),
-                  csv_position = "1",
-                  location = stations, 
-                  data_date = data_date, 
-                  download_path = download_path,
-                  save_path = save_path)
-
+\code{download_csv_auto()} is deprecated. We will soon be totally
 }

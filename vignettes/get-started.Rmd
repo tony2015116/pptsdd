@@ -75,7 +75,26 @@ download_csv_auto(url = Sys.getenv("web_url"),
                   data_date = data_date, 
                   download_path = download_path,
                   save_path = save_path)
+```
 
+# download_csv_schedule
+
+This is the first function of our package. You can free up you hands and download pig performance test station data using function `download_csv_schedule()`.
+
+
+```{r examples-download_csv_schedule}
+download_csv_schedule(taskname = "ppt_csv_download",
+                      schedule = "DAILY",
+                      starttime = "20:05",
+                      startdate = format(Sys.Date(), "%Y/%m/%d"),
+                      rscript_args = list(url = Sys.getenv("web_url"),
+                                          username = Sys.getenv("user_name"),
+                                          password = Sys.getenv("user_password"),
+                                          location = c("1801","1802"),
+                                          data_date = Sys.Date()-1,
+                                          csv_position = "1",
+                                          download_path = "C:/Users/Dell/Downloads",
+                                          save_path = "C:/Users/Dell/Downloads/test"))
 ```
 
 That's it ! This the end of the documented story of our package. All components are there.

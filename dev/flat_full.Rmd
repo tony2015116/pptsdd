@@ -16,6 +16,7 @@ Store every call to library() that you need to run chunks line by line, as in a 
 library(testthat)
 library(purrr)
 library(RSelenium)
+library(taskscheduleR)
 ```
 
 ```{=html}
@@ -34,7 +35,7 @@ fusen::fill_description(
   pkg = here::here(),
   fields = list(
     Title = "Breeding Tools",
-    Description = "An R package that can automatically download Pig Performance Test Station of Nedap.",
+    Description = "An R package that can automatically or periodically download data from the Nedap website in pig farm.",
     `Authors@R` = c(
       person("Guo Meng", email = "tony2015116@163.com", role = c("aut", "cre")),
       person(given = "Guo Meng", role = "cph")
@@ -61,11 +62,11 @@ This first section shows:
 -->
 ```
 ```{r function-download_csv_auto}
-#' download ppt csv data acorrding the way you want
+#' Automatically download CSV
 #' 
 #' @description
 #'
-#' `download_csv_auto` is deprecated. We will soon be totally
+#' `download_csv_auto()` is deprecated. We will soon be totally
 #' 
 #' @param url The url of pig performance test station website
 #' @param username The username of pig performance test station website
@@ -77,111 +78,234 @@ This first section shows:
 #' @param save_path The folder you need to save renamed csv files
 #' @param ... other parameters
 #'
-#' @return CSV files in the download path of your Google Chrome web browser.
+#' @return CSV files in the path of save_path
 #' @export
 
-download_csv_auto <- function (url, username, password, csv_position, location, data_date, download_path, save_path, ...) {
-  remDr <- RSelenium::remoteDriver(remoteServerAddr = "127.0.0.1",
-                                   port = 4444, browserName = "chrome")
-  remDr$open()
-  remDr$navigate(url)
-  login_user <- "//*[@id=\"frmLogin\"]/div[2]/input"
-  login_passwd <- "//*[@id=\"frmLogin\"]/div[3]/input"
-  login_user_ele <- remDr$findElement("xpath", login_user)
-  login_passwd_ele <- remDr$findElement("xpath", login_passwd)
-  user <- list(username)
-  pass <- list(password)
-  login_user_ele$sendKeysToElement(user)
-  login_passwd_ele$sendKeysToElement(pass)
-  login <- "//*[@id=\"login_button\"]"
-  login_ele <- remDr$findElement("xpath", login)
-  remDr$mouseMoveToLocation(webElement = login_ele)
-  remDr$click()
+download_csv_auto <-
+  function (url,
+            username,
+            password,
+            csv_position,
+            location,
+            data_date,
+            download_path,
+            save_path,
+            ...) {
+    # Argument checks
+    if (!is.character(url))
+      stop("url must be a character string")
+    if (!is.character(username))
+      stop("username must be a character string")
+    if (!is.character(password))
+      stop("password must be a character string")
+    if (!is.character(csv_position))
+      stop("csv_position must be a character value")
+    if (!is.vector(location) ||
+        !is.character(location))
+      stop("location must be a character vector")
+    if (is.null(try(as.Date(download_date), silent = TRUE)))
+      stop("The 'download_date' parameter must be a valid date string.")
+    if (!is.character(download_path))
+      stop("download_path must be a character string")
+    if (!is.character(save_path))
+      stop("save_path must be a character string")
 
-  dir.create(paste0(here::here(save_path,"have_data")), showWarnings = FALSE)
-  dir.create(paste0(here::here(save_path,"no_data")), showWarnings = FALSE)
+    remDr <- RSelenium::remoteDriver(remoteServerAddr = "127.0.0.1",
+                                     port = 4444,
+                                     browserName = "chrome")
 
-  Sys.sleep(sample(10, 1))
-  iter_download <- function(station, data_date, ...) {
-    choose_item <- "/html/body/div[1]/div[1]/ul/li[4]/a"
-    choose_ele <- remDr$findElement("xpath", choose_item)
-    remDr$mouseMoveToLocation(webElement = choose_ele)
-    remDr$click()
-    download_item <- paste0("//*[@id=\"reports_page\"]/div[2]/div/div[3]/ol/li[",
-                            {
-                              {
-                                csv_position
-                              }
-                            }, "]/a")
-    download_ele <- remDr$findElement("xpath", download_item)
-    remDr$mouseMoveToLocation(webElement = download_ele)
-    remDr$click()
-    location_start <- "//*[@id=\"criteria\"]/report-selection-range/div/div/div/div[1]/input"
-    location_end <- "//*[@id=\"criteria\"]/report-selection-range/div/div/div/div[2]/input"
-    location_ele_start <- remDr$findElement("xpath",
-                                            location_start)
-    location_ele_end <- remDr$findElement("xpath",
-                                          location_end)
-    location_ele_start$clearElement()
-    location_ele_end$clearElement()
-    location_start_num <- list(station, key = "enter")
-    location_ele_start$sendKeysToElement(location_start_num)
-    location_ele_end$clickElement()
-    date_start <- "//*[@id=\"datetimepicker0\"]/input"
-    date_end <- "//*[@id=\"datetimepicker1\"]/input"
-    date_ele_start <- remDr$findElement("xpath", date_start)
-    date_ele_end <- remDr$findElement("xpath", date_end)
-    date_ele_start$clearElement()
-    date_need_to_download <- stringr::str_replace_all(as.character(data_date),
-                                                      "-", ".")
-    date_start_num <- list(date_need_to_download, key = "enter")
-    date_end_num <- list(date_need_to_download, key = "enter")
-    date_ele_start$sendKeysToElement(date_start_num)
-    date_ele_end$clearElement()
-    date_ele_end$sendKeysToElement(date_end_num)
-    download_button <- "//*[@id=\"reports_download_csv_data\"]/div[4]/button"
-    download_button_ele <- remDr$findElement("xpath",
-                                             download_button)
-    remDr$mouseMoveToLocation(webElement = download_button_ele)
-    remDr$click()
-    remDr$refresh()
-    #dir.create(paste0(here::here({{save_path}},{{station}})), showWarnings = FALSE)
-  }
-
-  Sys.sleep(3)
-
-  # all_comb <- purrr::cross2(location, data_date) #注释的两行就可以完整的下载所有日期和所有测定站的csv数据
-  # purrr::walk(all_comb, ~iter_download(.x[[1]], .x[[2]]), ...)
-
-  all_station_oneday <- function(oneday_date, ...){ #为了方便修改csv名称包含数据日期，以某一天日期为参数，写函数all_station_oneday()下载该天所有测定站csv数据
-    all_comb_station <- purrr::cross2(location, oneday_date) #组合所有测定站和单个日期
-    purrr::walk(all_comb_station, ~iter_download(.x[[1]], .x[[2]]), ...)#下载该日期所有csv数据
-
-    rename_csv <- function(csv, ...){#写函数rename_csv()来改变csv的名称
-      csv_name <- tools::file_path_sans_ext(basename(csv))
-      location_region <- stringr::str_extract(csv_name, "(?<=_)[:lower:]+\\d+-\\d+(?=_)")
-      download_date <- stringr::str_extract(csv_name, "(?<=_)\\d+-\\d+-\\d+(?=_)")
-      #download_date_trans <- stringr::str_replace_all(as.character(download_date), "-", ".")
-      csv_new_name <- paste0(location_region,"_", oneday_date, "data", "_",download_date,"download", ".csv")
-      ifelse(file.size(csv) < 1024,
-             dir.create(paste0(here::here(save_path,"no_data"),"/",location_region), showWarnings = FALSE),
-             dir.create(paste0(here::here(save_path, "have_data"),"/",location_region), showWarnings = FALSE))
-      ifelse(file.size(csv) < 1024,
-             file.rename(csv, paste0(here::here(save_path,"no_data"),"/",location_region, "/",csv_new_name)),
-             file.rename(from = csv, to = paste0(here::here(save_path, "have_data"),"/",location_region, "/",csv_new_name)))
-
+    suppress_print <- function() {
+      remDr$open()
+      remDr$navigate(url)
+      login_user <- "//*[@id=\"frmLogin\"]/div[2]/input"
+      login_passwd <- "//*[@id=\"frmLogin\"]/div[3]/input"
+      login_user_ele <- remDr$findElement("xpath", login_user)
+      login_passwd_ele <- remDr$findElement("xpath", login_passwd)
+      user <- list(username)
+      pass <- list(password)
+      login_user_ele$sendKeysToElement(user)
+      login_passwd_ele$sendKeysToElement(pass)
+      login <- "//*[@id=\"login_button\"]"
+      login_ele <- remDr$findElement("xpath", login)
+      remDr$mouseMoveToLocation(webElement = login_ele)
+      remDr$click()
     }
 
-    down_list <- list.files(path = download_path, all.files = T,full.names = T, recursive = F, pattern = ".csv$") #下载的csv数据列表
-    down_list_keep <- down_list[lubridate::as_date(file.info(down_list)$mtime) == lubridate::as_date(Sys.time())] #过滤csv文件，仅保留今日下载的csv
-    purrr::walk(down_list_keep, rename_csv, ...) #批量改名
+    capture.output(suppress_print())
 
+    dir.create(paste0(here::here(save_path, "have_data")), showWarnings = FALSE)
+    dir.create(paste0(here::here(save_path, "no_data")), showWarnings = FALSE)
+
+    Sys.sleep(sample(10, 1))
+    iter_download <- function(station, data_date, ...) {
+      choose_item <- "/html/body/div[1]/div[1]/ul/li[4]/a"
+      choose_ele <- remDr$findElement("xpath", choose_item)
+      remDr$mouseMoveToLocation(webElement = choose_ele)
+      remDr$click()
+      download_item <-
+        paste0("//*[@id=\"reports_page\"]/div[2]/div/div[3]/ol/li[",
+               {
+                 {
+                   csv_position
+                 }
+               },
+               "]/a")
+      download_ele <- remDr$findElement("xpath", download_item)
+      remDr$mouseMoveToLocation(webElement = download_ele)
+      remDr$click()
+      location_start <-
+        "//*[@id=\"criteria\"]/report-selection-range/div/div/div/div[1]/input"
+      location_end <-
+        "//*[@id=\"criteria\"]/report-selection-range/div/div/div/div[2]/input"
+      location_ele_start <- remDr$findElement("xpath",
+                                              location_start)
+      location_ele_end <- remDr$findElement("xpath",
+                                            location_end)
+      location_ele_start$clearElement()
+      location_ele_end$clearElement()
+      location_start_num <- list(station, key = "enter")
+      location_ele_start$sendKeysToElement(location_start_num)
+      location_ele_end$clickElement()
+      date_start <- "//*[@id=\"datetimepicker0\"]/input"
+      date_end <- "//*[@id=\"datetimepicker1\"]/input"
+      date_ele_start <- remDr$findElement("xpath", date_start)
+      date_ele_end <- remDr$findElement("xpath", date_end)
+      date_ele_start$clearElement()
+      date_need_to_download <-
+        stringr::str_replace_all(as.character(data_date),
+                                 "-", ".")
+      date_start_num <- list(date_need_to_download, key = "enter")
+      date_end_num <- list(date_need_to_download, key = "enter")
+      date_ele_start$sendKeysToElement(date_start_num)
+      date_ele_end$clearElement()
+      date_ele_end$sendKeysToElement(date_end_num)
+      download_button <-
+        "//*[@id=\"reports_download_csv_data\"]/div[4]/button"
+      download_button_ele <- remDr$findElement("xpath",
+                                               download_button)
+      remDr$mouseMoveToLocation(webElement = download_button_ele)
+      remDr$click()
+      remDr$refresh()
+      #dir.create(paste0(here::here({{save_path}},{{station}})), showWarnings = FALSE)
+    }
+
+    Sys.sleep(3)
+
+    # all_comb <- purrr::cross2(location, data_date) #注释的两行就可以完整的下载所有日期和所有测定站的csv数据
+    # purrr::walk(all_comb, ~iter_download(.x[[1]], .x[[2]]), ...)
+
+    all_station_oneday <-
+      function(oneday_date, ...) {
+        # Convert the integer date to a Date object and format it
+        formatted_date <-
+          format(as.Date(oneday_date, origin = "1970-01-01"), "%Y-%m-%d")
+
+        cat("Downloading csv for date:", formatted_date, "\n")
+
+
+        # # Create a progress bar for each date
+        # pb <- txtProgressBar(
+        #   min = 0,
+        #   max = length(location),
+        #   style = 1
+        # )
+        #
+        # purrr::walk(location, function(station, ...) {
+        #   iter_download(station, oneday_date, ...)
+        #
+        #   # Update the progress bar
+        #   setTxtProgressBar(pb, which(location == station))
+        # }, ...)
+        #
+        # # Close the progress bar
+        # close(pb)
+
+        #为了方便修改csv名称包含数据日期，以某一天日期为参数，写函数all_station_oneday()下载该天所有测定站csv数据
+        all_comb_station <-
+          purrr::cross2(location, oneday_date) #组合所有测定站和单个日期
+        purrr::walk(all_comb_station, ~ iter_download(.x[[1]], .x[[2]]), ...)#下载该日期所有csv数据
+
+
+        rename_csv <- function(csv, ...) {
+          #写函数rename_csv()来改变csv的名称
+          csv_name <- tools::file_path_sans_ext(basename(csv))
+          location_region <-
+            stringr::str_extract(csv_name, "(?<=_)[:lower:]+\\d+-\\d+(?=_)")
+          download_date <-
+            stringr::str_extract(csv_name, "(?<=_)\\d+-\\d+-\\d+(?=_)")
+          #download_date_trans <- stringr::str_replace_all(as.character(download_date), "-", ".")
+          csv_new_name <-
+            paste0(
+              location_region,
+              "_",
+              oneday_date,
+              "data",
+              "_",
+              download_date,
+              "download",
+              ".csv"
+            )
+          ifelse(
+            file.size(csv) < 1024,
+            dir.create(
+              paste0(here::here(save_path, "no_data"), "/", location_region),
+              showWarnings = FALSE
+            ),
+            dir.create(
+              paste0(
+                here::here(save_path, "have_data"),
+                "/",
+                location_region
+              ),
+              showWarnings = FALSE
+            )
+          )
+          ifelse(
+            file.size(csv) < 1024,
+            file.rename(
+              csv,
+              paste0(
+                here::here(save_path, "no_data"),
+                "/",
+                location_region,
+                "/",
+                csv_new_name
+              )
+            ),
+            file.rename(
+              from = csv,
+              to = paste0(
+                here::here(save_path, "have_data"),
+                "/",
+                location_region,
+                "/",
+                csv_new_name
+              )
+            )
+          )
+
+        }
+
+        down_list <-
+          list.files(
+            path = download_path,
+            all.files = T,
+            full.names = T,
+            recursive = F,
+            pattern = ".csv$"
+          ) #下载的csv数据列表
+        down_list_keep <-
+          down_list[lubridate::as_date(file.info(down_list)$mtime) == lubridate::as_date(Sys.time())] #过滤csv文件，仅保留今日下载的csv
+        purrr::walk(down_list_keep, rename_csv, ...) #批量改名
+
+      }
+
+    purrr::walk(data_date, all_station_oneday, .progress = T, ...) #循环每个日期下载csv
+
+    remDr$quit() #退出浏览器
+
+    return(invisible(NULL))
   }
-
-  purrr::walk(data_date, all_station_oneday, ...) #循环每个日期下载csv
-
-  remDr$quit() #退出浏览器
-}
 ```
 
 ```{=html}
@@ -204,7 +328,104 @@ download_csv_auto(url = Sys.getenv("web_url"),
                   data_date = data_date, 
                   download_path = download_path,
                   save_path = save_path)
+```
 
+# download_csv_schedule
+
+This is the first function of our package. You can free up you hands and download pig performance test station data using function `download_csv_schedule()`.
+
+```{r function-download_csv_schedule}
+#' Schedule automatic downloads of CSV
+#' 
+#' @description
+#'
+#' `download_csv_schedule()` is deprecated. We will soon be totally
+#' 
+#' @param taskname A character string with the name of the task. Defaults to the filename. Should not contain any spaces
+#' @param schedule Either one of 'ONCE', 'MONTHLY', 'WEEKLY', 'DAILY', 'HOURLY', 'MINUTE', 'ONLOGON', 'ONIDLE
+#' @param starttime A timepoint in HH:mm format indicating when to run the script. Defaults to within 62 seconds
+#' @param startdate A date that specifies the first date on which to run the task. Only applicable if schedule is of type 'MONTHLY', 'WEEKLY', 'DAILY', 'HOURLY', 'MINUTE'. Defaults to today in '%d/%m/%Y' format. Change to your locale format if needed
+#' @param rscript_args Character string with further arguments passed on to Rscript
+#' @param ... other parameters
+#'
+#' @return CSV files in the path of save_path
+#' @export
+
+download_csv_schedule <- function(taskname, schedule, starttime, startdate, rscript_args, ...) {
+  if (missing(taskname) || !is.character(taskname) || length(taskname) != 1) {
+    stop("taskname must be a single character string")
+  }
+
+  if (missing(schedule) || !is.character(schedule) || length(schedule) != 1) {
+    stop("schedule must be a single character string")
+  }
+
+  if (missing(starttime) || !is.character(starttime) || length(starttime) != 1) {
+    stop("starttime must be a single character string")
+  }
+
+  if (missing(startdate) || !is.character(startdate) || length(startdate) != 1) {
+    stop("startdate must be a single character string")
+  }
+
+  if (missing(rscript_args) || !is.list(rscript_args)) {
+    stop("rscript_args must be a list of arguments")
+  }
+
+  # Save the function to a temporary script file with a shorter path
+  short_temp_path <- "C:/Temp"
+  dir.create(short_temp_path, showWarnings = FALSE)
+  script_file <- file.path(short_temp_path, paste0(taskname, "_", sample(letters, 1), ".R"))
+
+  my_function <- function(...) {
+    pptsdd::download_csv_auto(...)
+  }
+
+  # Save the arguments to a configuration file
+  config_file <- file.path(short_temp_path, paste0("config_", taskname, ".txt"))
+  cat("arg_list <- ", capture.output(dput(rscript_args)), file = config_file)
+
+  write_function_to_script <- function(func, file_path, config_path) {
+    func_name <- deparse(substitute(func))
+    lines <- capture.output(dump(func_name, stdout()))
+    lines <- c(lines, sprintf("source('%s')", config_path))
+    lines <- c(lines, sprintf("do.call(%s, arg_list)", func_name))
+
+    if (!file.exists(script_file)) {
+      file.create(script_file)
+    }
+
+    con <- file(script_file, "w")
+    on.exit(close(con), add = TRUE)
+    writeLines(lines, con)
+  }
+
+  write_function_to_script(func = my_function, file_path = script_file, config_path = config_file)
+
+  # Schedule the task
+  taskscheduleR::taskscheduler_create(taskname = taskname,
+                                      rscript = script_file, 
+                                      schedule = schedule,
+                                      starttime = starttime,
+                                      startdate = startdate,
+                                      rscript_args = NULL,
+                                      ...)
+}
+```
+
+```{r examples-download_csv_schedule}
+download_csv_schedule(taskname = "ppt_csv_download",
+                      schedule = "DAILY",
+                      starttime = "20:05",
+                      startdate = format(Sys.Date(), "%Y/%m/%d"),
+                      rscript_args = list(url = Sys.getenv("web_url"),
+                                          username = Sys.getenv("user_name"),
+                                          password = Sys.getenv("user_password"),
+                                          location = c("1801","1802"),
+                                          data_date = Sys.Date()-1,
+                                          csv_position = "1",
+                                          download_path = "C:/Users/Dell/Downloads",
+                                          save_path = "C:/Users/Dell/Downloads/test"))
 ```
 
 That's it ! This the end of the documented story of our package. All components are there.
@@ -219,7 +440,7 @@ Build your package from this very Rmd using `fusen::inflate()`
 ```
 ```{r development-inflate, eval=FALSE}
 fusen::inflate(flat_file = "dev/flat_full.Rmd",
-               check = T)
+               check = F)
 
 #fusen::load_flat_functions(flat_file = "dev/flat_full.Rmd")
 

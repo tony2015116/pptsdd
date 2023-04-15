@@ -1,6 +1,6 @@
 Package: pptsdd
 Title: Breeding Tools
-Version: 0.1.2
+Version: 0.1.3
 Authors@R: c(
     person("Guo Meng", , , "tony2015116@163.com", role = c("aut", "cre")),
     person("Guo Meng", role = "cph")
@@ -15,6 +15,7 @@ Imports:
     purrr,
     RSelenium,
     stringr,
+    taskscheduleR,
     tools
 Suggests: 
     knitr,
