@@ -12,3 +12,4 @@
 * creat a new function named `download_csv_schedule()`. You can download csv files of pig performance test stations according to specific time and date.
 * add argument checking in every function.
 * add a progress bar in `download_csv_schedule()`.
+* change the default download folder in `download_csv_auto()`, You can set download folder as you want.

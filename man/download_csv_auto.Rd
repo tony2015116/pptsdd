@@ -29,7 +29,7 @@ download_csv_auto(
 
 \item{data_date}{The dates of data download}
 
-\item{download_path}{The default folder of Google Chrome web browser}
+\item{download_path}{The folder of downloading csv files}
 
 \item{save_path}{The folder you need to save renamed csv files}
 

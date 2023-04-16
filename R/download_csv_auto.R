@@ -12,7 +12,7 @@
 #' @param csv_position The pisiton of csv download item
 #' @param location Numeric value in string format
 #' @param data_date The dates of data download
-#' @param download_path The default folder of Google Chrome web browser
+#' @param download_path The folder of downloading csv files
 #' @param save_path The folder you need to save renamed csv files
 #' @param ... other parameters
 #'
@@ -41,16 +41,31 @@ download_csv_auto <-
     if (!is.vector(location) ||
         !is.character(location))
       stop("location must be a character vector")
-    if (is.null(try(as.Date(download_date), silent = TRUE)))
+    if (is.null(try(as.Date(download_date), silent = TRUE)
+    ))
       stop("The 'download_date' parameter must be a valid date string.")
     if (!is.character(download_path))
       stop("download_path must be a character string")
     if (!is.character(save_path))
       stop("save_path must be a character string")
 
-    remDr <- RSelenium::remoteDriver(remoteServerAddr = "127.0.0.1",
-                                     port = 4444,
-                                     browserName = "chrome")
+    download_path_temp = gsub("/", "\\\\", download_path)
+    chrome_options <- list(chromeOptions = list(
+      prefs = list(
+        "download.default_directory" = download_path_temp,
+        "download.prompt_for_download" = FALSE,
+        "download.directory_upgrade" = TRUE,
+        "safebrowsing.enabled" = TRUE
+      )
+    ))
+
+    remDr <- RSelenium::remoteDriver(
+      browserName = "chrome",
+      extraCapabilities = chrome_options,
+      remoteServerAddr = "127.0.0.1",
+      port = 4444
+    )
+
 
     suppress_print <- function() {
       remDr$open()
