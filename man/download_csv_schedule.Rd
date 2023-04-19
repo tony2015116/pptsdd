@@ -6,7 +6,6 @@
 \usage{
 download_csv_schedule(
   taskname,
-  data_date = Sys.Date() - 1,
   schedule,
   starttime,
   startdate,
@@ -16,8 +15,6 @@ download_csv_schedule(
 }
 \arguments{
 \item{taskname}{A character string with the name of the task. Defaults to the filename. Should not contain any spaces}
-
-\item{data_date}{Set \code{Sys.Date()-1} as default data date}
 
 \item{schedule}{Either one of 'ONCE', 'MONTHLY', 'WEEKLY', 'DAILY', 'HOURLY', 'MINUTE', 'ONLOGON', 'ONIDLE}
 

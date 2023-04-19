@@ -357,7 +357,6 @@ This is the first function of our package. You can free up you hands and downloa
 #' `download_csv_schedule()` is deprecated. We will soon be totally
 #' 
 #' @param taskname A character string with the name of the task. Defaults to the filename. Should not contain any spaces
-#' @param data_date Set `Sys.Date()-1` as default data date
 #' @param schedule Either one of 'ONCE', 'MONTHLY', 'WEEKLY', 'DAILY', 'HOURLY', 'MINUTE', 'ONLOGON', 'ONIDLE
 #' @param starttime A timepoint in HH:mm format indicating when to run the script. Defaults to within 62 seconds
 #' @param startdate A date that specifies the first date on which to run the task. Only applicable if schedule is of type 'MONTHLY', 'WEEKLY', 'DAILY', 'HOURLY', 'MINUTE'. Defaults to today in '%d/%m/%Y' format. Change to your locale format if needed
@@ -367,7 +366,7 @@ This is the first function of our package. You can free up you hands and downloa
 #' @return CSV files in the path of save_path
 #' @export
 
-download_csv_schedule <- function(taskname, data_date = Sys.Date()-1, schedule, starttime, startdate, rscript_args = NULL, ...) {
+download_csv_schedule <- function(taskname, schedule, starttime, startdate, rscript_args = NULL, ...) {
   if (missing(taskname) || !is.character(taskname) || length(taskname) != 1) {
     stop("taskname must be a single character string")
   }
@@ -394,7 +393,7 @@ download_csv_schedule <- function(taskname, data_date = Sys.Date()-1, schedule, 
   script_file <- file.path(short_temp_path, paste0(taskname, "_", sample(letters, 1), ".R"))
 
   my_function <- function(...) {
-    pptsdd::download_csv_auto(data_date = data_date, ...)
+    pptsdd::download_csv_auto(data_date = Sys.Date()-1, ...)
   }
 
   # Save the arguments to a configuration file

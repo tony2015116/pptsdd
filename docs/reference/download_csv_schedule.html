@@ -96,7 +96,6 @@
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">download_csv_schedule</span><span class="op">(</span></span>
 <span>  <span class="va">taskname</span>,</span>
-<span>  data_date <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span>,</span>
 <span>  <span class="va">schedule</span>,</span>
 <span>  <span class="va">starttime</span>,</span>
 <span>  <span class="va">startdate</span>,</span>
@@ -109,10 +108,6 @@
     <h2>Arguments</h2>
     <dl><dt>taskname</dt>
 <dd><p>A character string with the name of the task. Defaults to the filename. Should not contain any spaces</p></dd>
-
-
-<dt>data_date</dt>
-<dd><p>Set <code>Sys.Date()-1</code> as default data date</p></dd>
 
 
 <dt>schedule</dt>
