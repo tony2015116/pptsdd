@@ -91,7 +91,6 @@ download_csv_schedule(taskname = "ppt_csv_download",
                                           username = Sys.getenv("user_name"),
                                           password = Sys.getenv("user_password"),
                                           location = c("1801","1802"),
-                                          data_date = Sys.Date()-1,
                                           csv_position = "1",
                                           download_path = "C:/Users/Dell/Downloads",
                                           save_path = "C:/Users/Dell/Downloads/test"))

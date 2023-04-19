@@ -96,10 +96,11 @@
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">download_csv_schedule</span><span class="op">(</span></span>
 <span>  <span class="va">taskname</span>,</span>
+<span>  data_date <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span>,</span>
 <span>  <span class="va">schedule</span>,</span>
 <span>  <span class="va">starttime</span>,</span>
 <span>  <span class="va">startdate</span>,</span>
-<span>  <span class="va">rscript_args</span>,</span>
+<span>  rscript_args <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -108,6 +109,10 @@
     <h2>Arguments</h2>
     <dl><dt>taskname</dt>
 <dd><p>A character string with the name of the task. Defaults to the filename. Should not contain any spaces</p></dd>
+
+
+<dt>data_date</dt>
+<dd><p>Set <code>Sys.Date()-1</code> as default data date</p></dd>
 
 
 <dt>schedule</dt>
@@ -147,7 +152,6 @@
 <span>                                          username <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"user_name"</span><span class="op">)</span>,</span>
 <span>                                          password <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"user_password"</span><span class="op">)</span>,</span>
 <span>                                          location <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"1801"</span>,<span class="st">"1802"</span><span class="op">)</span>,</span>
-<span>                                          data_date <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span><span class="op">-</span><span class="fl">1</span>,</span>
 <span>                                          csv_position <span class="op">=</span> <span class="st">"1"</span>,</span>
 <span>                                          download_path <span class="op">=</span> <span class="st">"C:/Users/Dell/Downloads"</span>,</span>
 <span>                                          save_path <span class="op">=</span> <span class="st">"C:/Users/Dell/Downloads/test"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>

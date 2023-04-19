@@ -6,15 +6,18 @@
 \usage{
 download_csv_schedule(
   taskname,
+  data_date = Sys.Date() - 1,
   schedule,
   starttime,
   startdate,
-  rscript_args,
+  rscript_args = NULL,
   ...
 )
 }
 \arguments{
 \item{taskname}{A character string with the name of the task. Defaults to the filename. Should not contain any spaces}
+
+\item{data_date}{Set \code{Sys.Date()-1} as default data date}
 
 \item{schedule}{Either one of 'ONCE', 'MONTHLY', 'WEEKLY', 'DAILY', 'HOURLY', 'MINUTE', 'ONLOGON', 'ONIDLE}
 
@@ -41,7 +44,6 @@ download_csv_schedule(taskname = "ppt_csv_download",
                                           username = Sys.getenv("user_name"),
                                           password = Sys.getenv("user_password"),
                                           location = c("1801","1802"),
-                                          data_date = Sys.Date()-1,
                                           csv_position = "1",
                                           download_path = "C:/Users/Dell/Downloads",
                                           save_path = "C:/Users/Dell/Downloads/test"))

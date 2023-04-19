@@ -13,3 +13,4 @@
 * add argument checking in every function.
 * add a progress bar in `download_csv_schedule()`.
 * change the default download folder in `download_csv_auto()`, You can set download folder as you want.
+* change the data_date parameter as default parameter `data_date = Sys.Date() -1` in `download_csv_schedule()` 
