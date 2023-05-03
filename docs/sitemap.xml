@@ -4,7 +4,7 @@
     <loc>https://github.com/tony2015116/pptsdd/404.html</loc>
   </url>
   <url>
-    <loc>https://github.com/tony2015116/pptsdd/articles/get-started.html</loc>
+    <loc>https://github.com/tony2015116/pptsdd/articles/basic-usage.html</loc>
   </url>
   <url>
     <loc>https://github.com/tony2015116/pptsdd/articles/index.html</loc>
@@ -23,6 +23,12 @@
   </url>
   <url>
     <loc>https://github.com/tony2015116/pptsdd/news/index.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/tony2015116/pptsdd/reference/connect_to_browser.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/tony2015116/pptsdd/reference/disconnect_from_browser.html</loc>
   </url>
   <url>
     <loc>https://github.com/tony2015116/pptsdd/reference/download_csv_auto.html</loc>

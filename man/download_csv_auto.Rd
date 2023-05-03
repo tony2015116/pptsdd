@@ -5,6 +5,7 @@
 \title{Automatically download CSV}
 \usage{
 download_csv_auto(
+  browser,
   url,
   username,
   password,
@@ -17,6 +18,8 @@ download_csv_auto(
 )
 }
 \arguments{
+\item{browser}{The browser you can chrome or edge}
+
 \item{url}{The url of pig performance test station website}
 
 \item{username}{The username of pig performance test station website}
