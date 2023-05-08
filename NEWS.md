@@ -14,7 +14,7 @@
 * add a progress bar in `download_csv_schedule()`.
 * change the default download folder in `download_csv_auto()`, You can set download folder as you want.
 
-# pptsdd 0.2.1
+# pptsdd 0.1.4
 
 * the code structure of `download_csv_auto()` has been refactored to make it more understandable. 
 * `connect_to_browser()` function has been added to download Google/Edge browser and selenium drivers , and also can enable auto-start the drivers on boot.

@@ -517,40 +517,50 @@ download_csv_auto <-
       dir.create(file.path(save_path, subdir_have_data), showWarnings = FALSE)
       message("Created directory: ", subdir_have_data)
     } else {
-      message("Directory already exists: ",
-              file.path(save_path, subdir_have_data))
+      message("Directory already exists: ", subdir_have_data)
     }
     
     if (!dir.exists(file.path(save_path, subdir_no_data))) {
       dir.create(file.path(save_path, subdir_no_data), showWarnings = FALSE)
       message("Created directory: ", subdir_no_data)
     } else {
-      message("Directory already exists: ",
-              file.path(save_path, subdir_no_data))
+      message("Directory already exists: ", subdir_no_data)
     }
     
     
     #浏览器参数设置
     get_browser_options <- function(browser, download_path_temp) {
-      if (!browser %in% c("chrome", "edge")) {
-        stop("Invalid browser specified. Use 'chrome' or 'edge'.")
-      }
-      
+    if (!browser %in% c("chrome", "edge")) {
+      stop("Invalid browser specified. Use 'chrome' or 'edge'.")
+    }
+    
+    if (browser == "chrome") {
       browser_options <- list(
-        prefs = list(
-          "download.default_directory" = download_path_temp,
-          "download.prompt_for_download" = FALSE,
-          "download.directory_upgrade" = TRUE,
-          "safebrowsing.enabled" = TRUE
+        chromeOptions = list(
+          prefs = list(
+            "download.default_directory" = download_path_temp,
+            "download.prompt_for_download" = FALSE,
+            "download.directory_upgrade" = TRUE,
+            "safebrowsing.enabled" = TRUE
+          )
         )
       )
-      
-      if (browser == "edge") {
-        browser = "MicrosoftEdge"
-      }
-      
-      return(list(browserName = browser, options = browser_options))
-    }
+    } else if (browser == "edge") {
+      browser <- "MicrosoftEdge"
+      browser_options <- list(
+        msedgeOptions = list(
+          prefs = list(
+            "download.default_directory" = download_path_temp,
+            "download.prompt_for_download" = FALSE,
+            "download.directory_upgrade" = TRUE,
+            "safebrowsing.enabled" = TRUE
+          )
+        )
+      )
+    } #目前edge只能在edge默认的下载路径下载
+    
+    return(list(browserName = browser, options = browser_options))
+  }
     #将download路径“/”转为“\\"
     download_path_temp = gsub("/", "\\\\", download_path)
     
