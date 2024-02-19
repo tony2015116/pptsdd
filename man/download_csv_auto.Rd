@@ -44,3 +44,21 @@ CSV files in the path of save_path
 \description{
 \code{download_csv_auto()} is deprecated. We will soon be totally
 }
+\examples{
+connect_to_browser(dest_dir = "C:/Users/Dell/Desktop/test")
+
+stations = c("606","607")
+data_date = c("2024-02-17","2024-02-18")
+download_path = "C:/Users/Dell/Downloads/download_temp"
+save_path = "C:/Users/Dell/Downloads/download_rename"
+
+download_csv_auto(browser = "chrome", 
+                  url = Sys.getenv("web_url"), 
+                  username = Sys.getenv("user_name"), 
+                  password = Sys.getenv("user_password"),
+                  csv_position = "1",
+                  location = stations, 
+                  data_date = data_date, 
+                  download_path = download_path,
+                  save_path = save_path)
+}

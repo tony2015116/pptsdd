@@ -4,17 +4,14 @@
 \alias{connect_to_browser}
 \title{setup chrome or edge broser dirver and selenium server}
 \usage{
-connect_to_browser(browser = "chrome", download_path)
+connect_to_browser(dest_dir)
 }
 \arguments{
-\item{browser}{The browser you can choose chrome or edge, default is chrome}
-
-\item{download_path}{The path of chrome or edge broser dirver and selenium server}
+\item{dest_dir}{The path of chrome browser dirver and selenium server}
 }
 \description{
 \code{connect_to_browser()} is deprecated. We will soon be totally
 }
 \examples{
-connect_to_browser(browser = "chrome", download_path = "C:/Users/Dell/Downloads/selenium")
-connect_to_browser(browser = "edge", download_path = "C:/Users/Dell/Downloads/selenium")
+connect_to_browser(dest_dir = "C:/Users/Dell/Desktop/test")
 }

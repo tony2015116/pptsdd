@@ -35,14 +35,15 @@ CSV files in the path of save_path
 \examples{
 download_csv_schedule(taskname = "ppt_csv_download",
                       schedule = "DAILY",
-                      starttime = "20:05",
+                      starttime = "20:00",
                       startdate = format(Sys.Date(), "\%Y/\%m/\%d"),
-                      rscript_args = list(browser = "edge", 
+                      rscript_args = list(browser = "chrome", 
                                           url = Sys.getenv("web_url"),
                                           username = Sys.getenv("user_name"),
                                           password = Sys.getenv("user_password"),
-                                          location = c("1801","1802"),
+                                          location = c("606","607"),
                                           csv_position = "1",
-                                          download_path = "C:/Users/Dell/Downloads",
-                                          save_path = "C:/Users/Dell/Downloads/test"))
+                                          download_path = "C:/Users/Dell/Downloads/download_temp",
+                                          save_path = "C:/Users/Dell/Downloads/download_rename"))
+disconnect_from_browser()
 }

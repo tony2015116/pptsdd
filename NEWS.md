@@ -19,3 +19,11 @@
 * the code structure of `download_csv_auto()` has been refactored to make it more understandable. 
 * `connect_to_browser()` function has been added to download Google/Edge browser and selenium drivers , and also can enable auto-start the drivers on boot.
 * `disconnect_from_browser()` has been added to remove the selenium and Browser launched by the `connect_to_browser()` function and the auto-start feature.
+
+# pptsdd 0.1.5
+
+* pptsdd v0.1.5 can only be used with the Chrome browser.
+* `connect_to_browser()` and `disconnect_from_browser()` has been modified to be based on the [wdauto](https://tony2015116.github.io/wdauto/) package, improving the stability of chromedriver and selenium server downloads.
+* `connect_to_browser()` has already removed the download of Edgedriver and selenium server.
+* you can initiate and restart the Selenium WebDriver service in the Edge browser using pptsdd V0.1.4. However, you must first download the Edge browser driver.
+* create a hexagon sticker for pptsdd website.
