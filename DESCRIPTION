@@ -1,20 +1,23 @@
 Package: pptsdd
 Title: Breeding Tools
-Version: 0.1.5
+Version: 0.1.6
 Authors@R: c(
     person("Guo Meng", , , "tony2015116@163.com", role = c("aut", "cre")),
     person("Guo Meng", role = "cph")
   )
-Description: An R package that can automatically download Pig Performance
-    Test Station of Nedap.
+Description: An R package that can automatically or periodically download
+    data from the Nedap website in pig farm.
 License: CC BY-NC-ND 4.0 + file LICENSE
-URL: https://tony2015116.github.io/pptsdd/
 Imports: 
+    cli,
+    crayon,
+    httr2,
     lubridate,
     purrr,
     RSelenium,
     stringr,
     taskscheduleR,
+    tidyr,
     tools,
     utils,
     wdauto

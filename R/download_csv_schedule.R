@@ -28,6 +28,7 @@
 #'                                           csv_position = "1",
 #'                                           download_path = "C:/Users/Dell/Downloads/download_temp",
 #'                                           save_path = "C:/Users/Dell/Downloads/download_rename"))
+#' taskscheduleR::taskscheduler_delete("ppt_csv_download")
 #' disconnect_from_browser()
 
 download_csv_schedule <- function(taskname, schedule, starttime, startdate, rscript_args = NULL, ...) {

@@ -9,6 +9,7 @@
 #'
 #' @return NULL
 #' 
+#' @importFrom wdauto "reset_cs"
 #' @export
 #' @examples
 #' disconnect_from_browser()

@@ -107,6 +107,7 @@ download_csv_schedule(taskname = "ppt_csv_download",
                                           csv_position = "1",
                                           download_path = "C:/Users/Dell/Downloads/download_temp",
                                           save_path = "C:/Users/Dell/Downloads/download_rename"))
+taskscheduleR::taskscheduler_delete("ppt_csv_download")
 disconnect_from_browser()
 ```
 
@@ -114,6 +115,31 @@ disconnect_from_browser()
 
 ```{r examples-disconnect_from_browser}
 disconnect_from_browser()
+```
+
+# get_csv
+
+```{r examples-get_csv}
+get_csv(url = Sys.getenv("url"),
+        username = Sys.getenv("username"),
+        password = Sys.getenv("password"),
+        location_min = "406",
+        location_max = "407",
+        date_min = "2024-02-18",
+        date_max = "2024-02-19",
+        download_path = "C:/Users/Dell/Downloads/download_rename", 
+        show_message = TRUE)
+```
+
+# get_csv_auto
+
+```{r examples-get_csv_auto}
+get_csv_auto(url = Sys.getenv("url"),
+             username = Sys.getenv("username"),
+             password = Sys.getenv("password"),
+             location = c("607","608"),
+             date = c("2024-02-18", "2024-02-19"),
+             download_path = "C:/Users/Dell/Downloads/download_rename")
 ```
 
 That's it ! This the end of the documented story of our package. All components are there.

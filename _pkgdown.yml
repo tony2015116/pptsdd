@@ -1,52 +1,50 @@
-url: https://github.com/tony2015116/pptsdd
+url: https://tony2015116.github.io/pptsdd/
 template:
   package: preferably
   params:
     toggle: manual
-
 home:
   links:
-  # - text: GitHub Repo
-    # href: https://github.com/wviechtb/metafor
   - text: Browse source code
     href: https://github.com/tony2015116/pptsdd
   - text: Report a bug
     href: https://github.com/tony2015116/pptsdd/issues
   - text: Author Website
     href: https://www.rusersplace.com
-
 navbar:
   left:
-    - text: "Introduction"
+  - text: Introduction
+    href: articles/basic-usage.html
+  - text: Functions
+    href: reference/index.html
+  - text: Articles
+    menu:
+    - text: Get started
       href: articles/basic-usage.html
-    - text: "Functions"
-      href: reference/index.html
-    - text: "Articles"
-      menu:
-      - text: "Get started"
-        href: articles/basic-usage.html
-    - text: "Changelog"
-      href: news/index.html
+  - text: Changelog
+    href: news/index.html
   right:
-    - icon: fa-twitter fa-lg
-      href: https://twitter.com/tonyituite
-    - icon: fab fa-github fa-lg
-      href: https://github.com/tony2015116/pptsdd
-
+  - icon: fa-twitter fa-lg
+    href: https://twitter.com/tonyituite
+  - icon: fab fa-github fa-lg
+    href: https://github.com/tony2015116/pptsdd
 reference:
-  - title: Browser functions
-    desc: connect to or disconnect from browser
-    contents:
-      - connect_to_browser
-      - disconnect_from_browser
-  - title: Download functions
-    desc: download csv data from nedap pig performance test station
-    contents:
-      - download_csv_auto
-      - download_csv_schedule
-
-
+- title: Browser functions
+  desc: connect to or disconnect from browser
+  contents:
+  - connect_to_browser
+  - disconnect_from_browser
+- title: Download functions
+  desc: download csv data from nedap pig performance test station
+  contents:
+  - download_csv_auto
+  - download_csv_schedule
+  - get_csv
+  - get_csv_auto
 news:
   releases:
-  - text: "Version 0.1.4"
+  - text: Version 0.1.4
     href: https://github.com/tony2015116/pptsdd/releases/tag/v0.1.4
+  - text: Version 0.1.5
+    href: https://github.com/tony2015116/pptsdd/releases/tag/v0.1.5
+

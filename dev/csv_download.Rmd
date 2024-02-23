@@ -480,6 +480,7 @@ download_csv_schedule(taskname = "ppt_csv_download",
                                           csv_position = "1",
                                           download_path = "C:/Users/Dell/Downloads/download_temp",
                                           save_path = "C:/Users/Dell/Downloads/download_rename"))
+taskscheduleR::taskscheduler_delete("ppt_csv_download")
 disconnect_from_browser()
 ```
 
@@ -495,6 +496,7 @@ disconnect_from_browser()
 #'
 #' @return NULL
 #' 
+#' @importFrom wdauto "reset_cs"
 #' @export
 
 disconnect_from_browser <- function() {
@@ -504,6 +506,194 @@ disconnect_from_browser <- function() {
 
 ```{r examples-disconnect_from_browser}
 disconnect_from_browser()
+```
+
+# get_csv
+
+```{r function-get_csv}
+#' stop chrome or edge broser dirver and selenium server
+#' 
+#' @description
+#' 
+#' This function logs into a given URL with a username and password, and downloads a CSV file.
+#'
+#' @param url A character string specifying the URL to log into.
+#' @param username A character string specifying the username for login.
+#' @param password A character string specifying the password for login.
+#' @param location_min A character string specifying the minimum location.
+#' @param location_max A character string specifying the maximum location.
+#' @param date_min A Date object specifying the earliest date.
+#' @param date_max A Date object specifying the latest date.
+#' @param download_path A character string specifying the path where the downloaded CSV file should be saved.
+#' @param show_message A logical value. If TRUE, a message will be displayed after the download. Default is FALSE.
+#'
+#' @return This function has no return value. It downloads a CSV file and saves it to the specified path.
+#' 
+#' @export
+
+get_csv <- function(url, username, password, location_min, location_max, date_min, date_max, download_path, show_message = FALSE) {
+  login_nedap(url, username, password) |>
+    download_csv(location_min, location_max, date_min, date_max, download_path, show_message)
+}
+
+is_error_response <- function(resp) {
+  httr2::resp_status(resp) >= 400
+}
+
+error_message_body <- function(resp) {
+  paste("Error occurred with status code:", httr2::resp_status(resp))
+}
+
+login_nedap <- function(url, username, password) {
+  # check if input parameters are missing
+  if (missing(url) | missing(username) | missing(password)) {
+    stop("Missing required input parameter(s).")
+  }
+
+  # check input parameters
+  stopifnot(is.character(url), length(url) == 1)
+  stopifnot(is.character(username), length(username) == 1)
+  stopifnot(is.character(password), length(password) == 1)
+
+  # create login request
+  login_request <- httr2::request(paste0(url, "/login/LoginPage.web")) |>
+    httr2::req_method("post") |>
+    httr2::req_body_form(select_username = username, input_password = password) |>
+    httr2::req_cookie_preserve(path = tempfile())
+
+  # perform the request and get response
+  login_response <- httr2::req_perform(login_request)
+
+  # check if login is successful
+  if (httr2::resp_status(login_response) != 200) {
+    stop("Failed to login, please check your username or password.")
+  }
+
+  # get the login respond
+  login_respond <- login_request |>
+    httr2::req_retry(max_tries = 3, is_transient = \(resp) httr2::resp_status(resp) %in% c(429, 500, 503), backoff = ~10) |>
+    httr2::req_error(is_error = is_error_response, body = error_message_body) |>
+    httr2::req_url(paste0(url, "/pigperformancetesting/reports/DownloadCsvDataReport.web"))
+
+  return(login_respond)
+}
+
+download_csv <- function(login_respond, location_min, location_max, date_min, date_max, download_path, show_message) {
+  # check if input parameters are missing
+  if (missing(login_respond) | missing(location_min) | missing(location_max) | missing(date_min) | missing(date_max) | missing(download_path)) {
+    stop("Missing required input parameter(s).")
+  }
+
+  # check input parameters
+  stopifnot(is.character(location_min), length(location_min) == 1)
+  stopifnot(is.character(location_max), length(location_max) == 1)
+  stopifnot(is.character(date_min), length(date_min) == 1)
+  stopifnot(is.character(date_max), length(date_max) == 1)
+  stopifnot(is.character(download_path), length(download_path) == 1)
+
+  # create params
+  params <- list(location_min = location_min, location_max = location_max, date_min = as.character(paste0(date_min, "T00:00:00Z")), date_max = as.character(paste0(date_max, "T00:00:00Z")))
+
+  # perform the request and get response
+  login_respond <- login_respond |>
+    httr2::req_url_query(generate = "1", !!!params) |>
+    httr2::req_perform()
+
+  # check if the request is successful
+  if (httr2::resp_status(login_respond) != 200) {
+    stop("Failed to download csv, please check your parameters.")
+  }
+
+  # get the content and write to file
+  content <- httr2::resp_body_string(login_respond)
+  # check if location_min and location_max, date_min and date_max are the same
+  location <- if(location_min == location_max) location_min else paste(location_min, location_max, sep="_")
+  date <- if(date_min == date_max) date_min else paste(date_min, date_max, sep="_")
+  filename <- paste0(location, "_location_", date, "_date_", Sys.Date(), "_download.csv")
+  writeLines(content, file.path(download_path, filename))
+  if (show_message) {
+    cat(crayon::blue("\u25CF"), "Locations:", location, "and Dates:", date, "downloaded\n")
+  }
+}
+```
+
+```{r examples-get_csv}
+get_csv(url = Sys.getenv("url"),
+        username = Sys.getenv("username"),
+        password = Sys.getenv("password"),
+        location_min = "406",
+        location_max = "407",
+        date_min = "2024-02-18",
+        date_max = "2024-02-19",
+        download_path = "C:/Users/Dell/Downloads/download_rename", 
+        show_message = TRUE)
+```
+
+# get_csv_auto
+
+```{r function-get_csv_auto}
+#' stop chrome or edge broser dirver and selenium server
+#' 
+#' @description
+#' 
+#' This function logs into a given URL with a username and password, and downloads a CSV file.
+#'
+#' @param url A character string specifying the URL to log into.
+#' @param username A character string specifying the username for login.
+#' @param password A character string specifying the password for login.
+#' @param location A character string specifying the location.
+#' @param date A Date object specifying the date.
+#' @param download_path A character string specifying the path where the downloaded CSV file should be saved.
+#' @param show_message A logical value. If TRUE, a message will be displayed after the download. Default is FALSE.
+#'
+#' @return This function has no return value. It downloads a CSV file and saves it to the specified path.
+#' 
+#' @importFrom cli "pb_spin" "pb_current" "pb_total"
+#' @export
+
+get_csv_auto <- function(url, username, password, location, date, download_path, show_message = FALSE){
+  login_request <- login_nedap(url, username, password)
+  download_oneday_eachstation <- function(location, date) {
+    download_csv(login_respond = login_request, location_min = location, location_max = location, date_min = date, date_max = date, download_path, show_message)
+  }
+  all_station_perday <- function(date) {
+    # check if input parameter is missing
+    if (missing(date)) {
+      stop("Missing required input parameter: date.")
+    }
+
+    # check input parameter
+    stopifnot(length(date) == 1)
+
+    # Convert the integer date to a Date object and format it
+    date <- format(as.Date(date), "%Y-%m-%d")
+
+    # create a data frame with all combinations of location and date
+    all_comb_station <- tidyr::expand_grid(location = location, date = date)
+
+    cat(crayon::yellow("\u25CF"), "Downloading CSVs for date:", date, "\n")
+
+    # download the csv file for each combination of location and date
+    purrr::pwalk(all_comb_station, ~download_oneday_eachstation(location = ..1, date = ..2), .progress = F)
+
+    #cat(crayon::yellow("\u25CF"), "Downloading CSVs for date:", date, "\n")
+  }
+  purrr::walk(date, all_station_perday, .progress = list(
+    type = "iterator",
+    format = "{cli::pb_spin} Downloading {cli::pb_current}/{cli::pb_total} dates",
+    clear = TRUE))
+  cat(crayon::green("\u25CF"), "All stations and dates nedap ppt CSVs had been downloaded.\n")
+
+}
+```
+
+```{r examples-get_csv_auto}
+get_csv_auto(url = Sys.getenv("url"),
+             username = Sys.getenv("username"),
+             password = Sys.getenv("password"),
+             location = c("607","608"),
+             date = c("2024-02-18", "2024-02-19"),
+             download_path = "C:/Users/Dell/Downloads/download_rename")
 ```
 
 That's it ! This the end of the documented story of our package. All components are there.

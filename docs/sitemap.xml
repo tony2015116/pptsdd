@@ -1,42 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://github.com/tony2015116/pptsdd/404.html</loc>
+    <loc>https://tony2015116.github.io/pptsdd/404.html</loc>
   </url>
   <url>
-    <loc>https://github.com/tony2015116/pptsdd/articles/basic-usage.html</loc>
+    <loc>https://tony2015116.github.io/pptsdd/articles/basic-usage.html</loc>
   </url>
   <url>
-    <loc>https://github.com/tony2015116/pptsdd/articles/index.html</loc>
+    <loc>https://tony2015116.github.io/pptsdd/articles/index.html</loc>
   </url>
   <url>
-    <loc>https://github.com/tony2015116/pptsdd/authors.html</loc>
+    <loc>https://tony2015116.github.io/pptsdd/authors.html</loc>
   </url>
   <url>
-    <loc>https://github.com/tony2015116/pptsdd/index.html</loc>
+    <loc>https://tony2015116.github.io/pptsdd/index.html</loc>
   </url>
   <url>
-    <loc>https://github.com/tony2015116/pptsdd/LICENSE-text.html</loc>
+    <loc>https://tony2015116.github.io/pptsdd/LICENSE-text.html</loc>
   </url>
   <url>
-    <loc>https://github.com/tony2015116/pptsdd/LICENSE.html</loc>
+    <loc>https://tony2015116.github.io/pptsdd/LICENSE.html</loc>
   </url>
   <url>
-    <loc>https://github.com/tony2015116/pptsdd/news/index.html</loc>
+    <loc>https://tony2015116.github.io/pptsdd/news/index.html</loc>
   </url>
   <url>
-    <loc>https://github.com/tony2015116/pptsdd/reference/connect_to_browser.html</loc>
+    <loc>https://tony2015116.github.io/pptsdd/reference/connect_to_browser.html</loc>
   </url>
   <url>
-    <loc>https://github.com/tony2015116/pptsdd/reference/disconnect_from_browser.html</loc>
+    <loc>https://tony2015116.github.io/pptsdd/reference/disconnect_from_browser.html</loc>
   </url>
   <url>
-    <loc>https://github.com/tony2015116/pptsdd/reference/download_csv_auto.html</loc>
+    <loc>https://tony2015116.github.io/pptsdd/reference/download_csv_auto.html</loc>
   </url>
   <url>
-    <loc>https://github.com/tony2015116/pptsdd/reference/download_csv_schedule.html</loc>
+    <loc>https://tony2015116.github.io/pptsdd/reference/download_csv_schedule.html</loc>
   </url>
   <url>
-    <loc>https://github.com/tony2015116/pptsdd/reference/index.html</loc>
+    <loc>https://tony2015116.github.io/pptsdd/reference/get_csv.html</loc>
+  </url>
+  <url>
+    <loc>https://tony2015116.github.io/pptsdd/reference/get_csv_auto.html</loc>
+  </url>
+  <url>
+    <loc>https://tony2015116.github.io/pptsdd/reference/index.html</loc>
   </url>
 </urlset>
