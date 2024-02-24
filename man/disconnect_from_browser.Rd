@@ -2,12 +2,12 @@
 % Please edit documentation in R/disconnect_from_browser.R
 \name{disconnect_from_browser}
 \alias{disconnect_from_browser}
-\title{stop chrome or edge broser dirver and selenium server}
+\title{Reset selenium webdriver service}
 \usage{
 disconnect_from_browser()
 }
 \description{
-\code{disconnect_from_browser()} is deprecated. We will soon be totally
+\code{disconnect_from_browser()} is used to reset selenium webdriver service.
 }
 \examples{
 disconnect_from_browser()

@@ -2,15 +2,15 @@
 % Please edit documentation in R/connect_to_browser.R
 \name{connect_to_browser}
 \alias{connect_to_browser}
-\title{setup chrome or edge broser dirver and selenium server}
+\title{Start selenium webdriver service}
 \usage{
 connect_to_browser(dest_dir)
 }
 \arguments{
-\item{dest_dir}{The path of chrome browser dirver and selenium server}
+\item{dest_dir}{The path of chrome browser dirver and selenium server.}
 }
 \description{
-\code{connect_to_browser()} is deprecated. We will soon be totally
+\code{connect_to_browser()} is used to start the selenium webdriver service.
 }
 \examples{
 connect_to_browser(dest_dir = "C:/Users/Dell/Desktop/test")

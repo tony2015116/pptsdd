@@ -8,6 +8,7 @@ csv_download.Rmd:
   - R/download_csv_schedule.R
   - R/get_csv.R
   - R/get_csv_auto.R
+  - R/get_csv_schedule.R
   tests: []
   vignettes: vignettes/basic-usage.Rmd
   inflate:

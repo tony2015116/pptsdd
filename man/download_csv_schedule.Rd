@@ -2,7 +2,7 @@
 % Please edit documentation in R/download_csv_schedule.R
 \name{download_csv_schedule}
 \alias{download_csv_schedule}
-\title{Schedule automatic downloads of CSV}
+\title{Schedule automatic downloads of CSVs}
 \usage{
 download_csv_schedule(
   taskname,
@@ -14,25 +14,26 @@ download_csv_schedule(
 )
 }
 \arguments{
-\item{taskname}{A character string with the name of the task. Defaults to the filename. Should not contain any spaces}
+\item{taskname}{A character string with the name of the task. Defaults to the filename. Should not contain any spaces.}
 
-\item{schedule}{Either one of 'ONCE', 'MONTHLY', 'WEEKLY', 'DAILY', 'HOURLY', 'MINUTE', 'ONLOGON', 'ONIDLE}
+\item{schedule}{Either one of 'ONCE', 'MONTHLY', 'WEEKLY', 'DAILY', 'HOURLY', 'MINUTE', 'ONLOGON', 'ONIDLE.}
 
-\item{starttime}{A timepoint in HH:mm format indicating when to run the script. Defaults to within 62 seconds}
+\item{starttime}{A time point in HH:mm format indicating when to run the script. Defaults to within 62 seconds.}
 
-\item{startdate}{A date that specifies the first date on which to run the task. Only applicable if schedule is of type 'MONTHLY', 'WEEKLY', 'DAILY', 'HOURLY', 'MINUTE'. Defaults to today in '\%d/\%m/\%Y' format. Change to your locale format if needed}
+\item{startdate}{A date that specifies the first date on which to run the task. Only applicable if schedule is of type 'MONTHLY', 'WEEKLY', 'DAILY', 'HOURLY', 'MINUTE'. Defaults to today in '\%d/\%m/\%Y' format. Change to your locale format if needed.}
 
-\item{rscript_args}{Character string with further arguments passed on to Rscript}
+\item{rscript_args}{Character string with further arguments passed on to Rscript.}
 
-\item{...}{other parameters}
+\item{...}{other parameters.}
 }
 \value{
-CSV files in the path of save_path
+CSVs in the path of save_path.
 }
 \description{
-\code{download_csv_schedule()} is deprecated. We will soon be totally
+\code{download_csv_schedule()} is used to make download task.
 }
 \examples{
+# Make a download task
 download_csv_schedule(taskname = "ppt_csv_download",
                       schedule = "DAILY",
                       starttime = "20:00",
@@ -45,6 +46,8 @@ download_csv_schedule(taskname = "ppt_csv_download",
                                           csv_position = "1",
                                           download_path = "C:/Users/Dell/Downloads/download_temp",
                                           save_path = "C:/Users/Dell/Downloads/download_rename"))
+# Delete download task
 taskscheduleR::taskscheduler_delete("ppt_csv_download")
+# Reset selenium webdriver service
 disconnect_from_browser()
 }

@@ -41,7 +41,7 @@ Note: when you will use other flat templates, this part will be in a separate fi
 
 # connect_to_browser
 
-This is the first function of our package. You can free up you hands and download pig performance test station data using function `download_csv_schedule()`.
+`connect_to_browser()` is used to start selenium webdriver service. You can use this function before using `download_csv_auto()` and `download_csv_schedule()`.
 
 
 ```{r examples-connect_to_browser}
@@ -50,7 +50,7 @@ connect_to_browser(dest_dir = "C:/Users/Dell/Desktop/test")
 
 # download_csv_auto
 
-This is the first function of our package. You can free up you hands and download pig performance test station data using function `download_csv_auto()`.
+`download_csv_auto()` can download pig performance test station CSVs from chrome browser.
 
 
 ```{=html}
@@ -71,13 +71,14 @@ This should be a reproducible and working example
 ```
 
 ```{r examples-download_csv_auto}
-connect_to_browser(dest_dir = "C:/Users/Dell/Desktop/test")
-
+# Set parameters
 stations = c("606","607")
 data_date = c("2024-02-17","2024-02-18")
 download_path = "C:/Users/Dell/Downloads/download_temp"
 save_path = "C:/Users/Dell/Downloads/download_rename"
-
+# Start selenium webdriver service
+connect_to_browser(dest_dir = "C:/Users/Dell/Desktop/test")
+# Download CSVs
 download_csv_auto(browser = "chrome", 
                   url = Sys.getenv("web_url"), 
                   username = Sys.getenv("user_name"), 
@@ -91,10 +92,11 @@ download_csv_auto(browser = "chrome",
 
 # download_csv_schedule
 
-This is the first function of our package. You can free up you hands and download pig performance test station data using function `download_csv_schedule()`.
+`download_csv_schedule()` is used to make download task. You can download the *Yesterday* data at certain time in every day.
 
 
 ```{r examples-download_csv_schedule}
+# Make a download task
 download_csv_schedule(taskname = "ppt_csv_download",
                       schedule = "DAILY",
                       starttime = "20:00",
@@ -107,11 +109,16 @@ download_csv_schedule(taskname = "ppt_csv_download",
                                           csv_position = "1",
                                           download_path = "C:/Users/Dell/Downloads/download_temp",
                                           save_path = "C:/Users/Dell/Downloads/download_rename"))
+# Delete download task
 taskscheduleR::taskscheduler_delete("ppt_csv_download")
+# Reset selenium webdriver service
 disconnect_from_browser()
 ```
 
 # disconnect_from_browser
+
+`disconnect_from_browser()` is used to reset selenium webdriver service. You can use this function after using `download_csv_auto()` and `download_csv_schedule()`.
+
 
 ```{r examples-disconnect_from_browser}
 disconnect_from_browser()
@@ -120,6 +127,7 @@ disconnect_from_browser()
 # get_csv
 
 ```{r examples-get_csv}
+# Download CSV data for a specific location range or date range.
 get_csv(url = Sys.getenv("url"),
         username = Sys.getenv("username"),
         password = Sys.getenv("password"),
@@ -134,12 +142,33 @@ get_csv(url = Sys.getenv("url"),
 # get_csv_auto
 
 ```{r examples-get_csv_auto}
+# Download CSV data for a specific location or date
 get_csv_auto(url = Sys.getenv("url"),
              username = Sys.getenv("username"),
              password = Sys.getenv("password"),
              location = c("607","608"),
              date = c("2024-02-18", "2024-02-19"),
              download_path = "C:/Users/Dell/Downloads/download_rename")
+```
+
+# get_csv_schedule
+
+```{r examples-get_csv_schedule}
+# Make a download task
+get_csv_schedule(taskname = "ppt_csv_download",
+                 schedule = "DAILY",
+                 starttime = "20:00",
+                 startdate = format(Sys.Date(), "%Y/%m/%d"),
+                 rscript_args = list(browser = "chrome",
+                                     url = Sys.getenv("url"),
+                                     username = Sys.getenv("username"),
+                                     password = Sys.getenv("password"),
+                                     location = c("606","607"),
+                                     download_path = "C:/Users/Dell/Downloads/download_rename"))
+# Delete download task
+taskscheduleR::taskscheduler_delete("ppt_csv_download")
+# Reset selenium webdriver service
+disconnect_from_browser()
 ```
 
 That's it ! This the end of the documented story of our package. All components are there.

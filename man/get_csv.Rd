@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_csv.R
 \name{get_csv}
 \alias{get_csv}
-\title{stop chrome or edge broser dirver and selenium server}
+\title{Direct web scraping CSVs}
 \usage{
 get_csv(
   url,
@@ -36,12 +36,13 @@ get_csv(
 \item{show_message}{A logical value. If TRUE, a message will be displayed after the download. Default is FALSE.}
 }
 \value{
-This function has no return value. It downloads a CSV file and saves it to the specified path.
+CSVs in the path of download_path.
 }
 \description{
-This function logs into a given URL with a username and password, and downloads a CSV file.
+\code{get_csv()} allows you to directly download CSV files from the web. You can download CSV data for a specific location range or date range.
 }
 \examples{
+# Download CSV data for a specific location range or date range.
 get_csv(url = Sys.getenv("url"),
         username = Sys.getenv("username"),
         password = Sys.getenv("password"),

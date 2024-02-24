@@ -2,7 +2,7 @@
 % Please edit documentation in R/download_csv_auto.R
 \name{download_csv_auto}
 \alias{download_csv_auto}
-\title{Automatically download CSV}
+\title{Automatically download CSVs}
 \usage{
 download_csv_auto(
   browser,
@@ -18,40 +18,41 @@ download_csv_auto(
 )
 }
 \arguments{
-\item{browser}{The browser you can chrome or edge}
+\item{browser}{The browser you can use chrome or edge browser.}
 
-\item{url}{The url of pig performance test station website}
+\item{url}{The login url of pig performance test station website.}
 
-\item{username}{The username of pig performance test station website}
+\item{username}{The username of pig performance test station website.}
 
-\item{password}{The password of pig performance test station website}
+\item{password}{The password of pig performance test station website.}
 
-\item{csv_position}{The pisiton of csv download item}
+\item{csv_position}{The pisiton of csv download item.}
 
-\item{location}{Numeric value in string format}
+\item{location}{Numeric value in string format.}
 
-\item{data_date}{The dates of data download}
+\item{data_date}{The dates of data download.}
 
-\item{download_path}{The folder of downloading csv files}
+\item{download_path}{The folder of downloading csv files.}
 
-\item{save_path}{The folder you need to save renamed csv files}
+\item{save_path}{The folder you need to save renamed csv files.}
 
-\item{...}{other parameters}
+\item{...}{other parameters.}
 }
 \value{
-CSV files in the path of save_path
+CSVs in the path of save_path.
 }
 \description{
-\code{download_csv_auto()} is deprecated. We will soon be totally
+\code{download_csv_auto()} is used to download CSVs from chrome browser.
 }
 \examples{
-connect_to_browser(dest_dir = "C:/Users/Dell/Desktop/test")
-
+# Set parameters
 stations = c("606","607")
 data_date = c("2024-02-17","2024-02-18")
 download_path = "C:/Users/Dell/Downloads/download_temp"
 save_path = "C:/Users/Dell/Downloads/download_rename"
-
+# Start selenium webdriver service
+connect_to_browser(dest_dir = "C:/Users/Dell/Desktop/test")
+# Download CSVs
 download_csv_auto(browser = "chrome", 
                   url = Sys.getenv("web_url"), 
                   username = Sys.getenv("user_name"), 

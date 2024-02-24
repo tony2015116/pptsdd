@@ -50,16 +50,16 @@ usethis::use_mit_license("Guo Meng")
 
 # connect_to_browser
 
-This is the first function of our package. You can free up you hands and download pig performance test station data using function `download_csv_schedule()`.
+`connect_to_browser()` is used to start selenium webdriver service. You can use this function before using `download_csv_auto()` and `download_csv_schedule()`.
 
 ```{r function-connect_to_browser}
-#' setup chrome or edge broser dirver and selenium server
+#' Start selenium webdriver service
 #' 
 #' @description
 #'
-#' `connect_to_browser()` is deprecated. We will soon be totally
+#' `connect_to_browser()` is used to start the selenium webdriver service.
 #' 
-#' @param dest_dir The path of chrome browser dirver and selenium server
+#' @param dest_dir The path of chrome browser dirver and selenium server.
 #'
 #' @return NULL
 #' 
@@ -78,7 +78,7 @@ connect_to_browser(dest_dir = "C:/Users/Dell/Desktop/test")
 
 # download_csv_auto
 
-This is the first function of our package. You can free up you hands and download pig performance test station data using function `download_csv_auto()`.
+`download_csv_auto()` can download pig performance test station CSVs from chrome browser.
 
 ```{=html}
 <!-- 
@@ -90,24 +90,24 @@ This first section shows:
 -->
 ```
 ```{r function-download_csv_auto}
-#' Automatically download CSV
+#' Automatically download CSVs
 #' 
 #' @description
 #'
-#' `download_csv_auto()` is deprecated. We will soon be totally
+#' `download_csv_auto()` is used to download CSVs from chrome browser.
 #' 
-#' @param browser The browser you can chrome or edge
-#' @param url The url of pig performance test station website
-#' @param username The username of pig performance test station website
-#' @param password The password of pig performance test station website
-#' @param csv_position The pisiton of csv download item
-#' @param location Numeric value in string format
-#' @param data_date The dates of data download
-#' @param download_path The folder of downloading csv files
-#' @param save_path The folder you need to save renamed csv files
-#' @param ... other parameters
+#' @param browser The browser you can use chrome or edge browser.
+#' @param url The login url of pig performance test station website.
+#' @param username The username of pig performance test station website.
+#' @param password The password of pig performance test station website.
+#' @param csv_position The pisiton of csv download item.
+#' @param location Numeric value in string format.
+#' @param data_date The dates of data download.
+#' @param download_path The folder of downloading csv files.
+#' @param save_path The folder you need to save renamed csv files.
+#' @param ... other parameters.
 #'
-#' @return CSV files in the path of save_path
+#' @return CSVs in the path of save_path.
 #' 
 #' @importFrom utils "capture.output"
 #' @export
@@ -366,13 +366,14 @@ This should be a reproducible and working example
 -->
 ```
 ```{r examples-download_csv_auto}
-connect_to_browser(dest_dir = "C:/Users/Dell/Desktop/test")
-
+# Set parameters
 stations = c("606","607")
 data_date = c("2024-02-17","2024-02-18")
 download_path = "C:/Users/Dell/Downloads/download_temp"
 save_path = "C:/Users/Dell/Downloads/download_rename"
-
+# Start selenium webdriver service
+connect_to_browser(dest_dir = "C:/Users/Dell/Desktop/test")
+# Download CSVs
 download_csv_auto(browser = "chrome", 
                   url = Sys.getenv("web_url"), 
                   username = Sys.getenv("user_name"), 
@@ -386,23 +387,23 @@ download_csv_auto(browser = "chrome",
 
 # download_csv_schedule
 
-This is the first function of our package. You can free up you hands and download pig performance test station data using function `download_csv_schedule()`.
+`download_csv_schedule()` is used to make download task. You can download the *Yesterday* data at certain time in every day.
 
 ```{r function-download_csv_schedule}
-#' Schedule automatic downloads of CSV
+#' Schedule automatic downloads of CSVs
 #' 
 #' @description
 #'
-#' `download_csv_schedule()` is deprecated. We will soon be totally
+#' `download_csv_schedule()` is used to make download task.
 #' 
-#' @param taskname A character string with the name of the task. Defaults to the filename. Should not contain any spaces
-#' @param schedule Either one of 'ONCE', 'MONTHLY', 'WEEKLY', 'DAILY', 'HOURLY', 'MINUTE', 'ONLOGON', 'ONIDLE
-#' @param starttime A timepoint in HH:mm format indicating when to run the script. Defaults to within 62 seconds
-#' @param startdate A date that specifies the first date on which to run the task. Only applicable if schedule is of type 'MONTHLY', 'WEEKLY', 'DAILY', 'HOURLY', 'MINUTE'. Defaults to today in '%d/%m/%Y' format. Change to your locale format if needed
-#' @param rscript_args Character string with further arguments passed on to Rscript
-#' @param ... other parameters
+#' @param taskname A character string with the name of the task. Defaults to the filename. Should not contain any spaces.
+#' @param schedule Either one of 'ONCE', 'MONTHLY', 'WEEKLY', 'DAILY', 'HOURLY', 'MINUTE', 'ONLOGON', 'ONIDLE.
+#' @param starttime A time point in HH:mm format indicating when to run the script. Defaults to within 62 seconds.
+#' @param startdate A date that specifies the first date on which to run the task. Only applicable if schedule is of type 'MONTHLY', 'WEEKLY', 'DAILY', 'HOURLY', 'MINUTE'. Defaults to today in '%d/%m/%Y' format. Change to your locale format if needed.
+#' @param rscript_args Character string with further arguments passed on to Rscript.
+#' @param ... other parameters.
 #'
-#' @return CSV files in the path of save_path
+#' @return CSVs in the path of save_path.
 #' @export
 
 download_csv_schedule <- function(taskname, schedule, starttime, startdate, rscript_args = NULL, ...) {
@@ -468,6 +469,7 @@ download_csv_schedule <- function(taskname, schedule, starttime, startdate, rscr
 ```
 
 ```{r examples-download_csv_schedule}
+# Make a download task
 download_csv_schedule(taskname = "ppt_csv_download",
                       schedule = "DAILY",
                       starttime = "20:00",
@@ -480,19 +482,22 @@ download_csv_schedule(taskname = "ppt_csv_download",
                                           csv_position = "1",
                                           download_path = "C:/Users/Dell/Downloads/download_temp",
                                           save_path = "C:/Users/Dell/Downloads/download_rename"))
+# Delete download task
 taskscheduleR::taskscheduler_delete("ppt_csv_download")
+# Reset selenium webdriver service
 disconnect_from_browser()
 ```
 
 # disconnect_from_browser
 
+`disconnect_from_browser()` is used to reset selenium webdriver service. You can use this function after using `download_csv_auto()` and `download_csv_schedule()`.
+
 ```{r function-connect_to_browser}
-#' stop chrome or edge broser dirver and selenium server
+#' Reset selenium webdriver service
 #' 
 #' @description
 #'
-#' `disconnect_from_browser()` is deprecated. We will soon be totally
-#' 
+#' `disconnect_from_browser()` is used to reset selenium webdriver service.
 #'
 #' @return NULL
 #' 
@@ -511,11 +516,11 @@ disconnect_from_browser()
 # get_csv
 
 ```{r function-get_csv}
-#' stop chrome or edge broser dirver and selenium server
+#' Direct web scraping CSVs
 #' 
 #' @description
 #' 
-#' This function logs into a given URL with a username and password, and downloads a CSV file.
+#' `get_csv()` allows you to directly download CSV files from the web. You can download CSV data for a specific location range or date range. 
 #'
 #' @param url A character string specifying the URL to log into.
 #' @param username A character string specifying the username for login.
@@ -527,7 +532,7 @@ disconnect_from_browser()
 #' @param download_path A character string specifying the path where the downloaded CSV file should be saved.
 #' @param show_message A logical value. If TRUE, a message will be displayed after the download. Default is FALSE.
 #'
-#' @return This function has no return value. It downloads a CSV file and saves it to the specified path.
+#' @return CSVs in the path of download_path.
 #' 
 #' @export
 
@@ -618,6 +623,7 @@ download_csv <- function(login_respond, location_min, location_max, date_min, da
 ```
 
 ```{r examples-get_csv}
+# Download CSV data for a specific location range or date range.
 get_csv(url = Sys.getenv("url"),
         username = Sys.getenv("username"),
         password = Sys.getenv("password"),
@@ -632,11 +638,11 @@ get_csv(url = Sys.getenv("url"),
 # get_csv_auto
 
 ```{r function-get_csv_auto}
-#' stop chrome or edge broser dirver and selenium server
+#' Direct web scraping CSVs
 #' 
 #' @description
 #' 
-#' This function logs into a given URL with a username and password, and downloads a CSV file.
+#' `get_csv_auto` allows you to directly download CSV files from the web. You can download CSV data for a specific location or date.
 #'
 #' @param url A character string specifying the URL to log into.
 #' @param username A character string specifying the username for login.
@@ -646,7 +652,7 @@ get_csv(url = Sys.getenv("url"),
 #' @param download_path A character string specifying the path where the downloaded CSV file should be saved.
 #' @param show_message A logical value. If TRUE, a message will be displayed after the download. Default is FALSE.
 #'
-#' @return This function has no return value. It downloads a CSV file and saves it to the specified path.
+#' @return CSVs in the path of download_path.
 #' 
 #' @importFrom cli "pb_spin" "pb_current" "pb_total"
 #' @export
@@ -688,6 +694,7 @@ get_csv_auto <- function(url, username, password, location, date, download_path,
 ```
 
 ```{r examples-get_csv_auto}
+# Download CSV data for a specific location or date
 get_csv_auto(url = Sys.getenv("url"),
              username = Sys.getenv("username"),
              password = Sys.getenv("password"),
@@ -695,6 +702,95 @@ get_csv_auto(url = Sys.getenv("url"),
              date = c("2024-02-18", "2024-02-19"),
              download_path = "C:/Users/Dell/Downloads/download_rename")
 ```
+
+# get_csv_schedule
+
+```{r function-get_csv_schedule}
+#' Schedule automatic downloads of CSVs
+#' 
+#' @description
+#'
+#' `get_csv_schedule()` is used to make download task.
+#' 
+#' @param taskname A character string with the name of the task. Defaults to the filename. Should not contain any spaces.
+#' @param schedule Either one of 'ONCE', 'MONTHLY', 'WEEKLY', 'DAILY', 'HOURLY', 'MINUTE', 'ONLOGON', 'ONIDLE.
+#' @param starttime A time point in HH:mm format indicating when to run the script. Defaults to within 62 seconds
+#' @param startdate A date that specifies the first date on which to run the task. Only applicable if schedule is of type 'MONTHLY', 'WEEKLY', 'DAILY', 'HOURLY', 'MINUTE'. Defaults to today in '%d/%m/%Y' format. Change to your locale format if needed.
+#' @param rscript_args Character string with further arguments passed on to Rscript.
+#' @param ... other parameters.
+#'
+#' @return CSV files in the path of save_path.
+#' @export
+
+get_csv_schedule <- function (taskname, schedule, starttime, startdate, rscript_args = NULL, ...) {
+  if (missing(taskname) || !is.character(taskname) || length(taskname) !=
+      1) {
+    stop("taskname must be a single character string")
+  }
+  if (missing(schedule) || !is.character(schedule) || length(schedule) !=
+      1) {
+    stop("schedule must be a single character string")
+  }
+  if (missing(starttime) || !is.character(starttime) || length(starttime) !=
+      1) {
+    stop("starttime must be a single character string")
+  }
+  if (missing(startdate) || !is.character(startdate) || length(startdate) !=
+      1) {
+    stop("startdate must be a single character string")
+  }
+  if (missing(rscript_args) || !is.list(rscript_args)) {
+    stop("rscript_args must be a list of arguments")
+  }
+  short_temp_path <- "C:/Temp"
+  dir.create(short_temp_path, showWarnings = FALSE)
+  script_file <- file.path(short_temp_path, paste0(taskname,
+                                                   "_", sample(letters, 1), ".R"))
+  my_function <- function(...) {
+    pptsdd::get_csv_auto(date = Sys.Date() - 1,
+                         ...)
+  }
+  config_file <- file.path(short_temp_path, paste0("config_",
+                                                   taskname, ".txt"))
+  cat("arg_list <- ", capture.output(dput(rscript_args)), file = config_file)
+  write_function_to_script <- function(func, file_path, config_path) {
+    func_name <- deparse(substitute(func))
+    lines <- capture.output(dump(func_name, stdout()))
+    lines <- c(lines, sprintf("source('%s')", config_path))
+    lines <- c(lines, sprintf("do.call(%s, arg_list)", func_name))
+    if (!file.exists(script_file)) {
+      file.create(script_file)
+    }
+    con <- file(script_file, "w")
+    on.exit(close(con), add = TRUE)
+    writeLines(lines, con)
+  }
+  write_function_to_script(func = my_function, file_path = script_file,
+                           config_path = config_file)
+  taskscheduleR::taskscheduler_create(taskname = taskname,
+                                      rscript = script_file, schedule = schedule, starttime = starttime,
+                                      startdate = startdate, rscript_args = NULL, ...)
+}
+```
+
+```{r examples-get_csv_schedule}
+# Make a download task
+get_csv_schedule(taskname = "ppt_csv_download",
+                 schedule = "DAILY",
+                 starttime = "20:00",
+                 startdate = format(Sys.Date(), "%Y/%m/%d"),
+                 rscript_args = list(browser = "chrome",
+                                     url = Sys.getenv("url"),
+                                     username = Sys.getenv("username"),
+                                     password = Sys.getenv("password"),
+                                     location = c("606","607"),
+                                     download_path = "C:/Users/Dell/Downloads/download_rename"))
+# Delete download task
+taskscheduleR::taskscheduler_delete("ppt_csv_download")
+# Reset selenium webdriver service
+disconnect_from_browser()
+```
+
 
 That's it ! This the end of the documented story of our package. All components are there.
 

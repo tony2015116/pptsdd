@@ -24,6 +24,7 @@ This is a basic example which shows you how to download pig performance test CSV
 ``` r
 library(pptsdd)
 
+# Selenium Web Scraping
 ## start selenium webdriver service
 connect_to_browser(dest_dir = "path/to/destination/directory")
 ## download csv data
@@ -50,5 +51,41 @@ download_csv_schedule(taskname = "ppt_csv_download",
                                           download_path = "C:/Users/Dell/Downloads/download_temp",
                                           save_path = "C:/Users/Dell/Downloads/download_rename"))
 ## reset selenium webdriver
+disconnect_from_browser()
+## delete download task
+taskscheduleR::taskscheduler_delete(taskname = "ppt_csv_download")
+
+# Direct Web Scraping
+## download CSV data for a specific location range or date range.
+get_csv(url = Sys.getenv("url"),
+        username = Sys.getenv("username"),
+        password = Sys.getenv("password"),
+        location_min = "406",
+        location_max = "407",
+        date_min = "2024-02-18",
+        date_max = "2024-02-19",
+        download_path = "C:/Users/Dell/Downloads/download_rename", 
+        show_message = TRUE)
+## download CSV data for a specific location or date
+get_csv_auto(url = Sys.getenv("url"),
+             username = Sys.getenv("username"),
+             password = Sys.getenv("password"),
+             location = c("607","608"),
+             date = c("2024-02-18", "2024-02-19"),
+             download_path = "C:/Users/Dell/Downloads/download_rename")
+# make a download task
+get_csv_schedule(taskname = "ppt_csv_download",
+                 schedule = "DAILY",
+                 starttime = "20:00",
+                 startdate = format(Sys.Date(), "%Y/%m/%d"),
+                 rscript_args = list(browser = "chrome",
+                                     url = Sys.getenv("url"),
+                                     username = Sys.getenv("username"),
+                                     password = Sys.getenv("password"),
+                                     location = c("606","607"),
+                                     download_path = "C:/Users/Dell/Downloads/download_rename"))
+# delete download task
+taskscheduleR::taskscheduler_delete(taskname = "ppt_csv_download")
+# reset selenium webdriver service
 disconnect_from_browser()
 ```

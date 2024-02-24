@@ -27,3 +27,10 @@
 * `connect_to_browser()` has already removed the download of Edgedriver and selenium server.
 * you can initiate and restart the Selenium WebDriver service in the Edge browser using pptsdd V0.1.4. However, you must first download the Edge browser driver.
 * create a hexagon sticker for pptsdd website.
+
+# pptsdd 0.1.6
+* Add three new functions, `get_csv()`, `get_csv_auto()` and `get_csv_schedule()`.
+* You can use the older functions to download csv data, and now, you can also use these three new functions.
+* `get_csv()` can download CSV data for a specific location range or date range.
+* `get_csv_auto()` can download CSV data for a specific location or date.
+* `get_csv_schedule()` can make a download task.
