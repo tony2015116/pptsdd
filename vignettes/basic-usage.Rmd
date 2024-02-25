@@ -71,23 +71,16 @@ This should be a reproducible and working example
 ```
 
 ```{r examples-download_csv_auto}
-# Set parameters
-stations = c("606","607")
-data_date = c("2024-02-17","2024-02-18")
-download_path = "C:/Users/Dell/Downloads/download_temp"
-save_path = "C:/Users/Dell/Downloads/download_rename"
 # Start selenium webdriver service
 connect_to_browser(dest_dir = "C:/Users/Dell/Desktop/test")
 # Download CSVs
-download_csv_auto(browser = "chrome", 
-                  url = Sys.getenv("web_url"), 
-                  username = Sys.getenv("user_name"), 
-                  password = Sys.getenv("user_password"),
+download_csv_auto(url = Sys.getenv("url"), 
+                  username = Sys.getenv("username"), 
+                  password = Sys.getenv("password"),
                   csv_position = "1",
-                  location = stations, 
-                  data_date = data_date, 
-                  download_path = download_path,
-                  save_path = save_path)
+                  location = c("606","607"), 
+                  date = c("2024-02-18","2024-02-19"), 
+                  download_path = "C:/Users/Dell/Downloads/download_rename")
 ```
 
 # download_csv_schedule
@@ -101,14 +94,12 @@ download_csv_schedule(taskname = "ppt_csv_download",
                       schedule = "DAILY",
                       starttime = "20:00",
                       startdate = format(Sys.Date(), "%Y/%m/%d"),
-                      rscript_args = list(browser = "chrome", 
-                                          url = Sys.getenv("web_url"),
-                                          username = Sys.getenv("user_name"),
-                                          password = Sys.getenv("user_password"),
+                      rscript_args = list(url = Sys.getenv("url"),
+                                          username = Sys.getenv("username"),
+                                          password = Sys.getenv("password"),
                                           location = c("606","607"),
                                           csv_position = "1",
-                                          download_path = "C:/Users/Dell/Downloads/download_temp",
-                                          save_path = "C:/Users/Dell/Downloads/download_rename"))
+                                          download_path = "C:/Users/Dell/Downloads/download_temp"))
 # Delete download task
 taskscheduleR::taskscheduler_delete("ppt_csv_download")
 # Reset selenium webdriver service
@@ -159,8 +150,7 @@ get_csv_schedule(taskname = "ppt_csv_download",
                  schedule = "DAILY",
                  starttime = "20:00",
                  startdate = format(Sys.Date(), "%Y/%m/%d"),
-                 rscript_args = list(browser = "chrome",
-                                     url = Sys.getenv("url"),
+                 rscript_args = list(url = Sys.getenv("url"),
                                      username = Sys.getenv("username"),
                                      password = Sys.getenv("password"),
                                      location = c("606","607"),

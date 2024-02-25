@@ -21,14 +21,12 @@
 #'                       schedule = "DAILY",
 #'                       starttime = "20:00",
 #'                       startdate = format(Sys.Date(), "%Y/%m/%d"),
-#'                       rscript_args = list(browser = "chrome", 
-#'                                           url = Sys.getenv("web_url"),
-#'                                           username = Sys.getenv("user_name"),
-#'                                           password = Sys.getenv("user_password"),
+#'                       rscript_args = list(url = Sys.getenv("url"),
+#'                                           username = Sys.getenv("username"),
+#'                                           password = Sys.getenv("password"),
 #'                                           location = c("606","607"),
 #'                                           csv_position = "1",
-#'                                           download_path = "C:/Users/Dell/Downloads/download_temp",
-#'                                           save_path = "C:/Users/Dell/Downloads/download_rename"))
+#'                                           download_path = "C:/Users/Dell/Downloads/download_temp"))
 #' # Delete download task
 #' taskscheduleR::taskscheduler_delete("ppt_csv_download")
 #' # Reset selenium webdriver service
@@ -61,7 +59,7 @@ download_csv_schedule <- function(taskname, schedule, starttime, startdate, rscr
   script_file <- file.path(short_temp_path, paste0(taskname, "_", sample(letters, 1), ".R"))
 
   my_function <- function(...) {
-    pptsdd::download_csv_auto(data_date = Sys.Date()-1, ...)
+    pptsdd::download_csv_auto(date = Sys.Date()-1, ...)
   }
 
   # Save the arguments to a configuration file

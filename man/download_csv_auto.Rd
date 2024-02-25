@@ -5,21 +5,16 @@
 \title{Automatically download CSVs}
 \usage{
 download_csv_auto(
-  browser,
   url,
   username,
   password,
   csv_position,
   location,
-  data_date,
-  download_path,
-  save_path,
-  ...
+  date,
+  download_path
 )
 }
 \arguments{
-\item{browser}{The browser you can use chrome or edge browser.}
-
 \item{url}{The login url of pig performance test station website.}
 
 \item{username}{The username of pig performance test station website.}
@@ -30,13 +25,9 @@ download_csv_auto(
 
 \item{location}{Numeric value in string format.}
 
-\item{data_date}{The dates of data download.}
+\item{date}{The dates of data download.}
 
 \item{download_path}{The folder of downloading csv files.}
-
-\item{save_path}{The folder you need to save renamed csv files.}
-
-\item{...}{other parameters.}
 }
 \value{
 CSVs in the path of save_path.
@@ -45,21 +36,14 @@ CSVs in the path of save_path.
 \code{download_csv_auto()} is used to download CSVs from chrome browser.
 }
 \examples{
-# Set parameters
-stations = c("606","607")
-data_date = c("2024-02-17","2024-02-18")
-download_path = "C:/Users/Dell/Downloads/download_temp"
-save_path = "C:/Users/Dell/Downloads/download_rename"
 # Start selenium webdriver service
 connect_to_browser(dest_dir = "C:/Users/Dell/Desktop/test")
 # Download CSVs
-download_csv_auto(browser = "chrome", 
-                  url = Sys.getenv("web_url"), 
-                  username = Sys.getenv("user_name"), 
-                  password = Sys.getenv("user_password"),
+download_csv_auto(url = Sys.getenv("url"), 
+                  username = Sys.getenv("username"), 
+                  password = Sys.getenv("password"),
                   csv_position = "1",
-                  location = stations, 
-                  data_date = data_date, 
-                  download_path = download_path,
-                  save_path = save_path)
+                  location = c("606","607"), 
+                  date = c("2024-02-18","2024-02-19"), 
+                  download_path = "C:/Users/Dell/Downloads/download_rename")
 }

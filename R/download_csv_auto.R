@@ -6,282 +6,289 @@
 #'
 #' `download_csv_auto()` is used to download CSVs from chrome browser.
 #' 
-#' @param browser The browser you can use chrome or edge browser.
 #' @param url The login url of pig performance test station website.
 #' @param username The username of pig performance test station website.
 #' @param password The password of pig performance test station website.
 #' @param csv_position The pisiton of csv download item.
 #' @param location Numeric value in string format.
-#' @param data_date The dates of data download.
+#' @param date The dates of data download.
 #' @param download_path The folder of downloading csv files.
-#' @param save_path The folder you need to save renamed csv files.
-#' @param ... other parameters.
 #'
 #' @return CSVs in the path of save_path.
 #' 
 #' @importFrom utils "capture.output"
 #' @export
 #' @examples
-#' # Set parameters
-#' stations = c("606","607")
-#' data_date = c("2024-02-17","2024-02-18")
-#' download_path = "C:/Users/Dell/Downloads/download_temp"
-#' save_path = "C:/Users/Dell/Downloads/download_rename"
 #' # Start selenium webdriver service
 #' connect_to_browser(dest_dir = "C:/Users/Dell/Desktop/test")
 #' # Download CSVs
-#' download_csv_auto(browser = "chrome", 
-#'                   url = Sys.getenv("web_url"), 
-#'                   username = Sys.getenv("user_name"), 
-#'                   password = Sys.getenv("user_password"),
+#' download_csv_auto(url = Sys.getenv("url"), 
+#'                   username = Sys.getenv("username"), 
+#'                   password = Sys.getenv("password"),
 #'                   csv_position = "1",
-#'                   location = stations, 
-#'                   data_date = data_date, 
-#'                   download_path = download_path,
-#'                   save_path = save_path)
+#'                   location = c("606","607"), 
+#'                   date = c("2024-02-18","2024-02-19"), 
+#'                   download_path = "C:/Users/Dell/Downloads/download_rename")
 
-download_csv_auto <-
-  function (browser,
-            url,
-            username,
-            password,
-            csv_position,
-            location,
-            data_date,
-            download_path,
-            save_path,
-            ...) {
-    # Argument checks
-    if (!is.character(browser) || !(browser %in% c("chrome", "edge")))
-  stop("The 'browser' parameter must be a character string, either 'chrome' or 'edge'.")
-    if (!is.character(url))
-      stop("url must be a character string.")
-    if (!is.character(username))
-      stop("username must be a character string.")
-    if (!is.character(password))
-      stop("password must be a character string.")
-    if (!is.character(csv_position))
-      stop("csv_position must be a character value.")
-    if (!is.vector(location) ||
-        !is.character(location))
-      stop("location must be a character vector.")
-    if (is.null(try(as.Date(data_date), silent = TRUE)
-    ))
-      stop("The 'data_date' parameter must be a valid date string.")
-    if (!is.character(download_path))
-      stop("download_path must be a character string.")
-    if (!is.character(save_path))
-      stop("save_path must be a character string.")
-    
-    # Define subdirectories
-    subdir_have_data <- "have_data"
-    subdir_no_data <- "no_data"
-    
-    # Create subdirectories with messages
-    if (!dir.exists(file.path(save_path, subdir_have_data))) {
-      dir.create(file.path(save_path, subdir_have_data), showWarnings = FALSE)
-      message("Created directory: ", subdir_have_data)
-    } else {
-      message("Directory already exists: ", subdir_have_data)
-    }
-    
-    if (!dir.exists(file.path(save_path, subdir_no_data))) {
-      dir.create(file.path(save_path, subdir_no_data), showWarnings = FALSE)
-      message("Created directory: ", subdir_no_data)
-    } else {
-      message("Directory already exists: ", subdir_no_data)
-    }
-    
-    
-    #浏览器参数设置
-    get_browser_options <- function(browser, download_path_temp) {
-    if (!browser %in% c("chrome", "edge")) {
-      stop("Invalid browser specified. Use 'chrome' or 'edge'.")
-    }
-    
-    if (browser == "chrome") {
-      browser_options <- list(
-        chromeOptions = list(
-          prefs = list(
-            "download.default_directory" = download_path_temp,
-            "download.prompt_for_download" = FALSE,
-            "download.directory_upgrade" = TRUE,
-            "safebrowsing.enabled" = TRUE
-          )
-        )
-      )
-    } else if (browser == "edge") {
-      browser <- "MicrosoftEdge"
-      browser_options <- list(
-        msedgeOptions = list(
-          prefs = list(
-            "download.default_directory" = download_path_temp,
-            "download.prompt_for_download" = FALSE,
-            "download.directory_upgrade" = TRUE,
-            "safebrowsing.enabled" = TRUE
-          )
-        )
-      )
-    } #目前edge只能在edge默认的下载路径下载
-    
-    return(list(browserName = browser, options = browser_options))
+download_csv_auto <- function(url, username, password, csv_position, location, date, download_path) {
+  # Argument checks
+  if (!is.character(url))
+    stop("url must be a character string.")
+  if (!is.character(username))
+    stop("username must be a character string.")
+  if (!is.character(password))
+    stop("password must be a character string.")
+  if (!is.character(csv_position))
+    stop("csv_position must be a character value.")
+  if (!is.vector(location) ||
+      !is.character(location))
+    stop("location must be a character vector.")
+  if (is.null(try(as.Date(date), silent = TRUE)
+  ))
+    stop("The 'date' parameter must be a valid date string.")
+  if (!is.character(download_path))
+    stop("download_path must be a character string.")
+
+  # Function to check and create subdirectories
+  checkAndCreateSubdirs(download_path)
+  # Login url
+  url <- paste0(url, "/login/LoginPage.web")
+  # Function to get browser options for chrome
+  browser_opts <- get_browser_options(browser = "chrome", download_path)
+
+  remDr <- RSelenium::remoteDriver(
+    browserName = browser_opts$browserName,
+    extraCapabilities = browser_opts$options,
+    remoteServerAddr = "127.0.0.1",
+    port = 4444
+  )
+  # Function to login to a website using Selenium
+  capture.output(login_to_website(remDr, url, username, password)) #阻止打印
+
+  Sys.sleep(sample(10, 1))
+
+  # Define a function that downloads data for a specified station and date
+  iter_download <- function(location, date) {
+    # Define the XPath for the item to choose
+    choose_item <- "/html/body/div[1]/div[1]/ul/li[4]/a"
+
+
+    # Find the element and click on it
+    choose_ele <- remDr$findElement("xpath", choose_item)
+    remDr$mouseMoveToLocation(webElement = choose_ele)
+    remDr$click()
+
+
+    # Define the XPath for the download item
+    download_item <- paste0("//*[@id=\"reports_page\"]/div[2]/div/div[3]/ol/li[",csv_position,"]/a")
+
+
+    # Find the download element and click on it
+    download_ele <- remDr$findElement("xpath", download_item)
+    remDr$mouseMoveToLocation(webElement = download_ele)
+    remDr$click()
+
+
+    # Define the XPaths for the start and end locations
+    location_start <- "//*[@id=\"criteria\"]/report-selection-range/div/div/div/div[1]/input"
+    location_end <- "//*[@id=\"criteria\"]/report-selection-range/div/div/div/div[2]/input"
+
+
+    # Find the elements for the start and end locations
+    location_ele_start <- remDr$findElement("xpath", location_start)
+    location_ele_end <- remDr$findElement("xpath", location_end)
+
+
+    # Clear the elements
+    location_ele_start$clearElement()
+    location_ele_end$clearElement()
+
+
+    # Define the start location number
+    location_start_num <- list(location, key = "enter")
+
+
+    # Send the start location number
+    location_ele_start$sendKeysToElement(location_start_num)
+
+
+    # Click on the end location element
+    location_ele_end$clickElement()
+
+
+    # Define the XPaths for the start and end dates
+    date_start <- "//*[@id=\"datetimepicker0\"]/input"
+    date_end <- "//*[@id=\"datetimepicker1\"]/input"
+
+
+    # Find the elements for the start and end dates
+    date_ele_start <- remDr$findElement("xpath", date_start)
+    date_ele_end <- remDr$findElement("xpath", date_end)
+
+
+    # Clear the elements
+    date_ele_start$clearElement()
+
+
+    # Replace "-" with "." in the date
+    date_need_to_download <- stringr::str_replace_all(as.character(date), "-", ".")
+
+
+    # Define the start and end date numbers
+    date_start_num <- list(date_need_to_download, key = "enter")
+    date_end_num <- list(date_need_to_download, key = "enter")
+
+
+    # Send the start and end date numbers
+    date_ele_start$sendKeysToElement(date_start_num)
+    date_ele_end$clearElement()
+    date_ele_end$sendKeysToElement(date_end_num)
+
+
+    # Define the XPath for the download button
+    download_button <- "//*[@id=\"reports_download_csv_data\"]/div[4]/button"
+
+
+    # Find the download button element and click on it
+    download_button_ele <- remDr$findElement("xpath", download_button)
+    remDr$mouseMoveToLocation(webElement = download_button_ele)
+    remDr$click()
+
+
+    # Refresh the page
+    remDr$refresh()
   }
-    #将download路径“/”转为“\\"
-    download_path_temp = gsub("/", "\\\\", download_path)
-    
-    #选择浏览器获取不同浏览器参数
-    browser_opts <- get_browser_options(browser, download_path_temp)
-    
-    
-    remDr <- RSelenium::remoteDriver(
-      browserName = browser_opts$browserName,
-      extraCapabilities = browser_opts$options,
-      remoteServerAddr = "127.0.0.1",
-      port = 4444
+
+  #下面的函数中rename待修改
+  all_station_oneday <- function(date) {
+    # Convert the integer date to a Date object and format it
+    date <- format(as.Date(date), "%Y-%m-%d")
+
+    cat(crayon::yellow("\u25CF"), "Downloading CSVs for date:", date, "\n")
+
+    # create a data frame with all combinations of location and date
+    all_comb_station <- tidyr::expand_grid(location = location, date = date)
+
+    # download the csv file for each combination of location and date
+    purrr::pwalk(all_comb_station, ~iter_download(location = ..1, date = ..2), .progress = F)
+
+    # Function to rename a csv file
+    rename_csv <- function(csv) {
+      # Extract the name of the csv file without the extension
+      csv_name <- tools::file_path_sans_ext(basename(csv))
+
+      # Extract location and region from the csv_name using a regex pattern
+      location <- stringr::str_extract(csv_name, "(?<=location)\\d+")
+      # Extract download date from the csv_name using a regex pattern
+      download_date <- stringr::str_extract(csv_name, "(?<=_)\\d+-\\d+-\\d+(?=_)")
+
+      # Construct the new name for the csv file
+      csv_new_name <- paste0("location", location, "_", date, "data_", download_date, "download", ".csv")
+
+      # Determine the target folder based on the file size
+      target_folder <- ifelse(file.size(csv) < 1024, "EmptyCSVs", "NonEmptyCSVs")
+
+      # Construct the destination path
+      destination_path <- file.path(download_path, target_folder, location)
+
+      # Create the destination directory if it does not exist
+      dir.create(destination_path, showWarnings = FALSE)
+
+      # Rename the file
+      file.rename(from = csv, to = file.path(destination_path, csv_new_name))
+    }
+
+    # Get a list of all csv files in the download directory
+    down_list <- list.files(path = download_path, all.files = T, full.names = T, recursive = F, pattern = ".csv$")
+
+    # Filter the list to keep only the files that were downloaded today
+    down_list_keep <- down_list[lubridate::as_date(file.info(down_list)$mtime) == lubridate::as_date(Sys.time())]
+
+    # Apply the rename_csv function to each file in the filtered list
+    purrr::walk(down_list_keep, rename_csv)
+  }
+
+  purrr::walk(date, all_station_oneday, .progress = FALSE)
+  cat(crayon::green("\u25CF"), "All stations and dates nedap ppt CSVs had been downloaded.\n")
+
+  remDr$quit() #退出浏览器
+
+  return(invisible(NULL))
+}
+
+# Function to check and create subdirectories
+checkAndCreateSubdirs <- function(download_path) {
+  # Define subdirectories
+  subdirs <- c("NonEmptyCSVs", "EmptyCSVs")
+
+  # Check and create subdirectories
+  for (subdir in subdirs) {
+    dir_path <- file.path(download_path, subdir)
+    if (!dir.exists(dir_path)) {
+      dir.create(dir_path, showWarnings = FALSE)
+      cat(crayon::blue("\u25CF"), "Created directory:", subdir, "\n")
+    } else {
+      cat(crayon::green("\u25CF"), "Directory already exists:", subdir, "\n")
+    }
+  }
+}
+
+# Function to get browser options for chrome
+get_browser_options <- function(browser = "chrome", download_path) {
+  # Check if the browser is 'chrome'
+  if (browser != "chrome") {
+    stop("Invalid browser specified. Use 'chrome'.") # Stop if it's not
+  }
+
+  # Replace forward slashes with backslashes in the download path
+  download_path_temp = gsub("/", "\\\\", download_path)
+
+  # Create a list of chrome options
+  browser_options <- list(
+    chromeOptions = list(
+      prefs = list(
+        "download.default_directory" = download_path_temp, # Set default download directory
+        "download.prompt_for_download" = FALSE,           # Don't prompt for download
+        "download.directory_upgrade" = TRUE,               # Upgrade download directory
+        "safebrowsing.enabled" = TRUE                      # Enable safe browsing
+      )
     )
-    
-    
-    suppress_print <- function() {
-      remDr$open()
-      remDr$navigate(url)
-      login_user <- "//*[@id=\"frmLogin\"]/div[2]/input"
-      login_passwd <- "//*[@id=\"frmLogin\"]/div[3]/input"
-      login_user_ele <- remDr$findElement("xpath", login_user)
-      login_passwd_ele <- remDr$findElement("xpath", login_passwd)
-      user <- list(username)
-      pass <- list(password)
-      login_user_ele$sendKeysToElement(user)
-      login_passwd_ele$sendKeysToElement(pass)
-      login <- "//*[@id=\"login_button\"]"
-      login_ele <- remDr$findElement("xpath", login)
-      remDr$mouseMoveToLocation(webElement = login_ele)
-      remDr$click()
-    }
-    
-    capture.output(suppress_print()) #阻止打印
-    
-    Sys.sleep(sample(10, 1))
-    
-    iter_download <- function(station, data_date, ...) {
-      choose_item <- "/html/body/div[1]/div[1]/ul/li[4]/a"
-      choose_ele <- remDr$findElement("xpath", choose_item)
-      remDr$mouseMoveToLocation(webElement = choose_ele)
-      remDr$click()
-      download_item <-
-        paste0("//*[@id=\"reports_page\"]/div[2]/div/div[3]/ol/li[",
-               {
-                 {
-                   csv_position
-                 }
-               },
-               "]/a")
-      download_ele <- remDr$findElement("xpath", download_item)
-      remDr$mouseMoveToLocation(webElement = download_ele)
-      remDr$click()
-      location_start <-
-        "//*[@id=\"criteria\"]/report-selection-range/div/div/div/div[1]/input"
-      location_end <-
-        "//*[@id=\"criteria\"]/report-selection-range/div/div/div/div[2]/input"
-      location_ele_start <- remDr$findElement("xpath",
-                                              location_start)
-      location_ele_end <- remDr$findElement("xpath",
-                                            location_end)
-      location_ele_start$clearElement()
-      location_ele_end$clearElement()
-      location_start_num <- list(station, key = "enter")
-      location_ele_start$sendKeysToElement(location_start_num)
-      location_ele_end$clickElement()
-      date_start <- "//*[@id=\"datetimepicker0\"]/input"
-      date_end <- "//*[@id=\"datetimepicker1\"]/input"
-      date_ele_start <- remDr$findElement("xpath", date_start)
-      date_ele_end <- remDr$findElement("xpath", date_end)
-      date_ele_start$clearElement()
-      date_need_to_download <-
-        stringr::str_replace_all(as.character(data_date),
-                                 "-", ".")
-      date_start_num <- list(date_need_to_download, key = "enter")
-      date_end_num <- list(date_need_to_download, key = "enter")
-      date_ele_start$sendKeysToElement(date_start_num)
-      date_ele_end$clearElement()
-      date_ele_end$sendKeysToElement(date_end_num)
-      download_button <-
-        "//*[@id=\"reports_download_csv_data\"]/div[4]/button"
-      download_button_ele <- remDr$findElement("xpath",
-                                               download_button)
-      remDr$mouseMoveToLocation(webElement = download_button_ele)
-      remDr$click()
-      remDr$refresh()
-    }
-    
-    Sys.sleep(3)
-    
-    # all_comb <- purrr::cross2(location, data_date) #注释的两行就可以完整的下载所有日期和所有测定站的csv数据
-    # purrr::walk(all_comb, ~iter_download(.x[[1]], .x[[2]]), ...)
-    
-    all_station_oneday <-
-      function(oneday_date, ...) {
-        # Convert the integer date to a Date object and format it
-        formatted_date <-
-          format(as.Date(oneday_date, origin = "1970-01-01"), "%Y-%m-%d")
-        
-        cat("Downloading csv for date:", formatted_date, "\n")
-        
-        #为了方便修改csv名称包含数据日期，以某一天日期为参数，写函数all_station_oneday()下载该天所有测定站csv数据
-        
-        all_comb_station <-
-          purrr::cross2(location, oneday_date) #组合所有测定站和单个日期
-        purrr::walk(all_comb_station, ~ iter_download(.x[[1]], .x[[2]]), ...)#下载该日期所有csv数据
-        
-        
-        rename_csv <- function(csv, ...) {
-          #写函数rename_csv()来改变csv的名称
-          csv_name <- tools::file_path_sans_ext(basename(csv))
-          location_region <-
-            stringr::str_extract(csv_name, "(?<=_)[:lower:]+\\d+-\\d+(?=_)")
-          download_date <-
-            stringr::str_extract(csv_name, "(?<=_)\\d+-\\d+-\\d+(?=_)")
-          #download_date_trans <- stringr::str_replace_all(as.character(download_date), "-", ".")
-          csv_new_name <-
-            paste0(
-              location_region,
-              "_",
-              oneday_date,
-              "data",
-              "_",
-              download_date,
-              "download",
-              ".csv"
-            )
-          
-          target_folder <-
-            ifelse(file.size(csv) < 1024, "no_data", "have_data")
-          destination_path <-
-            file.path(save_path, target_folder, location_region)
-          
-          dir.create(destination_path, showWarnings = FALSE)
-          
-          file.rename(from = csv,
-                      to = file.path(destination_path, csv_new_name))
-        }
-        
-        down_list <-
-          list.files(
-            path = download_path,
-            all.files = T,
-            full.names = T,
-            recursive = F,
-            pattern = ".csv$"
-          ) #下载的csv数据列表
-        
-        down_list_keep <-
-          down_list[lubridate::as_date(file.info(down_list)$mtime) == lubridate::as_date(Sys.time())] #过滤csv文件，仅保留今日下载的csv
-        purrr::walk(down_list_keep, rename_csv, ...) #批量改名
-        
-      }
-    
-    purrr::walk(data_date, all_station_oneday, .progress = T, ...) #循环每个日期下载csv
-    
-    remDr$quit() #退出浏览器
-    
-    return(invisible(NULL))
-  }
+  )
+
+  # Return the browser name and options as a list
+  return(list(browserName = browser, options = browser_options))
+}
+
+# Function to login to a website using Selenium
+login_to_website <- function(remDr, url, username, password) {
+  remDr$open() # Open the remote driver
+  remDr$navigate(url) # Navigate to the specified URL
+
+  # Define XPaths for username and password input fields
+  login_user <- "//*[@id=\"frmLogin\"]/div[2]/input"
+  login_passwd <- "//*[@id=\"frmLogin\"]/div[3]/input"
+
+  # Find the username and password elements using their XPaths
+  login_user_ele <- remDr$findElement("xpath", login_user)
+  login_passwd_ele <- remDr$findElement("xpath", login_passwd)
+
+  # Define the username and password
+  user <- list(username)
+  pass <- list(password)
+
+  # Send the username and password to their respective elements
+  login_user_ele$sendKeysToElement(user)
+  login_passwd_ele$sendKeysToElement(pass)
+
+  # Define the XPath for the login button
+  login <- "//*[@id=\"login_button\"]"
+
+  # Find the login button element using its XPath
+  login_ele <- remDr$findElement("xpath", login)
+
+  # Move the mouse to the location of the login button
+  remDr$mouseMoveToLocation(webElement = login_ele)
+
+  # Click the login button
+  remDr$click()
+}

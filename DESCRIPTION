@@ -1,6 +1,6 @@
 Package: pptsdd
 Title: Breeding Tools
-Version: 0.1.6
+Version: 0.1.7
 Authors@R: c(
     person("Guo Meng", , , "tony2015116@163.com", role = c("aut", "cre")),
     person("Guo Meng", role = "cph")

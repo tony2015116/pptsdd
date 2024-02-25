@@ -28,7 +28,13 @@
 #'              download_path = "C:/Users/Dell/Downloads/download_rename")
 
 get_csv_auto <- function(url, username, password, location, date, download_path, show_message = FALSE){
+  # Function to check and create subdirectories
+  checkAndCreateSubdirs(download_path)
+
+  # Login url
   login_request <- login_nedap(url, username, password)
+
+  # download csv in each station each day
   download_oneday_eachstation <- function(location, date) {
     download_csv(login_respond = login_request, location_min = location, location_max = location, date_min = date, date_max = date, download_path, show_message)
   }
@@ -52,12 +58,42 @@ get_csv_auto <- function(url, username, password, location, date, download_path,
     # download the csv file for each combination of location and date
     purrr::pwalk(all_comb_station, ~download_oneday_eachstation(location = ..1, date = ..2), .progress = F)
 
-    #cat(crayon::yellow("\u25CF"), "Downloading CSVs for date:", date, "\n")
+    # Function to rename a csv file
+    Rename_csv <- function(csv) {
+      # Extract the name of the csv file without the extension
+      csv_name <- tools::file_path_sans_ext(basename(csv))
+
+      # Extract location and region from the csv_name using a regex pattern
+      location <- stringr::str_extract(csv_name, "(?<=location)\\d+")
+
+      # Extract download date from the csv_name using a regex pattern
+      #download_date <- stringr::str_extract(csv_name, "(?<=_)\\d+-\\d+-\\d+(?=_)")
+
+      # Determine the target folder based on the file size
+      target_folder <- ifelse(file.size(csv) < 1024, "EmptyCSVs", "NonEmptyCSVs")
+
+      # Construct the destination path
+      destination_path <- file.path(download_path, target_folder, location)
+
+      # Create the destination directory if it does not exist
+      dir.create(destination_path, showWarnings = FALSE)
+
+      # Rename the file
+      file.rename(from = csv, to = file.path(destination_path, csv_name))
+    }
+
+    # Get a list of all csv files in the download directory
+    down_list <- list.files(path = download_path, all.files = T, full.names = T, recursive = F, pattern = ".csv$")
+
+    # Filter the list to keep only the files that were downloaded today
+    down_list_keep <- down_list[lubridate::as_date(file.info(down_list)$mtime) == lubridate::as_date(Sys.time())]
+
+    # Apply the rename_csv function to each file in the filtered list
+    purrr::walk(down_list_keep, Rename_csv)
   }
   purrr::walk(date, all_station_perday, .progress = list(
     type = "iterator",
-    format = "{cli::pb_spin} Downloading {cli::pb_current}/{cli::pb_total} dates",
+    format = "{cli::pb_spin} Downloading {cli::pb_current}/{cli::pb_total} dates",#"Downloading [:date] {cli::pb_bar} {cli::pb_percent}",
     clear = TRUE))
   cat(crayon::green("\u25CF"), "All stations and dates nedap ppt CSVs had been downloaded.\n")
-
 }

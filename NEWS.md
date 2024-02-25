@@ -34,3 +34,9 @@
 * `get_csv()` can download CSV data for a specific location range or date range.
 * `get_csv_auto()` can download CSV data for a specific location or date.
 * `get_csv_schedule()` can make a download task.
+
+# pptsdd 0.1.7
+* Improve the structure of `download_csv_auto()`.
+* Optimize the output formats of `download_csv_auto()` and `get_csv_auto()` to be consistent.
+* Change the folder name of saving CSVs data frome have_data/no_data to NonEmptyCSVs/EmptyCSVs.
+* `get_csv_auto()` adds the function of storing CSV data in the specified folder.

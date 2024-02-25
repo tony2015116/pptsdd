@@ -57,7 +57,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">pptsdd</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.7</span>
       </span>
     </div>
 
@@ -161,35 +161,27 @@ Here is an example on how to use the function.
 This should be a reproducible and working example
 -->
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Set parameters</span></span>
-<span><span class="va">stations</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"606"</span>,<span class="st">"607"</span><span class="op">)</span></span>
-<span><span class="va">data_date</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2024-02-17"</span>,<span class="st">"2024-02-18"</span><span class="op">)</span></span>
-<span><span class="va">download_path</span> <span class="op">=</span> <span class="st">"C:/Users/Dell/Downloads/download_temp"</span></span>
-<span><span class="va">save_path</span> <span class="op">=</span> <span class="st">"C:/Users/Dell/Downloads/download_rename"</span></span>
-<span><span class="co"># Start selenium webdriver service</span></span>
+<code class="sourceCode R"><span><span class="co"># Start selenium webdriver service</span></span>
 <span><span class="fu"><a href="../reference/connect_to_browser.html">connect_to_browser</a></span><span class="op">(</span>dest_dir <span class="op">=</span> <span class="st">"C:/Users/Dell/Desktop/test"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">●</span> An appropriate version of chromedriver.exe is already present.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">●</span> You have already downloaded the .jar file in  C:/Users/Dell/Desktop/test/selenium/4.0 .</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">●</span> Chrome browser was installed on this computer. </span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">●</span> Java is installed on this computer.</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">●</span> Old selenium server process with PID 30092 terminated.</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">●</span> Old selenium server process with PID 2036 terminated.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">●</span> New selenium server process created.</span></span>
 <span><span class="co"># Download CSVs</span></span>
-<span><span class="fu"><a href="../reference/download_csv_auto.html">download_csv_auto</a></span><span class="op">(</span>browser <span class="op">=</span> <span class="st">"chrome"</span>, </span>
-<span>                  url <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"web_url"</span><span class="op">)</span>, </span>
-<span>                  username <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"user_name"</span><span class="op">)</span>, </span>
-<span>                  password <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"user_password"</span><span class="op">)</span>,</span>
+<span><span class="fu"><a href="../reference/download_csv_auto.html">download_csv_auto</a></span><span class="op">(</span>url <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"url"</span><span class="op">)</span>, </span>
+<span>                  username <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"username"</span><span class="op">)</span>, </span>
+<span>                  password <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"password"</span><span class="op">)</span>,</span>
 <span>                  csv_position <span class="op">=</span> <span class="st">"1"</span>,</span>
-<span>                  location <span class="op">=</span> <span class="va">stations</span>, </span>
-<span>                  data_date <span class="op">=</span> <span class="va">data_date</span>, </span>
-<span>                  download_path <span class="op">=</span> <span class="va">download_path</span>,</span>
-<span>                  save_path <span class="op">=</span> <span class="va">save_path</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Directory already exists: have_data</span></span>
-<span><span class="co">#&gt; Directory already exists: no_data</span></span>
-<span><span class="co">#&gt; Downloading csv for date: 2024-02-17</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">■■■■■■■■■■■■■■■■ </span> 50% | ETA: 7s</span></span>
-<span><span class="co">#&gt; Downloading csv for date: 2024-02-18</span></span>
-<span><span class="co">#&gt; </span></span></code></pre></div>
+<span>                  location <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"606"</span>,<span class="st">"607"</span><span class="op">)</span>, </span>
+<span>                  date <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2024-02-18"</span>,<span class="st">"2024-02-19"</span><span class="op">)</span>, </span>
+<span>                  download_path <span class="op">=</span> <span class="st">"C:/Users/Dell/Downloads/download_rename"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">●</span> Directory already exists: NonEmptyCSVs </span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">●</span> Directory already exists: EmptyCSVs </span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">●</span> Downloading CSVs for date: 2024-02-18 </span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">●</span> Downloading CSVs for date: 2024-02-19 </span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">●</span> All stations and dates nedap ppt CSVs had been downloaded.</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="download_csv_schedule">download_csv_schedule<a class="anchor" aria-label="anchor" href="#download_csv_schedule"></a>
@@ -203,21 +195,19 @@ day.</p>
 <span>                      schedule <span class="op">=</span> <span class="st">"DAILY"</span>,</span>
 <span>                      starttime <span class="op">=</span> <span class="st">"20:00"</span>,</span>
 <span>                      startdate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"%Y/%m/%d"</span><span class="op">)</span>,</span>
-<span>                      rscript_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>browser <span class="op">=</span> <span class="st">"chrome"</span>, </span>
-<span>                                          url <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"web_url"</span><span class="op">)</span>,</span>
-<span>                                          username <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"user_name"</span><span class="op">)</span>,</span>
-<span>                                          password <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"user_password"</span><span class="op">)</span>,</span>
+<span>                      rscript_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>url <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"url"</span><span class="op">)</span>,</span>
+<span>                                          username <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"username"</span><span class="op">)</span>,</span>
+<span>                                          password <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"password"</span><span class="op">)</span>,</span>
 <span>                                          location <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"606"</span>,<span class="st">"607"</span><span class="op">)</span>,</span>
 <span>                                          csv_position <span class="op">=</span> <span class="st">"1"</span>,</span>
-<span>                                          download_path <span class="op">=</span> <span class="st">"C:/Users/Dell/Downloads/download_temp"</span>,</span>
-<span>                                          save_path <span class="op">=</span> <span class="st">"C:/Users/Dell/Downloads/download_rename"</span><span class="op">)</span><span class="op">)</span></span>
+<span>                                          download_path <span class="op">=</span> <span class="st">"C:/Users/Dell/Downloads/download_temp"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "SUCCESS: The scheduled task \"ppt_csv_download\" has successfully been created."</span></span>
 <span><span class="co"># Delete download task</span></span>
 <span><span class="fu">taskscheduleR</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/taskscheduleR/man/taskscheduler_delete.html" class="external-link">taskscheduler_delete</a></span><span class="op">(</span><span class="st">"ppt_csv_download"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0</span></span>
 <span><span class="co"># Reset selenium webdriver service</span></span>
 <span><span class="fu"><a href="../reference/disconnect_from_browser.html">disconnect_from_browser</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">●</span> Selenium server process with PID 29300 terminated.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">●</span> Selenium server process with PID 23480 terminated.</span></span>
 <span><span class="co">#&gt; <span style="color: #BB0000;">●</span> No Chromedriver process found.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">●</span> Startup .bat file removed.</span></span></code></pre></div>
 </div>
@@ -261,6 +251,8 @@ webdriver service. You can use this function after using
 <span>             location <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"607"</span>,<span class="st">"608"</span><span class="op">)</span>,</span>
 <span>             date <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2024-02-18"</span>, <span class="st">"2024-02-19"</span><span class="op">)</span>,</span>
 <span>             download_path <span class="op">=</span> <span class="st">"C:/Users/Dell/Downloads/download_rename"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">●</span> Directory already exists: NonEmptyCSVs </span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">●</span> Directory already exists: EmptyCSVs </span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00;">●</span> Downloading CSVs for date: 2024-02-18 </span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00;">●</span> Downloading CSVs for date: 2024-02-19 </span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">●</span> All stations and dates nedap ppt CSVs had been downloaded.</span></span></code></pre></div>
@@ -274,8 +266,7 @@ webdriver service. You can use this function after using
 <span>                 schedule <span class="op">=</span> <span class="st">"DAILY"</span>,</span>
 <span>                 starttime <span class="op">=</span> <span class="st">"20:00"</span>,</span>
 <span>                 startdate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"%Y/%m/%d"</span><span class="op">)</span>,</span>
-<span>                 rscript_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>browser <span class="op">=</span> <span class="st">"chrome"</span>,</span>
-<span>                                     url <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"url"</span><span class="op">)</span>,</span>
+<span>                 rscript_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>url <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"url"</span><span class="op">)</span>,</span>
 <span>                                     username <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"username"</span><span class="op">)</span>,</span>
 <span>                                     password <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"password"</span><span class="op">)</span>,</span>
 <span>                                     location <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"606"</span>,<span class="st">"607"</span><span class="op">)</span>,</span>
