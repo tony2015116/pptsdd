@@ -87,6 +87,12 @@
      
   </a>
 </li>
+<li>
+  <a href="https://tony2015116.gitee.io/pptsdd" class="external-link">
+    <span class="fa fa-signal fa-lg"></span>
+     
+  </a>
+</li>
         
         
 
@@ -128,7 +134,31 @@
 </h2>
 <p>This is a basic example which shows you how to download pig performance test CSVs data:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">pptsdd</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># Install packages</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"httr2"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"rvest"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pak"</span><span class="op">)</span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="va">tony2015116</span><span class="op">/</span><span class="va">wdauto</span><span class="op">)</span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"tony2015116/pptsdd"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Require packages</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">pptsdd</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Set parameters</span></span>
+<span><span class="va">url</span> <span class="op">=</span> <span class="st">"https://xxxxx.vpu-online.cn/"</span></span>
+<span><span class="va">username</span> <span class="op">=</span> <span class="st">"pigfarm1"</span></span>
+<span><span class="va">password</span> <span class="op">=</span> <span class="st">"12345"</span></span>
+<span><span class="va">csv_pisition</span> <span class="op">=</span> <span class="st">"1"</span> <span class="co"># 1 or 4</span></span>
+<span></span>
+<span><span class="va">location</span> <span class="op">=</span> <span class="st">"607"</span> <span class="co"># one location</span></span>
+<span><span class="va">location</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"607"</span>, <span class="st">"608"</span><span class="op">)</span> <span class="co"># two or more locations</span></span>
+<span><span class="va">location</span> <span class="op">=</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map_chr</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">607L</span>, <span class="fl">612L</span>, <span class="fl">1L</span><span class="op">)</span>, <span class="va">as.charater</span><span class="op">)</span> <span class="co"># many sequentially numbered locations</span></span>
+<span></span>
+<span><span class="va">date</span> <span class="op">=</span> <span class="st">"2024-02-18"</span> <span class="co"># one date</span></span>
+<span><span class="va">date</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2024-02-18"</span>,<span class="st">"2024-02-19"</span><span class="op">)</span> <span class="co"># two or more dates</span></span>
+<span><span class="va">date</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2024-02-18"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2024-02-28"</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span> <span class="co"># many sequentially dates</span></span>
+<span></span>
+<span><span class="va">download_path</span> <span class="op">=</span> <span class="st">"path/of/saving/you/data"</span></span>
 <span></span>
 <span><span class="co"># Selenium Web Scraping</span></span>
 <span><span class="co">## start selenium webdriver service</span></span>
@@ -153,7 +183,7 @@
 <span>                                          csv_position <span class="op">=</span> <span class="st">"1"</span>,</span>
 <span>                                          download_path <span class="op">=</span> <span class="st">"C:/Users/Dell/Downloads/download_rename"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">## reset selenium webdriver</span></span>
-<span><span class="fu"><a href="reference/disconnect_from_browser.html">disconnect_from_browser</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/disconnect_from_browser.html">disconnect_from_browser</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># if you use download_csv_schedule() make a download task, please don't run this code.</span></span>
 <span><span class="co">## delete download task</span></span>
 <span><span class="fu">taskscheduleR</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/taskscheduleR/man/taskscheduler_delete.html" class="external-link">taskscheduler_delete</a></span><span class="op">(</span>taskname <span class="op">=</span> <span class="st">"ppt_csv_download"</span><span class="op">)</span></span>
 <span></span>

@@ -109,7 +109,7 @@ download_csv <- function(login_respond, location_min, location_max, date_min, da
   # check if location_min and location_max, date_min and date_max are the same
   location <- if(location_min == location_max) location_min else paste(location_min, location_max, sep="_")
   date <- if(date_min == date_max) date_min else paste(date_min, date_max, sep="_")
-  filename <- paste0("location", location, "_", date, "date_", Sys.Date(), "download.csv")
+  filename <- paste0("location", location, "_", date, "data_", Sys.Date(), "download.csv")
   writeLines(content, file.path(download_path, filename))
   if (show_message) {
     cat(crayon::blue("\u25CF"), "Locations:", location, "and Dates:", date, "downloaded\n")

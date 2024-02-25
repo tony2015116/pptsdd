@@ -22,7 +22,31 @@ pak::pak("tony2015116/pptsdd")
 This is a basic example which shows you how to download pig performance test CSVs data:
 
 ``` r
+# Install packages
+install.packages("httr2")
+install.packages("rvest")
+install.packages("pak")
+pak::pak(tony2015116/wdauto)
+pak::pak("tony2015116/pptsdd")
+
+# Require packages
 library(pptsdd)
+
+# Set parameters
+url = "https://xxxxx.vpu-online.cn/"
+username = "pigfarm1"
+password = "12345"
+csv_pisition = "1" # 1 or 4
+
+location = "607" # one location
+location = c("607", "608") # two or more locations
+location = purrr::map_chr(seq(607L, 612L, 1L), as.charater) # many sequentially numbered locations
+
+date = "2024-02-18" # one date
+date = c("2024-02-18","2024-02-19") # two or more dates
+date = seq(as.Date("2024-02-18"), as.Date("2024-02-28"), 1) # many sequentially dates
+
+download_path = "path/of/saving/you/data"
 
 # Selenium Web Scraping
 ## start selenium webdriver service
@@ -47,7 +71,7 @@ download_csv_schedule(taskname = "ppt_csv_download",
                                           csv_position = "1",
                                           download_path = "C:/Users/Dell/Downloads/download_rename"))
 ## reset selenium webdriver
-disconnect_from_browser()
+disconnect_from_browser() # if you use download_csv_schedule() make a download task, please don't run this code.
 ## delete download task
 taskscheduleR::taskscheduler_delete(taskname = "ppt_csv_download")
 

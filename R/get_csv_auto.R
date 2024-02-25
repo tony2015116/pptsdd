@@ -62,13 +62,13 @@ get_csv_auto <- function(url, username, password, location, date, download_path,
     Rename_csv <- function(csv) {
       # Extract the name of the csv file without the extension
       csv_name <- tools::file_path_sans_ext(basename(csv))
+      
+      # Extract file name
+      file_name <- basename(csv)
 
       # Extract location and region from the csv_name using a regex pattern
       location <- stringr::str_extract(csv_name, "(?<=location)\\d+")
-
-      # Extract download date from the csv_name using a regex pattern
-      #download_date <- stringr::str_extract(csv_name, "(?<=_)\\d+-\\d+-\\d+(?=_)")
-
+      
       # Determine the target folder based on the file size
       target_folder <- ifelse(file.size(csv) < 1024, "EmptyCSVs", "NonEmptyCSVs")
 
@@ -79,7 +79,7 @@ get_csv_auto <- function(url, username, password, location, date, download_path,
       dir.create(destination_path, showWarnings = FALSE)
 
       # Rename the file
-      file.rename(from = csv, to = file.path(destination_path, csv_name))
+      file.rename(from = csv, to = file.path(destination_path, file_name))
     }
 
     # Get a list of all csv files in the download directory
