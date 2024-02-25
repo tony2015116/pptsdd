@@ -33,7 +33,7 @@ download_csv_auto(url = Sys.getenv("url"),
                   password = Sys.getenv("password"),
                   csv_position = "1", # 1 or 4
                   location = c("606","607"), 
-                  data_date = c("2024-02-18","2024-02-19"), 
+                  date = c("2024-02-18","2024-02-19"), 
                   download_path = "C:/Users/Dell/Downloads/download_rename")
 ## download csv data in a task schedule
 download_csv_schedule(taskname = "ppt_csv_download",

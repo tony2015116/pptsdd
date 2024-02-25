@@ -24,11 +24,11 @@
 #' get_csv(url = Sys.getenv("url"),
 #'         username = Sys.getenv("username"),
 #'         password = Sys.getenv("password"),
-#'         location_min = "406",
-#'         location_max = "407",
+#'         location_min = "607",
+#'         location_max = "608",
 #'         date_min = "2024-02-18",
 #'         date_max = "2024-02-19",
-#'         download_path = "C:/Users/Dell/Downloads/download_rename", 
+#'         download_path = "C:/Users/Dell/Downloads/download_temp", 
 #'         show_message = TRUE)
 
 get_csv <- function(url, username, password, location_min, location_max, date_min, date_max, download_path, show_message = FALSE) {
