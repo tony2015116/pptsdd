@@ -10,7 +10,7 @@
 #' @param schedule Either one of 'ONCE', 'MONTHLY', 'WEEKLY', 'DAILY', 'HOURLY', 'MINUTE', 'ONLOGON', 'ONIDLE.
 #' @param starttime A time point in HH:MM format indicating when to run the script.
 #' @param startdate A date that specifies the first date on which to run the task. Only applicable if schedule is of type 'MONTHLY', 'WEEKLY', 'DAILY', 'HOURLY', 'MINUTE'. Use the Windows task scheduler's date format for your locale.
-#' @param rscript_args A named list of download arguments. Optionally set password_env to the name of the password environment variable (default password). The task account must provide the variable when the script runs.
+#' @param rscript_args A named list of download arguments. Optionally set password_env to the name of the password environment variable (default password). The task account must provide the variable when the script runs. Set browser to `edge` for Edge downloads.
 #' @param ... Additional arguments passed to the Windows task scheduler.
 #'
 #' @return The output of the Windows task registration command.

@@ -71,6 +71,7 @@ scheduled_download_script <- function(downloader, args) {
   if (downloader == "download_csv_auto") required <- c(required, "csv_position")
   optional <- c("password", "password_env")
   if (downloader == "get_csv_auto") optional <- c(optional, "show_message")
+  if (downloader == "download_csv_auto") optional <- c(optional, "browser")
 
   if (!is.list(args) || !all(required %in% names(args)) || anyDuplicated(names(args)) ||
       length(setdiff(names(args), c(required, optional))) ||
@@ -97,6 +98,9 @@ scheduled_download_script <- function(downloader, args) {
   validate_locations(args[["location"]])
   if (downloader == "download_csv_auto") {
     validate_locations(args[["csv_position"]], "csv_position", scalar = TRUE)
+    if ("browser" %in% names(args)) {
+      args[["browser"]] <- match.arg(args[["browser"]], c("chrome", "edge"))
+    }
   }
   if ("show_message" %in% names(args)) validate_show_message(args[["show_message"]])
   args[["download_path"]] <- prepare_download_directory(args[["download_path"]])

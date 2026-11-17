@@ -4,7 +4,10 @@
 \alias{disconnect_from_browser}
 \title{Reset selenium webdriver service}
 \usage{
-disconnect_from_browser()
+disconnect_from_browser(browser = c("chrome", "edge"))
+}
+\arguments{
+\item{browser}{Browser to stop, either \code{chrome} or \code{edge}.}
 }
 \description{
 \code{disconnect_from_browser()} is used to reset selenium webdriver service.

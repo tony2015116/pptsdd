@@ -6,6 +6,7 @@
 #'
 #' `disconnect_from_browser()` is used to reset selenium webdriver service.
 #'
+#' @param browser Browser to stop, either `chrome` or `edge`.
 #' @return NULL
 #' 
 #' @importFrom wdauto "reset_cs"
@@ -13,6 +14,6 @@
 #' @examples
 #' disconnect_from_browser()
 
-disconnect_from_browser <- function() {
-  wdauto::reset_cs()
+disconnect_from_browser <- function(browser = c("chrome", "edge")) {
+  if (match.arg(browser) == "chrome") wdauto::reset_cs() else wdauto::reset_cs(browser = "edge")
 }

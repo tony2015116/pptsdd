@@ -2,12 +2,14 @@
 % Please edit documentation in R/connect_to_browser.R
 \name{connect_to_browser}
 \alias{connect_to_browser}
-\title{Start selenium webdriver service}
+\title{Start a browser WebDriver service}
 \usage{
-connect_to_browser(dest_dir)
+connect_to_browser(dest_dir, browser = c("chrome", "edge"))
 }
 \arguments{
-\item{dest_dir}{The path of chrome browser dirver and selenium server.}
+\item{dest_dir}{Directory for browser drivers and the Selenium server.}
+
+\item{browser}{Browser to start, either \code{chrome} or \code{edge}.}
 }
 \description{
 \code{connect_to_browser()} is used to start the selenium webdriver service.
