@@ -4,7 +4,7 @@
 #' 
 #' @description
 #'
-#' `download_csv_auto()` is used to download CSVs from chrome browser.
+#' `download_csv_auto()` is downloads CSVs through Chrome or Edge.
 #' 
 #' @param url The login url of pig performance test station website.
 #' @param username The username of pig performance test station website.
@@ -13,6 +13,7 @@
 #' @param location Numeric value in string format.
 #' @param date A vector of Date values or YYYY-MM-DD strings.
 #' @param download_path The folder of downloading csv files.
+#' @param browser Browser to use, either `chrome` or `edge`. Start the same browser driver with `connect_to_browser()`.
 #'
 #' @return Invisibly NULL. Writes CSVs to the download directory.
 #' 
@@ -29,7 +30,8 @@
 #'                   date = c("2024-02-18","2024-02-19"), 
 #'                   download_path = "C:/Users/Dell/Downloads/download_rename")
 
-download_csv_auto <- function(url, username, password, csv_position, location, date, download_path) {
+download_csv_auto <- function(url, username, password, csv_position, location, date, download_path, browser = c("chrome", "edge")) {
+  browser <- match.arg(browser)
   urls <- nedap_urls(url, username, password)
   validate_locations(csv_position, "csv_position", scalar = TRUE)
   validate_locations(location)
@@ -39,30 +41,33 @@ download_csv_auto <- function(url, username, password, csv_position, location, d
   staging <- prepare_download_directory(staging)
   on.exit(unlink(staging, recursive = TRUE), add = TRUE)
 
-  browser_opts <- get_browser_options(browser = "chrome", staging)
-  remDr <- RSelenium::remoteDriver(
-    browserName = browser_opts$browserName,
-    extraCapabilities = browser_opts$options,
-    remoteServerAddr = "127.0.0.1",
-    port = 4444
-  )
-  utils::capture.output(remDr$open())
+  remDr <- if (browser == "edge") {
+    open_edge_session(staging)
+  } else {
+    browser_opts <- get_browser_options(browser = "chrome", staging)
+    driver <- RSelenium::remoteDriver(
+      browserName = browser_opts$browserName,
+      extraCapabilities = browser_opts$options,
+      remoteServerAddr = "127.0.0.1",
+      port = 4444
+    )
+    utils::capture.output(driver$open())
+    driver
+  }
   on.exit(try(remDr$close(), silent = TRUE), add = TRUE, after = FALSE)
   remDr$setImplicitWaitTimeout(milliseconds = 10000)
-  login_to_website(remDr, urls[["login"]], username, password)
+  login_to_website(remDr, urls[["login"]], username, password, browser)
 
   click_report <- function(location, date) {
     choose_item <- "/html/body/div[1]/div[1]/ul/li[4]/a"
 
     choose_ele <- remDr$findElement("xpath", choose_item)
-    remDr$mouseMoveToLocation(webElement = choose_ele)
-    remDr$click()
+    click_browser_element(remDr, choose_ele, browser)
 
     download_item <- paste0("//*[@id=\"reports_page\"]/div[2]/div/div[3]/ol/li[",csv_position,"]/a")
 
     download_ele <- remDr$findElement("xpath", download_item)
-    remDr$mouseMoveToLocation(webElement = download_ele)
-    remDr$click()
+    click_browser_element(remDr, download_ele, browser)
 
     location_start <- "//*[@id=\"criteria\"]/report-selection-range/div/div/div/div[1]/input"
     location_end <- "//*[@id=\"criteria\"]/report-selection-range/div/div/div/div[2]/input"
@@ -99,8 +104,7 @@ download_csv_auto <- function(url, username, password, csv_position, location, d
     download_button <- "//*[@id=\"reports_download_csv_data\"]/div[4]/button"
 
     download_button_ele <- remDr$findElement("xpath", download_button)
-    remDr$mouseMoveToLocation(webElement = download_button_ele)
-    remDr$click()
+    click_browser_element(remDr, download_button_ele, browser)
   }
 
   empty <- logical()
@@ -168,7 +172,7 @@ get_browser_options <- function(browser = "chrome", download_path) {
 }
 
 # Function to login to a website using Selenium
-login_to_website <- function(remDr, url, username, password) {
+login_to_website <- function(remDr, url, username, password, browser = "chrome") {
   remDr$navigate(url) # Navigate to the specified URL
 
   # Define XPaths for username and password input fields
@@ -193,9 +197,72 @@ login_to_website <- function(remDr, url, username, password) {
   # Find the login button element using its XPath
   login_ele <- remDr$findElement("xpath", login)
 
-  # Move the mouse to the location of the login button
-  remDr$mouseMoveToLocation(webElement = login_ele)
+  click_browser_element(remDr, login_ele, browser)
+}
 
-  # Click the login button
-  remDr$click()
+click_browser_element <- function(driver, element, browser) {
+  if (browser == "edge") {
+    element$clickElement()
+  } else {
+    driver$mouseMoveToLocation(webElement = element)
+    driver$click()
+  }
+}
+
+
+edge_request <- function(path, body = NULL, method = NULL) {
+  request <- httr2::request(paste0("http://127.0.0.1:4445", path)) |>
+    httr2::req_options(noproxy = "127.0.0.1") |>
+    httr2::req_timeout(90)
+  if (!is.null(body)) {
+    request <- httr2::req_body_raw(
+      request, as.character(jsonlite::toJSON(body, auto_unbox = TRUE)), "application/json"
+    )
+  }
+  if (!is.null(method)) request <- httr2::req_method(request, method)
+  response <- httr2::req_perform(request)
+  jsonlite::fromJSON(httr2::resp_body_string(response), simplifyVector = FALSE)$value
+}
+
+open_edge_session <- function(download_path) {
+  options <- list(prefs = list(
+    "download.default_directory" = normalizePath(download_path, winslash = "\\", mustWork = TRUE),
+    "download.prompt_for_download" = FALSE,
+    "download.directory_upgrade" = TRUE
+  ))
+  session <- edge_request("/session", list(capabilities = list(alwaysMatch = list(
+    browserName = "MicrosoftEdge", "ms:edgeOptions" = options
+  ))))
+  id <- session$sessionId
+  validate_text(id, "Edge WebDriver session ID")
+  base <- paste0("/session/", utils::URLencode(id, reserved = TRUE))
+  element_key <- "element-6066-11e4-a52e-4f735466cecf"
+  empty <- structure(list(), names = character())
+  command <- function(path, body = NULL, method = NULL) edge_request(paste0(base, path), body, method)
+
+  list(
+    close = function() command("", method = "DELETE"),
+    setImplicitWaitTimeout = function(milliseconds) command("/timeouts", list(implicit = milliseconds)),
+    navigate = function(url) command("/url", list(url = url)),
+    refresh = function() command("/refresh", empty),
+    findElement = function(using, value) {
+      id <- command("/element", list(using = using, value = value))[[element_key]]
+      validate_text(id, "Edge WebDriver element ID")
+      path <- paste0("/element/", utils::URLencode(id, reserved = TRUE))
+      list(
+        clearElement = function() command(paste0(path, "/clear"), empty),
+        clickElement = function() command(paste0(path, "/click"), empty),
+        sendKeysToElement = function(keys) {
+          text <- vapply(seq_along(keys), function(i) {
+            if (!is.null(names(keys)) && identical(names(keys)[i], "key")) {
+              if (identical(keys[[i]], "enter")) return("\uE007")
+              stop("Unsupported Edge WebDriver key.", call. = FALSE)
+            }
+            keys[[i]]
+          }, character(1))
+          command(paste0(path, "/value"), list(text = paste0(text, collapse = "")))
+        }
+      )
+    }
+  )
 }

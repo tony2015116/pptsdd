@@ -83,3 +83,53 @@ local({
     for (step in head(steps, -1L)) eval(step, envir = run_env)
   }, "Set the password environment variable")
 })
+
+local({
+  env <- new.env(parent = asNamespace("pptsdd"))
+  for (name in c("download_csv_auto", "open_edge_session")) {
+    fn <- get(name, envir = asNamespace("pptsdd"))
+    environment(fn) <- env
+    env[[name]] <- fn
+  }
+  path <- tempfile()
+  on.exit(unlink(path, recursive = TRUE))
+  calls <- list()
+  elements <- character()
+  staging <- NULL
+  env$edge_request <- function(route, body = NULL, method = NULL) {
+    calls[[length(calls) + 1L]] <<- list(route = route, body = body, method = method)
+    if (route == "/session") {
+      capabilities <- body$capabilities$alwaysMatch
+      stopifnot(identical(capabilities$browserName, "MicrosoftEdge"))
+      staging <<- capabilities[["ms:edgeOptions"]]$prefs[["download.default_directory"]]
+      return(list(sessionId = "mock-edge-session"))
+    }
+    if (endsWith(route, "/element")) {
+      elements <<- c(elements, body$value)
+      return(setNames(list(as.character(length(elements))), "element-6066-11e4-a52e-4f735466cecf"))
+    }
+    if (endsWith(route, "/click")) {
+      id <- as.integer(sub(".*/element/([0-9]+)/click$", "\\1", route))
+      if (grepl("reports_download_csv_data", elements[[id]], fixed = TRUE)) {
+        writeLines(c("pig,weight", "1,42"), file.path(staging, "location606_2024-03-01_report.csv"))
+      }
+    }
+    invisible(NULL)
+  }
+
+  env$download_csv_auto("https://example.invalid", "tester", "fixture-password", "1",
+                        "606", "2024-02-29", path, browser = "edge")
+  report <- file.path(path, "NonEmptyCSVs", "606", "location606_2024-02-29data_2024-03-01download.csv")
+  stopifnot(identical(readLines(report), c("pig,weight", "1,42")),
+            identical(tail(calls, 1L)[[1L]]$method, "DELETE"),
+            any(vapply(calls, function(call) identical(call$body$text, paste0("606", "\uE007")), logical(1))))
+
+  args <- list(url = "https://example.invalid", username = "tester",
+               password_env = "NEDAP_PASSWORD", location = "606", download_path = path,
+               csv_position = "1", browser = "edge")
+  script <- scheduled_download_script("download_csv_auto", args)
+  expressions <- parse(text = script)
+  scheduled <- new.env()
+  eval(expressions[[1L]], envir = scheduled)
+  stopifnot(identical(scheduled$arg_list$browser, "edge"))
+})

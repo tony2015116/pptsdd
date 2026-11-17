@@ -1,3 +1,7 @@
+# pptsdd (development version)
+
+* Support Microsoft Edge for interactive and scheduled browser downloads.
+
 # pptsdd 0.1.1
 
 * added a `NEWS.md` file to track changes to the package.

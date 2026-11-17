@@ -11,7 +11,8 @@ download_csv_auto(
   csv_position,
   location,
   date,
-  download_path
+  download_path,
+  browser = c("chrome", "edge")
 )
 }
 \arguments{
@@ -28,12 +29,14 @@ download_csv_auto(
 \item{date}{A vector of Date values or YYYY-MM-DD strings.}
 
 \item{download_path}{The folder of downloading csv files.}
+
+\item{browser}{Browser to use, either \code{chrome} or \code{edge}. Start the same browser driver with \code{connect_to_browser()}.}
 }
 \value{
 Invisibly NULL. Writes CSVs to the download directory.
 }
 \description{
-\code{download_csv_auto()} is used to download CSVs from chrome browser.
+\code{download_csv_auto()} is downloads CSVs through Chrome or Edge.
 }
 \examples{
 # Start selenium webdriver service

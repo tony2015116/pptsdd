@@ -22,7 +22,7 @@ download_csv_schedule(
 
 \item{startdate}{A date that specifies the first date on which to run the task. Only applicable if schedule is of type 'MONTHLY', 'WEEKLY', 'DAILY', 'HOURLY', 'MINUTE'. Use the Windows task scheduler's date format for your locale.}
 
-\item{rscript_args}{A named list of download arguments. Optionally set password_env to the name of the password environment variable (default password). The task account must provide the variable when the script runs.}
+\item{rscript_args}{A named list of download arguments. Optionally set password_env to the name of the password environment variable (default password). The task account must provide the variable when the script runs. Set browser to \code{edge} for Edge downloads.}
 
 \item{...}{Additional arguments passed to the Windows task scheduler.}
 }
