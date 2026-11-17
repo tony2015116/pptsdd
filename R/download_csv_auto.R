@@ -9,14 +9,13 @@
 #' @param url The login url of pig performance test station website.
 #' @param username The username of pig performance test station website.
 #' @param password The password of pig performance test station website.
-#' @param csv_position The pisiton of csv download item.
+#' @param csv_position The position of the CSV report in the browser menu, as a numeric string.
 #' @param location Numeric value in string format.
-#' @param date The dates of data download.
+#' @param date A vector of Date values or YYYY-MM-DD strings.
 #' @param download_path The folder of downloading csv files.
 #'
-#' @return CSVs in the path of save_path.
+#' @return Invisibly NULL. Writes CSVs to the download directory.
 #' 
-#' @importFrom utils "capture.output"
 #' @export
 #' @examples
 #' # Start selenium webdriver service
@@ -31,217 +30,126 @@
 #'                   download_path = "C:/Users/Dell/Downloads/download_rename")
 
 download_csv_auto <- function(url, username, password, csv_position, location, date, download_path) {
-  # Argument checks
-  if (!is.character(url))
-    stop("url must be a character string.")
-  if (!is.character(username))
-    stop("username must be a character string.")
-  if (!is.character(password))
-    stop("password must be a character string.")
-  if (!is.character(csv_position))
-    stop("csv_position must be a character value.")
-  if (!is.vector(location) ||
-      !is.character(location))
-    stop("location must be a character vector.")
-  if (is.null(try(as.Date(date), silent = TRUE)
-  ))
-    stop("The 'date' parameter must be a valid date string.")
-  if (!is.character(download_path))
-    stop("download_path must be a character string.")
+  urls <- nedap_urls(url, username, password)
+  validate_locations(csv_position, "csv_position", scalar = TRUE)
+  validate_locations(location)
+  date <- normalize_report_dates(date)
+  download_path <- prepare_download_directory(download_path)
+  staging <- tempfile(".pptsdd-", tmpdir = download_path)
+  staging <- prepare_download_directory(staging)
+  on.exit(unlink(staging, recursive = TRUE), add = TRUE)
 
-  # Function to check and create subdirectories
-  checkAndCreateSubdirs(download_path)
-  # Login url
-  url <- paste0(url, "/login/LoginPage.web")
-  # Function to get browser options for chrome
-  browser_opts <- get_browser_options(browser = "chrome", download_path)
-
+  browser_opts <- get_browser_options(browser = "chrome", staging)
   remDr <- RSelenium::remoteDriver(
     browserName = browser_opts$browserName,
     extraCapabilities = browser_opts$options,
     remoteServerAddr = "127.0.0.1",
     port = 4444
   )
-  # Function to login to a website using Selenium
-  capture.output(login_to_website(remDr, url, username, password)) #阻止打印
+  utils::capture.output(remDr$open())
+  on.exit(try(remDr$close(), silent = TRUE), add = TRUE, after = FALSE)
+  remDr$setImplicitWaitTimeout(milliseconds = 10000)
+  login_to_website(remDr, urls[["login"]], username, password)
 
-  Sys.sleep(sample(10, 1))
-
-  # Define a function that downloads data for a specified station and date
-  iter_download <- function(location, date) {
-    # Define the XPath for the item to choose
+  click_report <- function(location, date) {
     choose_item <- "/html/body/div[1]/div[1]/ul/li[4]/a"
 
-
-    # Find the element and click on it
     choose_ele <- remDr$findElement("xpath", choose_item)
     remDr$mouseMoveToLocation(webElement = choose_ele)
     remDr$click()
 
-
-    # Define the XPath for the download item
     download_item <- paste0("//*[@id=\"reports_page\"]/div[2]/div/div[3]/ol/li[",csv_position,"]/a")
 
-
-    # Find the download element and click on it
     download_ele <- remDr$findElement("xpath", download_item)
     remDr$mouseMoveToLocation(webElement = download_ele)
     remDr$click()
 
-
-    # Define the XPaths for the start and end locations
     location_start <- "//*[@id=\"criteria\"]/report-selection-range/div/div/div/div[1]/input"
     location_end <- "//*[@id=\"criteria\"]/report-selection-range/div/div/div/div[2]/input"
 
-
-    # Find the elements for the start and end locations
     location_ele_start <- remDr$findElement("xpath", location_start)
     location_ele_end <- remDr$findElement("xpath", location_end)
 
-
-    # Clear the elements
     location_ele_start$clearElement()
     location_ele_end$clearElement()
 
-
-    # Define the start location number
     location_start_num <- list(location, key = "enter")
 
-
-    # Send the start location number
     location_ele_start$sendKeysToElement(location_start_num)
 
-
-    # Click on the end location element
     location_ele_end$clickElement()
 
-
-    # Define the XPaths for the start and end dates
     date_start <- "//*[@id=\"datetimepicker0\"]/input"
     date_end <- "//*[@id=\"datetimepicker1\"]/input"
 
-
-    # Find the elements for the start and end dates
     date_ele_start <- remDr$findElement("xpath", date_start)
     date_ele_end <- remDr$findElement("xpath", date_end)
 
-
-    # Clear the elements
     date_ele_start$clearElement()
 
+    date_need_to_download <- stringr::str_replace_all(date, "-", ".")
 
-    # Replace "-" with "." in the date
-    date_need_to_download <- stringr::str_replace_all(as.character(date), "-", ".")
-
-
-    # Define the start and end date numbers
     date_start_num <- list(date_need_to_download, key = "enter")
     date_end_num <- list(date_need_to_download, key = "enter")
 
-
-    # Send the start and end date numbers
     date_ele_start$sendKeysToElement(date_start_num)
     date_ele_end$clearElement()
     date_ele_end$sendKeysToElement(date_end_num)
 
-
-    # Define the XPath for the download button
     download_button <- "//*[@id=\"reports_download_csv_data\"]/div[4]/button"
 
-
-    # Find the download button element and click on it
     download_button_ele <- remDr$findElement("xpath", download_button)
     remDr$mouseMoveToLocation(webElement = download_button_ele)
     remDr$click()
-
-
-    # Refresh the page
-    remDr$refresh()
   }
 
-  #下面的函数中rename待修改
-  all_station_oneday <- function(date) {
-    # Convert the integer date to a Date object and format it
-    date <- format(as.Date(date), "%Y-%m-%d")
-
-    cat(crayon::yellow("\u25CF"), "Downloading CSVs for date:", date, "\n")
-
-    # create a data frame with all combinations of location and date
-    all_comb_station <- tidyr::expand_grid(location = location, date = date)
-
-    # download the csv file for each combination of location and date
-    purrr::pwalk(all_comb_station, ~iter_download(location = ..1, date = ..2), .progress = F)
-
-    # Function to rename a csv file
-    rename_csv <- function(csv) {
-      # Extract the name of the csv file without the extension
-      csv_name <- tools::file_path_sans_ext(basename(csv))
-
-      # Extract location and region from the csv_name using a regex pattern
-      location <- stringr::str_extract(csv_name, "(?<=location)\\d+")
-      # Extract download date from the csv_name using a regex pattern
-      download_date <- stringr::str_extract(csv_name, "(?<=_)\\d+-\\d+-\\d+(?=_)")
-
-      # Construct the new name for the csv file
-      csv_new_name <- paste0("location", location, "_", date, "data_", download_date, "download", ".csv")
-
-      # Determine the target folder based on the file size
-      target_folder <- ifelse(file.size(csv) < 1024, "EmptyCSVs", "NonEmptyCSVs")
-
-      # Construct the destination path
-      destination_path <- file.path(download_path, target_folder, location)
-
-      # Create the destination directory if it does not exist
-      dir.create(destination_path, showWarnings = FALSE)
-
-      # Rename the file
-      file.rename(from = csv, to = file.path(destination_path, csv_new_name))
+  empty <- logical()
+  for (day in unique(date)) {
+    for (station in unique(location)) {
+      result <- tryCatch({
+        if (length(empty)) remDr$refresh()
+        click_report(station, day)
+        report <- wait_for_browser_csv(staging, station)
+        stamp <- stringr::str_extract(basename(report), "(?<=_)\\d{4}-\\d{2}-\\d{2}(?=_)")
+        if (is.na(stamp)) stamp <- format(Sys.Date(), "%Y-%m-%d")
+        save_report(report, download_path, station, day, download_date = stamp)
+      }, error = identity)
+      if (inherits(result, "error")) {
+        report_summary(empty, paste0("Station ", station, ", ", day, ": ", conditionMessage(result)))
+      }
+      empty <- c(empty, result)
     }
-
-    # Get a list of all csv files in the download directory
-    down_list <- list.files(path = download_path, all.files = T, full.names = T, recursive = F, pattern = ".csv$")
-
-    # Filter the list to keep only the files that were downloaded today
-    down_list_keep <- down_list[lubridate::as_date(file.info(down_list)$mtime) == lubridate::as_date(Sys.time())]
-
-    # Apply the rename_csv function to each file in the filtered list
-    purrr::walk(down_list_keep, rename_csv)
   }
-
-  purrr::walk(date, all_station_oneday, .progress = FALSE)
-  cat(crayon::green("\u25CF"), "All stations and dates nedap ppt CSVs had been downloaded.\n")
-
-  remDr$quit() #退出浏览器
-
-  return(invisible(NULL))
+  report_summary(empty)
+  invisible(NULL)
 }
 
-# Function to check and create subdirectories
-checkAndCreateSubdirs <- function(download_path) {
-  # Define subdirectories
-  subdirs <- c("NonEmptyCSVs", "EmptyCSVs")
-
-  # Check and create subdirectories
-  for (subdir in subdirs) {
-    dir_path <- file.path(download_path, subdir)
-    if (!dir.exists(dir_path)) {
-      dir.create(dir_path, showWarnings = FALSE)
-      cat(crayon::blue("\u25CF"), "Created directory:", subdir, "\n")
-    } else {
-      cat(crayon::green("\u25CF"), "Directory already exists:", subdir, "\n")
+wait_for_browser_csv <- function(path, station, timeout = 120, poll_interval = 0.25) {
+  deadline <- Sys.time() + timeout
+  repeat {
+    files <- list.files(path, all.files = TRUE, no.. = TRUE, full.names = TRUE)
+    csv <- files[grepl("\\.csv$", files, ignore.case = TRUE)]
+    if (length(csv) && !any(grepl("\\.crdownload$", files, ignore.case = TRUE))) {
+      filename <- if (length(csv) == 1L) basename(csv) else ""
+      if (!grepl(paste0("location", station, "([^0-9]|$)"), filename, ignore.case = TRUE)) {
+        stop("The browser returned an unexpected or ambiguous CSV for station ", station, ".", call. = FALSE)
+      }
+      return(csv)
     }
+    if (Sys.time() >= deadline) {
+      stop("Timed out waiting for a completed CSV download.", call. = FALSE)
+    }
+    Sys.sleep(poll_interval)
   }
 }
 
-# Function to get browser options for chrome
 get_browser_options <- function(browser = "chrome", download_path) {
   # Check if the browser is 'chrome'
   if (browser != "chrome") {
     stop("Invalid browser specified. Use 'chrome'.") # Stop if it's not
   }
 
-  # Replace forward slashes with backslashes in the download path
-  download_path_temp = gsub("/", "\\\\", download_path)
+  download_path_temp <- normalizePath(download_path, winslash = "\\", mustWork = TRUE)
 
   # Create a list of chrome options
   browser_options <- list(
@@ -261,7 +169,6 @@ get_browser_options <- function(browser = "chrome", download_path) {
 
 # Function to login to a website using Selenium
 login_to_website <- function(remDr, url, username, password) {
-  remDr$open() # Open the remote driver
   remDr$navigate(url) # Navigate to the specified URL
 
   # Define XPaths for username and password input fields

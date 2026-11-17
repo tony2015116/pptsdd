@@ -6,14 +6,14 @@
 #'
 #' `get_csv_schedule()` is used to make download task.
 #' 
-#' @param taskname A character string with the name of the task. Defaults to the filename. Should not contain any spaces.
+#' @param taskname A character string with the name of the task. Should not contain any spaces.
 #' @param schedule Either one of 'ONCE', 'MONTHLY', 'WEEKLY', 'DAILY', 'HOURLY', 'MINUTE', 'ONLOGON', 'ONIDLE.
-#' @param starttime A time point in HH:mm format indicating when to run the script. Defaults to within 62 seconds
-#' @param startdate A date that specifies the first date on which to run the task. Only applicable if schedule is of type 'MONTHLY', 'WEEKLY', 'DAILY', 'HOURLY', 'MINUTE'. Defaults to today in '%d/%m/%Y' format. Change to your locale format if needed.
-#' @param rscript_args Character string with further arguments passed on to Rscript.
-#' @param ... other parameters.
+#' @param starttime A time point in HH:MM format indicating when to run the script.
+#' @param startdate A date that specifies the first date on which to run the task. Only applicable if schedule is of type 'MONTHLY', 'WEEKLY', 'DAILY', 'HOURLY', 'MINUTE'. Use the Windows task scheduler's date format for your locale.
+#' @param rscript_args A named list of download arguments. Optionally set password_env to the name of the password environment variable (default password). The task account must provide the variable when the script runs.
+#' @param ... Additional arguments passed to the Windows task scheduler.
 #'
-#' @return CSV files in the path of save_path.
+#' @return The output of the Windows task registration command.
 #' @export
 #' @examples
 #' # Make a download task
@@ -23,7 +23,7 @@
 #'                  startdate = format(Sys.Date(), "%Y/%m/%d"),
 #'                  rscript_args = list(url = Sys.getenv("url"),
 #'                                      username = Sys.getenv("username"),
-#'                                      password = Sys.getenv("password"),
+#'                                      password_env = "password",
 #'                                      location = c("606","607"),
 #'                                      download_path = "C:/Users/Dell/Downloads/download_rename"))
 #' # Delete download task
@@ -31,52 +31,80 @@
 #' # Reset selenium webdriver service
 #' disconnect_from_browser()
 
-get_csv_schedule <- function (taskname, schedule, starttime, startdate, rscript_args = NULL, ...) {
-  if (missing(taskname) || !is.character(taskname) || length(taskname) !=
-      1) {
-    stop("taskname must be a single character string")
+get_csv_schedule <- function(taskname, schedule, starttime, startdate, rscript_args = NULL, ...) {
+  schedule_nedap_download("get_csv_auto", taskname, schedule, starttime, startdate, rscript_args, ...)
+}
+
+schedule_nedap_download <- function(downloader, taskname, schedule, starttime, startdate, rscript_args, ...) {
+  validate_text(taskname, "taskname")
+  validate_text(schedule, "schedule")
+  validate_text(starttime, "starttime")
+  validate_text(startdate, "startdate")
+  if (!grepl("^([01][0-9]|2[0-3]):[0-5][0-9]$", starttime)) {
+    stop("starttime must be a valid HH:MM time.", call. = FALSE)
   }
-  if (missing(schedule) || !is.character(schedule) || length(schedule) !=
-      1) {
-    stop("schedule must be a single character string")
+  if (!grepl("^[0-9]+([./-][0-9]+){2}$", startdate)) {
+    stop("startdate must be a numeric date in the Windows task scheduler's locale format.", call. = FALSE)
   }
-  if (missing(starttime) || !is.character(starttime) || length(starttime) !=
-      1) {
-    stop("starttime must be a single character string")
+
+  lines <- scheduled_download_script(downloader, rscript_args)
+  directory <- prepare_download_directory("C:/Temp/pptsdd")
+  script <- tempfile("task-", tmpdir = directory, fileext = ".R")
+  registered <- FALSE
+  on.exit(if (!registered) unlink(script), add = TRUE)
+  writeLines(lines, script, useBytes = TRUE)
+
+  result <- taskscheduleR::taskscheduler_create(
+    taskname = taskname, rscript = script, schedule = schedule, starttime = starttime,
+    startdate = startdate, rscript_args = NULL, ...
+  )
+  status <- attr(result, "status", exact = TRUE)
+  if (!is.null(status) && status != 0L) {
+    stop("Windows could not register task ", taskname, ".", call. = FALSE)
   }
-  if (missing(startdate) || !is.character(startdate) || length(startdate) !=
-      1) {
-    stop("startdate must be a single character string")
+  registered <- TRUE
+  result
+}
+
+scheduled_download_script <- function(downloader, args) {
+  required <- c("url", "username", "location", "download_path")
+  if (downloader == "download_csv_auto") required <- c(required, "csv_position")
+  optional <- c("password", "password_env")
+  if (downloader == "get_csv_auto") optional <- c(optional, "show_message")
+
+  if (!is.list(args) || !all(required %in% names(args)) || anyDuplicated(names(args)) ||
+      length(setdiff(names(args), c(required, optional))) ||
+      length(names(args)) != length(args)) {
+    stop("rscript_args must be a named list with ", paste(required, collapse = ", "),
+         " and supported optional arguments.", call. = FALSE)
   }
-  if (missing(rscript_args) || !is.list(rscript_args)) {
-    stop("rscript_args must be a list of arguments")
+
+  password_env <- if ("password_env" %in% names(args)) args[["password_env"]] else "password"
+  validate_text(password_env, "password_env")
+  if (!grepl("^[A-Za-z_][A-Za-z0-9_]*$", password_env)) {
+    stop("password_env must be an environment variable name.", call. = FALSE)
   }
-  short_temp_path <- "C:/Temp"
-  dir.create(short_temp_path, showWarnings = FALSE)
-  script_file <- file.path(short_temp_path, paste0(taskname,
-                                                   "_", sample(letters, 1), ".R"))
-  my_function <- function(...) {
-    pptsdd::get_csv_auto(date = Sys.Date() - 1,
-                         ...)
+  if ("password" %in% names(args) &&
+      !identical(args[["password"]], Sys.getenv(password_env, unset = ""))) {
+    stop("Set the task account's password environment variable and supply password_env instead of a literal password.",
+         call. = FALSE)
   }
-  config_file <- file.path(short_temp_path, paste0("config_",
-                                                   taskname, ".txt"))
-  cat("arg_list <- ", capture.output(dput(rscript_args)), file = config_file)
-  write_function_to_script <- function(func, file_path, config_path) {
-    func_name <- deparse(substitute(func))
-    lines <- capture.output(dump(func_name, stdout()))
-    lines <- c(lines, sprintf("source('%s')", config_path))
-    lines <- c(lines, sprintf("do.call(%s, arg_list)", func_name))
-    if (!file.exists(script_file)) {
-      file.create(script_file)
-    }
-    con <- file(script_file, "w")
-    on.exit(close(con), add = TRUE)
-    writeLines(lines, con)
+  args[["password"]] <- NULL
+  args[["password_env"]] <- NULL
+
+  validate_text(args[["url"]], "url")
+  validate_text(args[["username"]], "username")
+  validate_locations(args[["location"]])
+  if (downloader == "download_csv_auto") {
+    validate_locations(args[["csv_position"]], "csv_position", scalar = TRUE)
   }
-  write_function_to_script(func = my_function, file_path = script_file,
-                           config_path = config_file)
-  taskscheduleR::taskscheduler_create(taskname = taskname,
-                                      rscript = script_file, schedule = schedule, starttime = starttime,
-                                      startdate = startdate, rscript_args = NULL, ...)
+  if ("show_message" %in% names(args)) validate_show_message(args[["show_message"]])
+  args[["download_path"]] <- prepare_download_directory(args[["download_path"]])
+
+  c("arg_list <-", utils::capture.output(dput(args)),
+    paste0("password_env <- ", encodeString(password_env, quote = '"')),
+    'arg_list$password <- Sys.getenv(password_env, unset = "")',
+    'if (!nzchar(arg_list$password)) stop("Set the password environment variable for the scheduled account: ", password_env, call. = FALSE)',
+    'arg_list$date <- Sys.Date() - 1L',
+    paste0("do.call(pptsdd::", downloader, ", arg_list)"))
 }

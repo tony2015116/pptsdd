@@ -8,17 +8,13 @@ Authors@R: c(
 Description: An R package that can automatically or periodically download
     data from the Nedap website in pig farm.
 License: CC BY-NC-ND 4.0 + file LICENSE
+Depends:
+    R (>= 4.1.0)
 Imports: 
-    cli,
-    crayon,
     httr2,
-    lubridate,
-    purrr,
     RSelenium,
     stringr,
     taskscheduleR,
-    tidyr,
-    tools,
     utils,
     wdauto
 Suggests: 

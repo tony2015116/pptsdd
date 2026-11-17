@@ -21,9 +21,9 @@ get_csv_auto(
 
 \item{password}{A character string specifying the password for login.}
 
-\item{location}{A character string specifying the location.}
+\item{location}{A character vector of numeric station IDs.}
 
-\item{date}{A Date object specifying the date.}
+\item{date}{A vector of Date values or YYYY-MM-DD strings.}
 
 \item{download_path}{A character string specifying the path where the downloaded CSV file should be saved.}
 

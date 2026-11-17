@@ -9,14 +9,13 @@
 #' @param url A character string specifying the URL to log into.
 #' @param username A character string specifying the username for login.
 #' @param password A character string specifying the password for login.
-#' @param location A character string specifying the location.
-#' @param date A Date object specifying the date.
+#' @param location A character vector of numeric station IDs.
+#' @param date A vector of Date values or YYYY-MM-DD strings.
 #' @param download_path A character string specifying the path where the downloaded CSV file should be saved.
 #' @param show_message A logical value. If TRUE, a message will be displayed after the download. Default is FALSE.
 #'
 #' @return CSVs in the path of download_path.
 #' 
-#' @importFrom cli "pb_spin" "pb_current" "pb_total"
 #' @export
 #' @examples
 #' # Download CSV data for a specific location or date
@@ -27,73 +26,32 @@
 #'              date = c("2024-02-18", "2024-02-19"),
 #'              download_path = "C:/Users/Dell/Downloads/download_rename")
 
-get_csv_auto <- function(url, username, password, location, date, download_path, show_message = FALSE){
-  # Function to check and create subdirectories
-  checkAndCreateSubdirs(download_path)
+get_csv_auto <- function(url, username, password, location, date, download_path, show_message = FALSE) {
+  validate_locations(location)
+  date <- normalize_report_dates(date)
+  validate_show_message(show_message)
+  download_path <- prepare_download_directory(download_path)
 
-  # Login url
-  login_request <- login_nedap(url, username, password)
+  cookie_file <- tempfile()
+  on.exit(unlink(cookie_file), add = TRUE)
+  report_request <- login_nedap(url, username, password, cookie_file)
 
-  # download csv in each station each day
-  download_oneday_eachstation <- function(location, date) {
-    download_csv(login_respond = login_request, location_min = location, location_max = location, date_min = date, date_max = date, download_path, show_message)
-  }
-  all_station_perday <- function(date) {
-    # check if input parameter is missing
-    if (missing(date)) {
-      stop("Missing required input parameter: date.")
+  empty <- logical()
+  failures <- character()
+  for (day in unique(date)) {
+    for (station in unique(location)) {
+      result <- tryCatch(
+        download_csv(report_request, station, station, day, day, download_path,
+                     station, day, archive = TRUE, show_message = show_message),
+        error = identity
+      )
+      if (inherits(result, "error")) {
+        failures <- c(failures, paste0("Station ", station, ", ", day, ": ", conditionMessage(result)))
+      } else {
+        empty <- c(empty, result)
+      }
     }
-
-    # check input parameter
-    stopifnot(length(date) == 1)
-
-    # Convert the integer date to a Date object and format it
-    date <- format(as.Date(date), "%Y-%m-%d")
-
-    # create a data frame with all combinations of location and date
-    all_comb_station <- tidyr::expand_grid(location = location, date = date)
-
-    cat(crayon::yellow("\u25CF"), "Downloading CSVs for date:", date, "\n")
-
-    # download the csv file for each combination of location and date
-    purrr::pwalk(all_comb_station, ~download_oneday_eachstation(location = ..1, date = ..2), .progress = F)
-
-    # Function to rename a csv file
-    Rename_csv <- function(csv) {
-      # Extract the name of the csv file without the extension
-      csv_name <- tools::file_path_sans_ext(basename(csv))
-      
-      # Extract file name
-      file_name <- basename(csv)
-
-      # Extract location and region from the csv_name using a regex pattern
-      location <- stringr::str_extract(csv_name, "(?<=location)\\d+")
-      
-      # Determine the target folder based on the file size
-      target_folder <- ifelse(file.size(csv) < 1024, "EmptyCSVs", "NonEmptyCSVs")
-
-      # Construct the destination path
-      destination_path <- file.path(download_path, target_folder, location)
-
-      # Create the destination directory if it does not exist
-      dir.create(destination_path, showWarnings = FALSE)
-
-      # Rename the file
-      file.rename(from = csv, to = file.path(destination_path, file_name))
-    }
-
-    # Get a list of all csv files in the download directory
-    down_list <- list.files(path = download_path, all.files = T, full.names = T, recursive = F, pattern = ".csv$")
-
-    # Filter the list to keep only the files that were downloaded today
-    down_list_keep <- down_list[lubridate::as_date(file.info(down_list)$mtime) == lubridate::as_date(Sys.time())]
-
-    # Apply the rename_csv function to each file in the filtered list
-    purrr::walk(down_list_keep, Rename_csv)
   }
-  purrr::walk(date, all_station_perday, .progress = list(
-    type = "iterator",
-    format = "{cli::pb_spin} Downloading {cli::pb_current}/{cli::pb_total} dates",#"Downloading [:date] {cli::pb_bar} {cli::pb_percent}",
-    clear = TRUE))
-  cat(crayon::green("\u25CF"), "All stations and dates nedap ppt CSVs had been downloaded.\n")
+  report_summary(empty, failures)
+  invisible(NULL)
 }

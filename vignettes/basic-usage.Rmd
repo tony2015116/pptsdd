@@ -96,7 +96,7 @@ download_csv_schedule(taskname = "ppt_csv_download",
                       startdate = format(Sys.Date(), "%Y/%m/%d"),
                       rscript_args = list(url = Sys.getenv("url"),
                                           username = Sys.getenv("username"),
-                                          password = Sys.getenv("password"),
+                                          password_env = "password",
                                           location = c("606","607"),
                                           csv_position = "1",
                                           download_path = "C:/Users/Dell/Downloads/download_temp"))
@@ -152,7 +152,7 @@ get_csv_schedule(taskname = "ppt_csv_download",
                  startdate = format(Sys.Date(), "%Y/%m/%d"),
                  rscript_args = list(url = Sys.getenv("url"),
                                      username = Sys.getenv("username"),
-                                     password = Sys.getenv("password"),
+                                     password_env = "password",
                                      location = c("606","607"),
                                      download_path = "C:/Users/Dell/Downloads/download_rename"))
 # Delete download task

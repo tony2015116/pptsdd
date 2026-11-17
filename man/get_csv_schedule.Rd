@@ -14,20 +14,20 @@ get_csv_schedule(
 )
 }
 \arguments{
-\item{taskname}{A character string with the name of the task. Defaults to the filename. Should not contain any spaces.}
+\item{taskname}{A character string with the name of the task. Should not contain any spaces.}
 
 \item{schedule}{Either one of 'ONCE', 'MONTHLY', 'WEEKLY', 'DAILY', 'HOURLY', 'MINUTE', 'ONLOGON', 'ONIDLE.}
 
-\item{starttime}{A time point in HH:mm format indicating when to run the script. Defaults to within 62 seconds}
+\item{starttime}{A time point in HH:MM format indicating when to run the script.}
 
-\item{startdate}{A date that specifies the first date on which to run the task. Only applicable if schedule is of type 'MONTHLY', 'WEEKLY', 'DAILY', 'HOURLY', 'MINUTE'. Defaults to today in '\%d/\%m/\%Y' format. Change to your locale format if needed.}
+\item{startdate}{A date that specifies the first date on which to run the task. Only applicable if schedule is of type 'MONTHLY', 'WEEKLY', 'DAILY', 'HOURLY', 'MINUTE'. Use the Windows task scheduler's date format for your locale.}
 
-\item{rscript_args}{Character string with further arguments passed on to Rscript.}
+\item{rscript_args}{A named list of download arguments. Optionally set password_env to the name of the password environment variable (default password). The task account must provide the variable when the script runs.}
 
-\item{...}{other parameters.}
+\item{...}{Additional arguments passed to the Windows task scheduler.}
 }
 \value{
-CSV files in the path of save_path.
+The output of the Windows task registration command.
 }
 \description{
 \code{get_csv_schedule()} is used to make download task.
@@ -40,7 +40,7 @@ get_csv_schedule(taskname = "ppt_csv_download",
                  startdate = format(Sys.Date(), "\%Y/\%m/\%d"),
                  rscript_args = list(url = Sys.getenv("url"),
                                      username = Sys.getenv("username"),
-                                     password = Sys.getenv("password"),
+                                     password_env = "password",
                                      location = c("606","607"),
                                      download_path = "C:/Users/Dell/Downloads/download_rename"))
 # Delete download task
