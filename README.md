@@ -1,124 +1,145 @@
-# pptsdd <a href='https://tony2015116.github.io/pptsdd/'><img src='man/figures/logo.svg'  width="120" align="right" />
-<!--apple-touch-icon-120x120.png-->
-<!-- <picture><source srcset="reference/figures/apple-touch-icon-120x120.png" media="(prefers-color-scheme: dark)"></picture> -->
+# pptsdd <a href="https://tony2015116.github.io/pptsdd/"><img src="man/figures/logo.svg" width="120" align="right" alt="pptsdd 标志"></a>
+
 <!-- badges: start -->
-[![GitHub R package version](https://img.shields.io/github/r-package/v/tony2015116/pptsdd)](#)
-[![GitHub last commit](https://img.shields.io/github/last-commit/tony2015116/pptsdd)](#)
+[![GitHub R package version](https://img.shields.io/github/r-package/v/tony2015116/pptsdd)](DESCRIPTION)
+[![GitHub last commit](https://img.shields.io/github/last-commit/tony2015116/pptsdd)](https://github.com/tony2015116/pptsdd/commits/master/)
 <!-- badges: end -->
 
-**pptsdd** is an R package that enables automatic downloading of data from pig performance test stations. The package stands for 'Pig Performance Test Station Data Download'. With pptsdd, managing test station data is made much more efficient, as the package automates the process of downloading data from these stations. This allows for a more streamlined workflow for test station data management personnel.
+**pptsdd**（Pig Performance Test Station Data Download）是一个 R 包，用于从 Nedap 生猪性能测定站下载 CSV。可以按站点和日期范围导出，也可以将每个站点每天的数据分别保存，并在 Windows 上定时下载前一天的报表。
 
-# Installation
-You can install the development version from GitHub with:
-``` r
-# install.packages("devtools")
-devtools::install_github("tony2015116/pptsdd")
-# install.packages("pak")
-pak::pak("tony2015116/pptsdd")
+| 需求 | 函数 | 下载方式 |
+| --- | --- | --- |
+| 合并导出一段站点范围和日期范围的数据 | `get_csv()` | HTTP |
+| 每个站点、每天分别保存一份 CSV | `get_csv_auto()` | HTTP |
+| 通过网页菜单选择 CSV 报表 | `download_csv_auto()` | Chrome + Selenium |
+| 每天在指定时间下载前一天的数据 | `get_csv_schedule()` / `download_csv_schedule()` | Windows 任务计划程序 |
+
+能用 HTTP 取得所需报表时，从 `get_csv()` 或 `get_csv_auto()` 开始。需要通过网页菜单选择报表时，使用 Selenium。
+
+## 一、安装
+
+当前版本的安装环境为 **Windows 和 R 4.1.0 或更高版本**。包依赖 Windows 专用的 `taskscheduleR`，所以即使只用 HTTP 下载，安装时也需要该依赖。Selenium 下载还需要 Google Chrome 和可从系统 PATH 调用的 Java。
+
+```r
+install.packages("pak")
+pak::pkg_install("tony2015116/wdauto")
+pak::pkg_install("tony2015116/pptsdd")
 ```
 
-## Example
+## 二、配置测定站账号
 
-This is a basic example which shows you how to download pig performance test CSVs data:
+运行 `file.edit(path.expand("~/.Renviron"))`，把下面三行填入当前账户的 `.Renviron`，将示例值换成你的实际信息。网址填写测定站根地址即可。
 
-``` r
-# Install packages
-install.packages("httr2")
-install.packages("rvest")
-install.packages("pak")
-pak::pak(tony2015116/wdauto)
-pak::pak("tony2015116/pptsdd")
+```text
+NEDAP_URL=https://your-site.vpu-online.cn
+NEDAP_USERNAME=your_username
+NEDAP_PASSWORD="your_password"
+```
 
-# Require packages
+保存后重启 R。以下变量和输出目录供后面的示例共用。第一次试跑时，请把第 3 节示例中的站点编号和日期换成有数据的实际值。
+
+```r
 library(pptsdd)
 
-# Set parameters
-url = "https://xxxxx.vpu-online.cn/"
-username = "pigfarm1"
-password = "12345"
-csv_pisition = "1" # 1 or 4
+url <- Sys.getenv("NEDAP_URL")
+username <- Sys.getenv("NEDAP_USERNAME")
+password <- Sys.getenv("NEDAP_PASSWORD")
+download_path <- file.path(path.expand("~"), "pptsdd-data")
 
-location = "607" # one location
-location = c("607", "608") # two or more locations
-location = purrr::map_chr(seq(607L, 612L, 1L), as.charater) # many sequentially numbered locations
-
-date = "2024-02-18" # one date
-date = c("2024-02-18","2024-02-19") # two or more dates
-date = seq(as.Date("2024-02-18"), as.Date("2024-02-28"), 1) # many sequentially dates
-
-download_path = "path/of/saving/you/data"
-
-# Selenium Web Scraping
-## start selenium webdriver service
-connect_to_browser(dest_dir = "path/to/destination/directory")
-## download csv data
-download_csv_auto(url = Sys.getenv("url"),
-                  username = Sys.getenv("username"),
-                  password = Sys.getenv("password"),
-                  csv_position = "1", # 1 or 4
-                  location = c("606","607"), 
-                  date = c("2024-02-18","2024-02-19"), 
-                  download_path = "C:/Users/Dell/Downloads/download_rename")
-## download csv data in a task schedule
-download_csv_schedule(taskname = "ppt_csv_download",
-                      schedule = "DAILY",
-                      starttime = "20:00",
-                      startdate = format(Sys.Date(), "%Y/%m/%d"),
-                      rscript_args = list(url = Sys.getenv("url"),
-                                          username = Sys.getenv("username"),
-                                          password_env = "password",
-                                          location = c("606","607"),
-                                          csv_position = "1",
-                                          download_path = "C:/Users/Dell/Downloads/download_rename"))
-## reset selenium webdriver
-disconnect_from_browser() # if you use download_csv_schedule() make a download task, please don't run this code.
-## delete download task
-taskscheduleR::taskscheduler_delete(taskname = "ppt_csv_download")
-
-# Direct Web Scraping
-## download CSV data for a specific location range or date range.
-get_csv(url = Sys.getenv("url"),
-        username = Sys.getenv("username"),
-        password = Sys.getenv("password"),
-        location_min = "406",
-        location_max = "407",
-        date_min = "2024-02-18",
-        date_max = "2024-02-19",
-        download_path = "C:/Users/Dell/Downloads/download_rename", 
-        show_message = TRUE)
-## download CSV data for a specific location or date
-get_csv_auto(url = Sys.getenv("url"),
-             username = Sys.getenv("username"),
-             password = Sys.getenv("password"),
-             location = c("607","608"),
-             date = c("2024-02-18", "2024-02-19"),
-             download_path = "C:/Users/Dell/Downloads/download_rename")
-## make a download task
-get_csv_schedule(taskname = "ppt_csv_download",
-                 schedule = "DAILY",
-                 starttime = "20:00",
-                 startdate = format(Sys.Date(), "%Y/%m/%d"),
-                 rscript_args = list(url = Sys.getenv("url"),
-                                     username = Sys.getenv("username"),
-                                     password_env = "password",
-                                     location = c("606","607"),
-                                     download_path = "C:/Users/Dell/Downloads/download_rename"))
-## delete download task
-taskscheduleR::taskscheduler_delete(taskname = "ppt_csv_download")
-## reset selenium webdriver service
-disconnect_from_browser()
+stopifnot(all(nzchar(c(url, username, password))))
 ```
 
-## Upgrading existing Windows download tasks
+## 三、直接下载 CSV
 
-Create the password environment variable for the Windows account that runs the
-task, then recreate the task with the updated package. The examples use the
-variable `password`. Set `password_env` in `rscript_args` to use a different name.
-For tasks running as your Windows user, a variable set in that user's
-`.Renviron` (for example under `R_USER`) can also be read by R at startup.
-A variable set only in the current interactive R session is unavailable to
-future scheduled processes unless their startup configuration sets it too.
+### 按范围导出一份 CSV
 
-The updated task continues to download yesterday's data. Once the replacement
-task runs successfully, remove the old task's unused script and its
-`C:/Temp/config_<taskname>.txt` file, which may contain the original password.
+下面向测定站请求站点 `606` 至 `608`、2024 年 2 月 18 日至 19 日的报表。结果直接保存到 `download_path`。
+
+```r
+get_csv(
+  url = url, username = username, password = password,
+  location_min = "606", location_max = "608",
+  date_min = "2024-02-18", date_max = "2024-02-19",
+  download_path = download_path,
+  show_message = TRUE
+)
+```
+
+### 按站点和日期逐份下载
+
+下面请求两个站点、两个日期，共四份报表。站点编号用字符串表示，日期支持 `Date` 和 `YYYY-MM-DD` 字符串。
+
+```r
+get_csv_auto(
+  url = url, username = username, password = password,
+  location = c("606", "608"),
+  date = seq(as.Date("2024-02-18"), as.Date("2024-02-19"), by = "day"),
+  download_path = download_path,
+  show_message = TRUE
+)
+```
+
+## 四、使用 Chrome 下载
+
+先启动 Selenium，再通过 `csv_position` 指定 CSV 报表在网页列表中的位置。示例使用第 1 项，请根据实际页面调整。
+
+```r
+driver_dir <- "C:/pptsdd-webdriver"
+dir.create(driver_dir, recursive = TRUE, showWarnings = FALSE)
+connect_to_browser(dest_dir = driver_dir)
+
+download_csv_auto(
+  url = url, username = username, password = password,
+  csv_position = "1",
+  location = c("606", "608"),
+  date = "2024-02-18",
+  download_path = download_path
+)
+```
+
+每次下载结束后会关闭本次创建的浏览器会话。若要停止 Selenium 服务，请留意 `disconnect_from_browser()` 调用的 `wdauto::reset_cs()` 会清理当前账户启动目录中的所有 `.bat` 文件。 [wdauto 源码](https://github.com/tony2015116/wdauto/blob/main/R/reset_cs.R)
+
+## 五、设置每日定时下载
+
+下面创建名为 `nedap_csv_daily` 的任务，从明天开始，每天 20:00 以电脑本地时间下载前一天的数据。请按 Windows 地区设置填写 `startdate`，示例采用年/月/日。
+
+```r
+task_args <- list(
+  url = url,
+  username = username,
+  password_env = "NEDAP_PASSWORD",
+  location = c("606", "608"),
+  download_path = download_path
+)
+
+get_csv_schedule(
+  taskname = "nedap_csv_daily",
+  schedule = "DAILY",
+  starttime = "20:00",
+  startdate = format(Sys.Date() + 1L, "%Y/%m/%d"),
+  rscript_args = task_args
+)
+```
+
+若需通过浏览器定时下载，改用 `download_csv_schedule()`，并将参数列表设为 `c(task_args, list(csv_position = "1"))`。任务运行时 Selenium 服务需要已启动。
+
+- **密码**由任务执行账户在运行时读取。`password_env` 填变量名。可在该账户的 `.Renviron` 中配置，或为该账户设置 Windows 环境变量。
+- **验证**可在 Windows 任务计划程序里手动运行一次，查看输出目录和 `C:/Temp/pptsdd/` 下对应的 `.log` 文件。
+- **删除任务**可运行 `taskscheduleR::taskscheduler_delete("nedap_csv_daily")`。
+
+### 迁移旧版定时任务
+
+先为任务执行账户配置密码变量，再创建新版任务。若需沿用原任务名，先删除同名旧任务。确认新版任务成功运行后，清理旧脚本和 `C:/Temp/config_<任务名>.txt`，旧配置可能包含明文密码。
+
+## 六、查看结果与排查问题
+
+批量下载会在 `download_path` 下按站点归档。`NonEmptyCSVs/<站点>/` 存放有数据行的 CSV，`EmptyCSVs/<站点>/` 存放只有表头的 CSV。文件名包含报表日期和下载日期，例如 `location606_2024-02-18data_2024-02-20download.csv`。
+
+| 现象 | 检查项 |
+| --- | --- |
+| 登录失败或返回非 CSV 报表 | 确认站点根地址、账号和报表权限。可先在浏览器中登录并手动导出同一份报表。 |
+| CSV 被归到 `EmptyCSVs` | 检查对应站点和日期在 Nedap 网页中是否有数据。 |
+| 浏览器下载超时 | 检查 Chrome、ChromeDriver 和 Selenium 服务，以及 `csv_position` 对应的报表。 |
+| 手动下载成功，定时任务失败 | 检查任务执行账户能否读取密码变量、写入输出目录，并查看任务日志。 |
+
+[函数参考](https://tony2015116.github.io/pptsdd/reference/) · [更新记录](NEWS.md) · [许可证](LICENSE.md) · [反馈问题](https://github.com/tony2015116/pptsdd/issues)
