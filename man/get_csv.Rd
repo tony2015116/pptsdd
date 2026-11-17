@@ -27,9 +27,9 @@ get_csv(
 
 \item{location_max}{A character string specifying the maximum location.}
 
-\item{date_min}{A Date object specifying the earliest date.}
+\item{date_min}{The earliest date as a Date or YYYY-MM-DD string.}
 
-\item{date_max}{A Date object specifying the latest date.}
+\item{date_max}{The latest date as a Date or YYYY-MM-DD string.}
 
 \item{download_path}{A character string specifying the path where the downloaded CSV file should be saved.}
 

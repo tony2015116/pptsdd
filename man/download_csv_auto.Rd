@@ -21,16 +21,16 @@ download_csv_auto(
 
 \item{password}{The password of pig performance test station website.}
 
-\item{csv_position}{The pisiton of csv download item.}
+\item{csv_position}{The position of the CSV report in the browser menu, as a numeric string.}
 
 \item{location}{Numeric value in string format.}
 
-\item{date}{The dates of data download.}
+\item{date}{A vector of Date values or YYYY-MM-DD strings.}
 
 \item{download_path}{The folder of downloading csv files.}
 }
 \value{
-CSVs in the path of save_path.
+Invisibly NULL. Writes CSVs to the download directory.
 }
 \description{
 \code{download_csv_auto()} is used to download CSVs from chrome browser.

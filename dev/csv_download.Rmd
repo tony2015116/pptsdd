@@ -99,228 +99,136 @@ This first section shows:
 #' @param url The login url of pig performance test station website.
 #' @param username The username of pig performance test station website.
 #' @param password The password of pig performance test station website.
-#' @param csv_position The pisiton of csv download item.
+#' @param csv_position The position of the CSV report in the browser menu, as a numeric string.
 #' @param location Numeric value in string format.
-#' @param date The dates of data download.
+#' @param date A vector of Date values or YYYY-MM-DD strings.
 #' @param download_path The folder of downloading csv files.
 #'
-#' @return CSVs in the path of save_path.
+#' @return Invisibly NULL. Writes CSVs to the download directory.
 #' 
-#' @importFrom utils "capture.output"
 #' @export
 
 download_csv_auto <- function(url, username, password, csv_position, location, date, download_path) {
-  # Argument checks
-  if (!is.character(url))
-    stop("url must be a character string.")
-  if (!is.character(username))
-    stop("username must be a character string.")
-  if (!is.character(password))
-    stop("password must be a character string.")
-  if (!is.character(csv_position))
-    stop("csv_position must be a character value.")
-  if (!is.vector(location) ||
-      !is.character(location))
-    stop("location must be a character vector.")
-  if (is.null(try(as.Date(date), silent = TRUE)
-  ))
-    stop("The 'date' parameter must be a valid date string.")
-  if (!is.character(download_path))
-    stop("download_path must be a character string.")
+  urls <- nedap_urls(url, username, password)
+  validate_locations(csv_position, "csv_position", scalar = TRUE)
+  validate_locations(location)
+  date <- normalize_report_dates(date)
+  download_path <- prepare_download_directory(download_path)
+  staging <- tempfile(".pptsdd-", tmpdir = download_path)
+  staging <- prepare_download_directory(staging)
+  on.exit(unlink(staging, recursive = TRUE), add = TRUE)
 
-  # Function to check and create subdirectories
-  checkAndCreateSubdirs(download_path)
-  # Login url
-  url <- paste0(url, "/login/LoginPage.web")
-  # Function to get browser options for chrome
-  browser_opts <- get_browser_options(browser = "chrome", download_path)
-
+  browser_opts <- get_browser_options(browser = "chrome", staging)
   remDr <- RSelenium::remoteDriver(
     browserName = browser_opts$browserName,
     extraCapabilities = browser_opts$options,
     remoteServerAddr = "127.0.0.1",
     port = 4444
   )
-  # Function to login to a website using Selenium
-  capture.output(login_to_website(remDr, url, username, password)) #阻止打印
+  utils::capture.output(remDr$open())
+  on.exit(try(remDr$close(), silent = TRUE), add = TRUE, after = FALSE)
+  remDr$setImplicitWaitTimeout(milliseconds = 10000)
+  login_to_website(remDr, urls[["login"]], username, password)
 
-  Sys.sleep(sample(10, 1))
-
-  # Define a function that downloads data for a specified station and date
-  iter_download <- function(location, date) {
-    # Define the XPath for the item to choose
+  click_report <- function(location, date) {
     choose_item <- "/html/body/div[1]/div[1]/ul/li[4]/a"
 
-
-    # Find the element and click on it
     choose_ele <- remDr$findElement("xpath", choose_item)
     remDr$mouseMoveToLocation(webElement = choose_ele)
     remDr$click()
 
-
-    # Define the XPath for the download item
     download_item <- paste0("//*[@id=\"reports_page\"]/div[2]/div/div[3]/ol/li[",csv_position,"]/a")
 
-
-    # Find the download element and click on it
     download_ele <- remDr$findElement("xpath", download_item)
     remDr$mouseMoveToLocation(webElement = download_ele)
     remDr$click()
 
-
-    # Define the XPaths for the start and end locations
     location_start <- "//*[@id=\"criteria\"]/report-selection-range/div/div/div/div[1]/input"
     location_end <- "//*[@id=\"criteria\"]/report-selection-range/div/div/div/div[2]/input"
 
-
-    # Find the elements for the start and end locations
     location_ele_start <- remDr$findElement("xpath", location_start)
     location_ele_end <- remDr$findElement("xpath", location_end)
 
-
-    # Clear the elements
     location_ele_start$clearElement()
     location_ele_end$clearElement()
 
-
-    # Define the start location number
     location_start_num <- list(location, key = "enter")
 
-
-    # Send the start location number
     location_ele_start$sendKeysToElement(location_start_num)
 
-
-    # Click on the end location element
     location_ele_end$clickElement()
 
-
-    # Define the XPaths for the start and end dates
     date_start <- "//*[@id=\"datetimepicker0\"]/input"
     date_end <- "//*[@id=\"datetimepicker1\"]/input"
 
-
-    # Find the elements for the start and end dates
     date_ele_start <- remDr$findElement("xpath", date_start)
     date_ele_end <- remDr$findElement("xpath", date_end)
 
-
-    # Clear the elements
     date_ele_start$clearElement()
 
+    date_need_to_download <- stringr::str_replace_all(date, "-", ".")
 
-    # Replace "-" with "." in the date
-    date_need_to_download <- stringr::str_replace_all(as.character(date), "-", ".")
-
-
-    # Define the start and end date numbers
     date_start_num <- list(date_need_to_download, key = "enter")
     date_end_num <- list(date_need_to_download, key = "enter")
 
-
-    # Send the start and end date numbers
     date_ele_start$sendKeysToElement(date_start_num)
     date_ele_end$clearElement()
     date_ele_end$sendKeysToElement(date_end_num)
 
-
-    # Define the XPath for the download button
     download_button <- "//*[@id=\"reports_download_csv_data\"]/div[4]/button"
 
-
-    # Find the download button element and click on it
     download_button_ele <- remDr$findElement("xpath", download_button)
     remDr$mouseMoveToLocation(webElement = download_button_ele)
     remDr$click()
-
-
-    # Refresh the page
-    remDr$refresh()
   }
 
-  #下面的函数中rename待修改
-  all_station_oneday <- function(date) {
-    # Convert the integer date to a Date object and format it
-    date <- format(as.Date(date), "%Y-%m-%d")
-
-    cat(crayon::yellow("\u25CF"), "Downloading CSVs for date:", date, "\n")
-
-    # create a data frame with all combinations of location and date
-    all_comb_station <- tidyr::expand_grid(location = location, date = date)
-
-    # download the csv file for each combination of location and date
-    purrr::pwalk(all_comb_station, ~iter_download(location = ..1, date = ..2), .progress = F)
-
-    # Function to rename a csv file
-    rename_csv <- function(csv) {
-      # Extract the name of the csv file without the extension
-      csv_name <- tools::file_path_sans_ext(basename(csv))
-
-      # Extract location and region from the csv_name using a regex pattern
-      location <- stringr::str_extract(csv_name, "(?<=location)\\d+")
-      # Extract download date from the csv_name using a regex pattern
-      download_date <- stringr::str_extract(csv_name, "(?<=_)\\d+-\\d+-\\d+(?=_)")
-
-      # Construct the new name for the csv file
-      csv_new_name <- paste0("location", location, "_", date, "data_", download_date, "download", ".csv")
-
-      # Determine the target folder based on the file size
-      target_folder <- ifelse(file.size(csv) < 1024, "EmptyCSVs", "NonEmptyCSVs")
-
-      # Construct the destination path
-      destination_path <- file.path(download_path, target_folder, location)
-
-      # Create the destination directory if it does not exist
-      dir.create(destination_path, showWarnings = FALSE)
-
-      # Rename the file
-      file.rename(from = csv, to = file.path(destination_path, csv_new_name))
+  empty <- logical()
+  for (day in unique(date)) {
+    for (station in unique(location)) {
+      result <- tryCatch({
+        if (length(empty)) remDr$refresh()
+        click_report(station, day)
+        report <- wait_for_browser_csv(staging, station)
+        stamp <- stringr::str_extract(basename(report), "(?<=_)\\d{4}-\\d{2}-\\d{2}(?=_)")
+        if (is.na(stamp)) stamp <- format(Sys.Date(), "%Y-%m-%d")
+        save_report(report, download_path, station, day, download_date = stamp)
+      }, error = identity)
+      if (inherits(result, "error")) {
+        report_summary(empty, paste0("Station ", station, ", ", day, ": ", conditionMessage(result)))
+      }
+      empty <- c(empty, result)
     }
-
-    # Get a list of all csv files in the download directory
-    down_list <- list.files(path = download_path, all.files = T, full.names = T, recursive = F, pattern = ".csv$")
-
-    # Filter the list to keep only the files that were downloaded today
-    down_list_keep <- down_list[lubridate::as_date(file.info(down_list)$mtime) == lubridate::as_date(Sys.time())]
-
-    # Apply the rename_csv function to each file in the filtered list
-    purrr::walk(down_list_keep, rename_csv)
   }
-
-  purrr::walk(date, all_station_oneday, .progress = FALSE)
-  cat(crayon::green("\u25CF"), "All stations and dates nedap ppt CSVs had been downloaded.\n")
-
-  remDr$quit() #退出浏览器
-
-  return(invisible(NULL))
+  report_summary(empty)
+  invisible(NULL)
 }
 
-# Function to check and create subdirectories
-checkAndCreateSubdirs <- function(download_path) {
-  # Define subdirectories
-  subdirs <- c("NonEmptyCSVs", "EmptyCSVs")
-
-  # Check and create subdirectories
-  for (subdir in subdirs) {
-    dir_path <- file.path(download_path, subdir)
-    if (!dir.exists(dir_path)) {
-      dir.create(dir_path, showWarnings = FALSE)
-      cat(crayon::blue("\u25CF"), "Created directory:", subdir, "\n")
-    } else {
-      cat(crayon::green("\u25CF"), "Directory already exists:", subdir, "\n")
+wait_for_browser_csv <- function(path, station, timeout = 120, poll_interval = 0.25) {
+  deadline <- Sys.time() + timeout
+  repeat {
+    files <- list.files(path, all.files = TRUE, no.. = TRUE, full.names = TRUE)
+    csv <- files[grepl("\\.csv$", files, ignore.case = TRUE)]
+    if (length(csv) && !any(grepl("\\.crdownload$", files, ignore.case = TRUE))) {
+      filename <- if (length(csv) == 1L) basename(csv) else ""
+      if (!grepl(paste0("location", station, "([^0-9]|$)"), filename, ignore.case = TRUE)) {
+        stop("The browser returned an unexpected or ambiguous CSV for station ", station, ".", call. = FALSE)
+      }
+      return(csv)
     }
+    if (Sys.time() >= deadline) {
+      stop("Timed out waiting for a completed CSV download.", call. = FALSE)
+    }
+    Sys.sleep(poll_interval)
   }
 }
 
-# Function to get browser options for chrome
 get_browser_options <- function(browser = "chrome", download_path) {
   # Check if the browser is 'chrome'
   if (browser != "chrome") {
     stop("Invalid browser specified. Use 'chrome'.") # Stop if it's not
   }
 
-  # Replace forward slashes with backslashes in the download path
-  download_path_temp = gsub("/", "\\\\", download_path)
+  download_path_temp <- normalizePath(download_path, winslash = "\\", mustWork = TRUE)
 
   # Create a list of chrome options
   browser_options <- list(
@@ -340,7 +248,6 @@ get_browser_options <- function(browser = "chrome", download_path) {
 
 # Function to login to a website using Selenium
 login_to_website <- function(remDr, url, username, password) {
-  remDr$open() # Open the remote driver
   remDr$navigate(url) # Navigate to the specified URL
 
   # Define XPaths for username and password input fields
@@ -403,75 +310,18 @@ download_csv_auto(url = Sys.getenv("url"),
 #'
 #' `download_csv_schedule()` is used to make download task.
 #' 
-#' @param taskname A character string with the name of the task. Defaults to the filename. Should not contain any spaces.
+#' @param taskname A character string with the name of the task. Should not contain any spaces.
 #' @param schedule Either one of 'ONCE', 'MONTHLY', 'WEEKLY', 'DAILY', 'HOURLY', 'MINUTE', 'ONLOGON', 'ONIDLE.
-#' @param starttime A time point in HH:mm format indicating when to run the script. Defaults to within 62 seconds.
-#' @param startdate A date that specifies the first date on which to run the task. Only applicable if schedule is of type 'MONTHLY', 'WEEKLY', 'DAILY', 'HOURLY', 'MINUTE'. Defaults to today in '%d/%m/%Y' format. Change to your locale format if needed.
-#' @param rscript_args Character string with further arguments passed on to Rscript.
-#' @param ... other parameters.
+#' @param starttime A time point in HH:MM format indicating when to run the script.
+#' @param startdate A date that specifies the first date on which to run the task. Only applicable if schedule is of type 'MONTHLY', 'WEEKLY', 'DAILY', 'HOURLY', 'MINUTE'. Use the Windows task scheduler's date format for your locale.
+#' @param rscript_args A named list of download arguments. Optionally set password_env to the name of the password environment variable (default password). The task account must provide the variable when the script runs.
+#' @param ... Additional arguments passed to the Windows task scheduler.
 #'
-#' @return CSVs in the path of save_path.
+#' @return The output of the Windows task registration command.
 #' @export
 
 download_csv_schedule <- function(taskname, schedule, starttime, startdate, rscript_args = NULL, ...) {
-  if (missing(taskname) || !is.character(taskname) || length(taskname) != 1) {
-    stop("taskname must be a single character string")
-  }
-
-  if (missing(schedule) || !is.character(schedule) || length(schedule) != 1) {
-    stop("schedule must be a single character string")
-  }
-
-  if (missing(starttime) || !is.character(starttime) || length(starttime) != 1) {
-    stop("starttime must be a single character string")
-  }
-
-  if (missing(startdate) || !is.character(startdate) || length(startdate) != 1) {
-    stop("startdate must be a single character string")
-  }
-
-  if (missing(rscript_args) || !is.list(rscript_args)) {
-    stop("rscript_args must be a list of arguments")
-  }
-
-  # Save the function to a temporary script file with a shorter path
-  short_temp_path <- "C:/Temp"
-  dir.create(short_temp_path, showWarnings = FALSE)
-  script_file <- file.path(short_temp_path, paste0(taskname, "_", sample(letters, 1), ".R"))
-
-  my_function <- function(...) {
-    pptsdd::download_csv_auto(date = Sys.Date()-1, ...)
-  }
-
-  # Save the arguments to a configuration file
-  config_file <- file.path(short_temp_path, paste0("config_", taskname, ".txt"))
-  cat("arg_list <- ", capture.output(dput(rscript_args)), file = config_file)
-
-  write_function_to_script <- function(func, file_path, config_path) {
-    func_name <- deparse(substitute(func))
-    lines <- capture.output(dump(func_name, stdout()))
-    lines <- c(lines, sprintf("source('%s')", config_path))
-    lines <- c(lines, sprintf("do.call(%s, arg_list)", func_name))
-
-    if (!file.exists(script_file)) {
-      file.create(script_file)
-    }
-
-    con <- file(script_file, "w")
-    on.exit(close(con), add = TRUE)
-    writeLines(lines, con)
-  }
-
-  write_function_to_script(func = my_function, file_path = script_file, config_path = config_file)
-
-  # Schedule the task
-  taskscheduleR::taskscheduler_create(taskname = taskname,
-                                      rscript = script_file, 
-                                      schedule = schedule,
-                                      starttime = starttime,
-                                      startdate = startdate,
-                                      rscript_args = NULL,
-                                      ...)
+  schedule_nedap_download("download_csv_auto", taskname, schedule, starttime, startdate, rscript_args, ...)
 }
 ```
 
@@ -483,7 +333,7 @@ download_csv_schedule(taskname = "ppt_csv_download",
                       startdate = format(Sys.Date(), "%Y/%m/%d"),
                       rscript_args = list(url = Sys.getenv("url"),
                                           username = Sys.getenv("username"),
-                                          password = Sys.getenv("password"),
+                                          password_env = "password",
                                           location = c("606","607"),
                                           csv_position = "1",
                                           download_path = "C:/Users/Dell/Downloads/download_temp"))
@@ -532,8 +382,8 @@ disconnect_from_browser()
 #' @param password A character string specifying the password for login.
 #' @param location_min A character string specifying the minimum location.
 #' @param location_max A character string specifying the maximum location.
-#' @param date_min A Date object specifying the earliest date.
-#' @param date_max A Date object specifying the latest date.
+#' @param date_min The earliest date as a Date or YYYY-MM-DD string.
+#' @param date_max The latest date as a Date or YYYY-MM-DD string.
 #' @param download_path A character string specifying the path where the downloaded CSV file should be saved.
 #' @param show_message A logical value. If TRUE, a message will be displayed after the download. Default is FALSE.
 #'
@@ -542,88 +392,189 @@ disconnect_from_browser()
 #' @export
 
 get_csv <- function(url, username, password, location_min, location_max, date_min, date_max, download_path, show_message = FALSE) {
-  login_nedap(url, username, password) |>
-    download_csv(location_min, location_max, date_min, date_max, download_path, show_message)
-}
-
-is_error_response <- function(resp) {
-  httr2::resp_status(resp) >= 400
-}
-
-error_message_body <- function(resp) {
-  paste("Error occurred with status code:", httr2::resp_status(resp))
-}
-
-login_nedap <- function(url, username, password) {
-  # check if input parameters are missing
-  if (missing(url) | missing(username) | missing(password)) {
-    stop("Missing required input parameter(s).")
+  date_min <- normalize_report_dates(date_min, "date_min", scalar = TRUE)
+  date_max <- normalize_report_dates(date_max, "date_max", scalar = TRUE)
+  validate_locations(location_min, "location_min", scalar = TRUE)
+  validate_locations(location_max, "location_max", scalar = TRUE)
+  if (date_min > date_max) {
+    stop("date_min must be on or before date_max.", call. = FALSE)
   }
+  if (as.numeric(location_min) > as.numeric(location_max)) {
+    stop("location_min must be less than or equal to location_max.", call. = FALSE)
+  }
+  validate_show_message(show_message)
+  download_path <- prepare_download_directory(download_path)
 
-  # check input parameters
-  stopifnot(is.character(url), length(url) == 1)
-  stopifnot(is.character(username), length(username) == 1)
-  stopifnot(is.character(password), length(password) == 1)
+  cookie_file <- tempfile()
+  on.exit(unlink(cookie_file), add = TRUE)
+  report_request <- login_nedap(url, username, password, cookie_file)
+  location <- if (location_min == location_max) location_min else paste(location_min, location_max, sep = "_")
+  date <- if (date_min == date_max) date_min else paste(date_min, date_max, sep = "_")
+  download_csv(report_request, location_min, location_max, date_min, date_max,
+               download_path, location, date, show_message = show_message)
+  invisible(NULL)
+}
 
-  # create login request
-  login_request <- httr2::request(paste0(url, "/login/LoginPage.web")) |>
-    httr2::req_method("post") |>
+validate_text <- function(value, name) {
+  if (!is.character(value) || length(value) != 1L || is.na(value) || !nzchar(trimws(value))) {
+    stop(name, " must be a non-empty character string.", call. = FALSE)
+  }
+}
+
+validate_locations <- function(value, name = "location", scalar = FALSE) {
+  if (!is.character(value) || !length(value) || (scalar && length(value) != 1L) ||
+      anyNA(value) || any(!grepl("^[0-9]+$", value)) ||
+      any(!is.finite(as.numeric(value)))) {
+    stop(name, " must contain numeric station IDs as character strings.", call. = FALSE)
+  }
+}
+
+normalize_report_dates <- function(value, name = "date", scalar = FALSE) {
+  invalid <- function() {
+    stop(name, " must contain valid Date values or YYYY-MM-DD strings.", call. = FALSE)
+  }
+  if (!length(value) || (scalar && length(value) != 1L)) invalid()
+  if (inherits(value, "Date")) {
+    if (any(!is.finite(as.numeric(value)))) invalid()
+    value <- format(value, "%Y-%m-%d")
+  }
+  if (!is.character(value) || anyNA(value) || any(!grepl("^[0-9]{4}-[0-9]{2}-[0-9]{2}$", value))) {
+    invalid()
+  }
+  parsed <- as.Date(value, format = "%Y-%m-%d")
+  if (anyNA(parsed) || any(format(parsed, "%Y-%m-%d") != value)) invalid()
+  value
+}
+
+validate_show_message <- function(show_message) {
+  if (!is.logical(show_message) || length(show_message) != 1L || is.na(show_message)) {
+    stop("show_message must be TRUE or FALSE.", call. = FALSE)
+  }
+}
+
+prepare_download_directory <- function(path) {
+  validate_text(path, "download_path")
+  path <- path.expand(path)
+  if (!dir.exists(path)) dir.create(path, recursive = TRUE, showWarnings = FALSE)
+  if (!dir.exists(path)) stop("Cannot create download directory: ", path, call. = FALSE)
+  normalizePath(path, winslash = "/", mustWork = TRUE)
+}
+
+nedap_urls <- function(url, username, password) {
+  validate_text(url, "url")
+  validate_text(username, "username")
+  validate_text(password, "password")
+  root <- sub("/+$", "", url)
+  c(login = paste0(root, "/login/LoginPage.web"),
+    report = paste0(root, "/pigperformancetesting/reports/DownloadCsvDataReport.web"))
+}
+
+login_nedap <- function(url, username, password, cookie_file) {
+  urls <- nedap_urls(url, username, password)
+  login_response <- httr2::request(urls[["login"]]) |>
+    httr2::req_method("POST") |>
     httr2::req_body_form(select_username = username, input_password = password) |>
-    httr2::req_cookie_preserve(path = tempfile())
-
-  # perform the request and get response
-  login_response <- httr2::req_perform(login_request)
-
-  # check if login is successful
-  if (httr2::resp_status(login_response) != 200) {
-    stop("Failed to login, please check your username or password.")
-  }
-
-  # get the login respond
-  login_respond <- login_request |>
-    httr2::req_retry(max_tries = 3, is_transient = \(resp) httr2::resp_status(resp) %in% c(429, 500, 503), backoff = ~10) |>
-    httr2::req_error(is_error = is_error_response, body = error_message_body) |>
-    httr2::req_url(paste0(url, "/pigperformancetesting/reports/DownloadCsvDataReport.web"))
-
-  return(login_respond)
-}
-
-download_csv <- function(login_respond, location_min, location_max, date_min, date_max, download_path, show_message) {
-  # check if input parameters are missing
-  if (missing(login_respond) | missing(location_min) | missing(location_max) | missing(date_min) | missing(date_max) | missing(download_path)) {
-    stop("Missing required input parameter(s).")
-  }
-
-  # check input parameters
-  stopifnot(is.character(location_min), length(location_min) == 1)
-  stopifnot(is.character(location_max), length(location_max) == 1)
-  stopifnot(is.character(date_min), length(date_min) == 1)
-  stopifnot(is.character(date_max), length(date_max) == 1)
-  stopifnot(is.character(download_path), length(download_path) == 1)
-
-  # create params
-  params <- list(location_min = location_min, location_max = location_max, date_min = as.character(paste0(date_min, "T00:00:00Z")), date_max = as.character(paste0(date_max, "T00:00:00Z")))
-
-  # perform the request and get response
-  login_respond <- login_respond |>
-    httr2::req_url_query(generate = "1", !!!params) |>
+    httr2::req_cookie_preserve(cookie_file) |>
+    httr2::req_timeout(60) |>
     httr2::req_perform()
 
-  # check if the request is successful
-  if (httr2::resp_status(login_respond) != 200) {
-    stop("Failed to download csv, please check your parameters.")
+  if (httr2::resp_status(login_response) != 200L ||
+      grepl("<form\\b[^>]*frmLogin|<input\\b[^>]*name\\s*=\\s*['\"]?input_password",
+            httr2::resp_body_string(login_response), ignore.case = TRUE, perl = TRUE)) {
+    stop("Nedap login failed. Check the account and website URL.", call. = FALSE)
   }
 
-  # get the content and write to file
-  content <- httr2::resp_body_string(login_respond)
-  # check if location_min and location_max, date_min and date_max are the same
-  location <- if(location_min == location_max) location_min else paste(location_min, location_max, sep="_")
-  date <- if(date_min == date_max) date_min else paste(date_min, date_max, sep="_")
-  filename <- paste0("location", location, "_", date, "data_", Sys.Date(), "download.csv")
-  writeLines(content, file.path(download_path, filename))
-  if (show_message) {
-    cat(crayon::blue("\u25CF"), "Locations:", location, "and Dates:", date, "downloaded\n")
+  # The existing report endpoint used POST. Keep that method and share only cookies.
+  httr2::request(urls[["report"]]) |>
+    httr2::req_method("POST") |>
+    httr2::req_cookie_preserve(cookie_file) |>
+    httr2::req_timeout(120) |>
+    httr2::req_retry(max_tries = 3, is_transient = function(resp) {
+      httr2::resp_status(resp) %in% c(429L, 500L, 503L)
+    })
+}
+
+download_csv <- function(report_request, location_min, location_max, date_min, date_max,
+                         download_path, location, date, archive = FALSE, show_message = FALSE) {
+  response <- report_request |>
+    httr2::req_url_query(
+      generate = "1", location_min = location_min, location_max = location_max,
+      date_min = paste0(date_min, "T00:00:00Z"), date_max = paste0(date_max, "T00:00:00Z")
+    ) |>
+    httr2::req_perform()
+
+  content_type <- httr2::resp_header(response, "Content-Type")
+  if (httr2::resp_status(response) != 200L ||
+      (!is.null(content_type) && grepl("html|json|xml", content_type, ignore.case = TRUE))) {
+    stop("Nedap did not return a CSV report. Check the session and report parameters.", call. = FALSE)
   }
+
+  staged_file <- tempfile(".pptsdd-", tmpdir = download_path)
+  on.exit(unlink(staged_file), add = TRUE)
+  writeBin(httr2::resp_body_raw(response), staged_file)
+  empty <- save_report(staged_file, download_path, location, date, archive = archive)
+  if (show_message) message("Locations: ", location, " and dates: ", date, " downloaded")
+  empty
+}
+
+report_is_empty <- function(path) {
+  invalid <- function() {
+    stop("The downloaded report is missing or is not a valid CSV.", call. = FALSE)
+  }
+  size <- file.size(path)
+  if (is.na(size) || size == 0) invalid()
+  connection <- file(path, open = "rt", encoding = "UTF-8-BOM")
+  on.exit(close(connection), add = TRUE)
+
+  repeat {
+    header <- readLines(connection, n = 1L, warn = FALSE, skipNul = FALSE)
+    if (!length(header)) invalid()
+    header <- trimws(sub("^\ufeff", "", header))
+    if (nzchar(header)) break
+  }
+  if (substring(header, 1L, 1L) %in% c("<", "{", "[")) invalid()
+
+  separators <- c(",", ";", "\t")
+  header_fields <- vapply(separators, function(separator) {
+    header_connection <- textConnection(header)
+    on.exit(close(header_connection))
+    fields <- utils::count.fields(header_connection, sep = separator, quote = '"',
+                                  comment.char = "")
+    if (length(fields) == 1L && !is.na(fields)) fields else 0L
+  }, integer(1), USE.NAMES = FALSE)
+  delimiter <- which.max(header_fields)
+  if (header_fields[delimiter] < 2L) invalid()
+
+  fields <- withCallingHandlers(
+    utils::count.fields(path, sep = separators[delimiter], quote = '"', comment.char = ""),
+    warning = function(warning) invalid()
+  )
+  if (!length(fields) || is.na(fields[length(fields)]) ||
+      any(fields[!is.na(fields)] != header_fields[delimiter])) invalid()
+  sum(!is.na(fields)) == 1L
+}
+
+save_report <- function(source, download_path, location, date, archive = TRUE,
+                        download_date = format(Sys.Date(), "%Y-%m-%d")) {
+  empty <- report_is_empty(source)
+  target_dir <- download_path
+  if (archive) {
+    category <- if (empty) "EmptyCSVs" else "NonEmptyCSVs"
+    target_dir <- prepare_download_directory(file.path(download_path, category, location))
+  }
+  filename <- paste0("location", location, "_", date, "data_", download_date, "download.csv")
+  target <- file.path(target_dir, filename)
+  if (!suppressWarnings(file.rename(source, target))) {
+    stop("Cannot move the downloaded CSV to ", target, ".", call. = FALSE)
+  }
+  empty
+}
+
+report_summary <- function(empty, failures = character()) {
+  summary <- sprintf("Nedap CSVs: %d with data, %d empty, %d failed.",
+                     sum(!empty), sum(empty), length(failures))
+  if (length(failures)) stop(paste(c(summary, failures), collapse = "\n"), call. = FALSE)
+  message(summary)
 }
 ```
 
@@ -652,85 +603,43 @@ get_csv(url = Sys.getenv("url"),
 #' @param url A character string specifying the URL to log into.
 #' @param username A character string specifying the username for login.
 #' @param password A character string specifying the password for login.
-#' @param location A character string specifying the location.
-#' @param date A Date object specifying the date.
+#' @param location A character vector of numeric station IDs.
+#' @param date A vector of Date values or YYYY-MM-DD strings.
 #' @param download_path A character string specifying the path where the downloaded CSV file should be saved.
 #' @param show_message A logical value. If TRUE, a message will be displayed after the download. Default is FALSE.
 #'
 #' @return CSVs in the path of download_path.
 #' 
-#' @importFrom cli "pb_spin" "pb_current" "pb_total"
 #' @export
 
-get_csv_auto <- function(url, username, password, location, date, download_path, show_message = FALSE){
-  # Function to check and create subdirectories
-  checkAndCreateSubdirs(download_path)
+get_csv_auto <- function(url, username, password, location, date, download_path, show_message = FALSE) {
+  validate_locations(location)
+  date <- normalize_report_dates(date)
+  validate_show_message(show_message)
+  download_path <- prepare_download_directory(download_path)
 
-  # Login url
-  login_request <- login_nedap(url, username, password)
+  cookie_file <- tempfile()
+  on.exit(unlink(cookie_file), add = TRUE)
+  report_request <- login_nedap(url, username, password, cookie_file)
 
-  # download csv in each station each day
-  download_oneday_eachstation <- function(location, date) {
-    download_csv(login_respond = login_request, location_min = location, location_max = location, date_min = date, date_max = date, download_path, show_message)
-  }
-  all_station_perday <- function(date) {
-    # check if input parameter is missing
-    if (missing(date)) {
-      stop("Missing required input parameter: date.")
+  empty <- logical()
+  failures <- character()
+  for (day in unique(date)) {
+    for (station in unique(location)) {
+      result <- tryCatch(
+        download_csv(report_request, station, station, day, day, download_path,
+                     station, day, archive = TRUE, show_message = show_message),
+        error = identity
+      )
+      if (inherits(result, "error")) {
+        failures <- c(failures, paste0("Station ", station, ", ", day, ": ", conditionMessage(result)))
+      } else {
+        empty <- c(empty, result)
+      }
     }
-
-    # check input parameter
-    stopifnot(length(date) == 1)
-
-    # Convert the integer date to a Date object and format it
-    date <- format(as.Date(date), "%Y-%m-%d")
-
-    # create a data frame with all combinations of location and date
-    all_comb_station <- tidyr::expand_grid(location = location, date = date)
-
-    cat(crayon::yellow("\u25CF"), "Downloading CSVs for date:", date, "\n")
-
-    # download the csv file for each combination of location and date
-    purrr::pwalk(all_comb_station, ~download_oneday_eachstation(location = ..1, date = ..2), .progress = F)
-
-    # Function to rename a csv file
-    Rename_csv <- function(csv) {
-      # Extract the name of the csv file without the extension
-      csv_name <- tools::file_path_sans_ext(basename(csv))
-      
-      # Extract file name
-      file_name <- basename(csv)
-
-      # Extract location and region from the csv_name using a regex pattern
-      location <- stringr::str_extract(csv_name, "(?<=location)\\d+")
-      
-      # Determine the target folder based on the file size
-      target_folder <- ifelse(file.size(csv) < 1024, "EmptyCSVs", "NonEmptyCSVs")
-
-      # Construct the destination path
-      destination_path <- file.path(download_path, target_folder, location)
-
-      # Create the destination directory if it does not exist
-      dir.create(destination_path, showWarnings = FALSE)
-
-      # Rename the file
-      file.rename(from = csv, to = file.path(destination_path, file_name))
-    }
-
-    # Get a list of all csv files in the download directory
-    down_list <- list.files(path = download_path, all.files = T, full.names = T, recursive = F, pattern = ".csv$")
-
-    # Filter the list to keep only the files that were downloaded today
-    down_list_keep <- down_list[lubridate::as_date(file.info(down_list)$mtime) == lubridate::as_date(Sys.time())]
-
-    # Apply the rename_csv function to each file in the filtered list
-    purrr::walk(down_list_keep, Rename_csv)
   }
-  purrr::walk(date, all_station_perday, .progress = list(
-    type = "iterator",
-    format = "{cli::pb_spin} Downloading {cli::pb_current}/{cli::pb_total} dates",#"Downloading [:date] {cli::pb_bar} {cli::pb_percent}",
-    clear = TRUE))
-  cat(crayon::green("\u25CF"), "All stations and dates nedap ppt CSVs had been downloaded.\n")
+  report_summary(empty, failures)
+  invisible(NULL)
 }
 ```
 
@@ -753,64 +662,92 @@ get_csv_auto(url = Sys.getenv("url"),
 #'
 #' `get_csv_schedule()` is used to make download task.
 #' 
-#' @param taskname A character string with the name of the task. Defaults to the filename. Should not contain any spaces.
+#' @param taskname A character string with the name of the task. Should not contain any spaces.
 #' @param schedule Either one of 'ONCE', 'MONTHLY', 'WEEKLY', 'DAILY', 'HOURLY', 'MINUTE', 'ONLOGON', 'ONIDLE.
-#' @param starttime A time point in HH:mm format indicating when to run the script. Defaults to within 62 seconds
-#' @param startdate A date that specifies the first date on which to run the task. Only applicable if schedule is of type 'MONTHLY', 'WEEKLY', 'DAILY', 'HOURLY', 'MINUTE'. Defaults to today in '%d/%m/%Y' format. Change to your locale format if needed.
-#' @param rscript_args Character string with further arguments passed on to Rscript.
-#' @param ... other parameters.
+#' @param starttime A time point in HH:MM format indicating when to run the script.
+#' @param startdate A date that specifies the first date on which to run the task. Only applicable if schedule is of type 'MONTHLY', 'WEEKLY', 'DAILY', 'HOURLY', 'MINUTE'. Use the Windows task scheduler's date format for your locale.
+#' @param rscript_args A named list of download arguments. Optionally set password_env to the name of the password environment variable (default password). The task account must provide the variable when the script runs.
+#' @param ... Additional arguments passed to the Windows task scheduler.
 #'
-#' @return CSV files in the path of save_path.
+#' @return The output of the Windows task registration command.
 #' @export
 
-get_csv_schedule <- function (taskname, schedule, starttime, startdate, rscript_args = NULL, ...) {
-  if (missing(taskname) || !is.character(taskname) || length(taskname) !=
-      1) {
-    stop("taskname must be a single character string")
+get_csv_schedule <- function(taskname, schedule, starttime, startdate, rscript_args = NULL, ...) {
+  schedule_nedap_download("get_csv_auto", taskname, schedule, starttime, startdate, rscript_args, ...)
+}
+
+schedule_nedap_download <- function(downloader, taskname, schedule, starttime, startdate, rscript_args, ...) {
+  validate_text(taskname, "taskname")
+  validate_text(schedule, "schedule")
+  validate_text(starttime, "starttime")
+  validate_text(startdate, "startdate")
+  if (!grepl("^([01][0-9]|2[0-3]):[0-5][0-9]$", starttime)) {
+    stop("starttime must be a valid HH:MM time.", call. = FALSE)
   }
-  if (missing(schedule) || !is.character(schedule) || length(schedule) !=
-      1) {
-    stop("schedule must be a single character string")
+  if (!grepl("^[0-9]+([./-][0-9]+){2}$", startdate)) {
+    stop("startdate must be a numeric date in the Windows task scheduler's locale format.", call. = FALSE)
   }
-  if (missing(starttime) || !is.character(starttime) || length(starttime) !=
-      1) {
-    stop("starttime must be a single character string")
+
+  lines <- scheduled_download_script(downloader, rscript_args)
+  directory <- prepare_download_directory("C:/Temp/pptsdd")
+  script <- tempfile("task-", tmpdir = directory, fileext = ".R")
+  registered <- FALSE
+  on.exit(if (!registered) unlink(script), add = TRUE)
+  writeLines(lines, script, useBytes = TRUE)
+
+  result <- taskscheduleR::taskscheduler_create(
+    taskname = taskname, rscript = script, schedule = schedule, starttime = starttime,
+    startdate = startdate, rscript_args = NULL, ...
+  )
+  status <- attr(result, "status", exact = TRUE)
+  if (!is.null(status) && status != 0L) {
+    stop("Windows could not register task ", taskname, ".", call. = FALSE)
   }
-  if (missing(startdate) || !is.character(startdate) || length(startdate) !=
-      1) {
-    stop("startdate must be a single character string")
+  registered <- TRUE
+  result
+}
+
+scheduled_download_script <- function(downloader, args) {
+  required <- c("url", "username", "location", "download_path")
+  if (downloader == "download_csv_auto") required <- c(required, "csv_position")
+  optional <- c("password", "password_env")
+  if (downloader == "get_csv_auto") optional <- c(optional, "show_message")
+
+  if (!is.list(args) || !all(required %in% names(args)) || anyDuplicated(names(args)) ||
+      length(setdiff(names(args), c(required, optional))) ||
+      length(names(args)) != length(args)) {
+    stop("rscript_args must be a named list with ", paste(required, collapse = ", "),
+         " and supported optional arguments.", call. = FALSE)
   }
-  if (missing(rscript_args) || !is.list(rscript_args)) {
-    stop("rscript_args must be a list of arguments")
+
+  password_env <- if ("password_env" %in% names(args)) args[["password_env"]] else "password"
+  validate_text(password_env, "password_env")
+  if (!grepl("^[A-Za-z_][A-Za-z0-9_]*$", password_env)) {
+    stop("password_env must be an environment variable name.", call. = FALSE)
   }
-  short_temp_path <- "C:/Temp"
-  dir.create(short_temp_path, showWarnings = FALSE)
-  script_file <- file.path(short_temp_path, paste0(taskname,
-                                                   "_", sample(letters, 1), ".R"))
-  my_function <- function(...) {
-    pptsdd::get_csv_auto(date = Sys.Date() - 1,
-                         ...)
+  if ("password" %in% names(args) &&
+      !identical(args[["password"]], Sys.getenv(password_env, unset = ""))) {
+    stop("Set the task account's password environment variable and supply password_env instead of a literal password.",
+         call. = FALSE)
   }
-  config_file <- file.path(short_temp_path, paste0("config_",
-                                                   taskname, ".txt"))
-  cat("arg_list <- ", capture.output(dput(rscript_args)), file = config_file)
-  write_function_to_script <- function(func, file_path, config_path) {
-    func_name <- deparse(substitute(func))
-    lines <- capture.output(dump(func_name, stdout()))
-    lines <- c(lines, sprintf("source('%s')", config_path))
-    lines <- c(lines, sprintf("do.call(%s, arg_list)", func_name))
-    if (!file.exists(script_file)) {
-      file.create(script_file)
-    }
-    con <- file(script_file, "w")
-    on.exit(close(con), add = TRUE)
-    writeLines(lines, con)
+  args[["password"]] <- NULL
+  args[["password_env"]] <- NULL
+
+  validate_text(args[["url"]], "url")
+  validate_text(args[["username"]], "username")
+  validate_locations(args[["location"]])
+  if (downloader == "download_csv_auto") {
+    validate_locations(args[["csv_position"]], "csv_position", scalar = TRUE)
   }
-  write_function_to_script(func = my_function, file_path = script_file,
-                           config_path = config_file)
-  taskscheduleR::taskscheduler_create(taskname = taskname,
-                                      rscript = script_file, schedule = schedule, starttime = starttime,
-                                      startdate = startdate, rscript_args = NULL, ...)
+  if ("show_message" %in% names(args)) validate_show_message(args[["show_message"]])
+  args[["download_path"]] <- prepare_download_directory(args[["download_path"]])
+
+  c("arg_list <-", utils::capture.output(dput(args)),
+    paste0("password_env <- ", encodeString(password_env, quote = '"')),
+    'arg_list$password <- Sys.getenv(password_env, unset = "")',
+    'if (!nzchar(arg_list$password)) stop("Set the password environment variable for the scheduled account: ", password_env, call. = FALSE)',
+    'arg_list$date <- Sys.Date() - 1L',
+    paste0("do.call(pptsdd::", downloader, ", arg_list)"))
 }
 ```
 
@@ -822,7 +759,7 @@ get_csv_schedule(taskname = "ppt_csv_download",
                  startdate = format(Sys.Date(), "%Y/%m/%d"),
                  rscript_args = list(url = Sys.getenv("url"),
                                      username = Sys.getenv("username"),
-                                     password = Sys.getenv("password"),
+                                     password_env = "password",
                                      location = c("606","607"),
                                      download_path = "C:/Users/Dell/Downloads/download_rename"))
 # Delete download task

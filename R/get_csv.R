@@ -11,8 +11,8 @@
 #' @param password A character string specifying the password for login.
 #' @param location_min A character string specifying the minimum location.
 #' @param location_max A character string specifying the maximum location.
-#' @param date_min A Date object specifying the earliest date.
-#' @param date_max A Date object specifying the latest date.
+#' @param date_min The earliest date as a Date or YYYY-MM-DD string.
+#' @param date_max The latest date as a Date or YYYY-MM-DD string.
 #' @param download_path A character string specifying the path where the downloaded CSV file should be saved.
 #' @param show_message A logical value. If TRUE, a message will be displayed after the download. Default is FALSE.
 #'
@@ -32,86 +32,187 @@
 #'         show_message = TRUE)
 
 get_csv <- function(url, username, password, location_min, location_max, date_min, date_max, download_path, show_message = FALSE) {
-  login_nedap(url, username, password) |>
-    download_csv(location_min, location_max, date_min, date_max, download_path, show_message)
-}
-
-is_error_response <- function(resp) {
-  httr2::resp_status(resp) >= 400
-}
-
-error_message_body <- function(resp) {
-  paste("Error occurred with status code:", httr2::resp_status(resp))
-}
-
-login_nedap <- function(url, username, password) {
-  # check if input parameters are missing
-  if (missing(url) | missing(username) | missing(password)) {
-    stop("Missing required input parameter(s).")
+  date_min <- normalize_report_dates(date_min, "date_min", scalar = TRUE)
+  date_max <- normalize_report_dates(date_max, "date_max", scalar = TRUE)
+  validate_locations(location_min, "location_min", scalar = TRUE)
+  validate_locations(location_max, "location_max", scalar = TRUE)
+  if (date_min > date_max) {
+    stop("date_min must be on or before date_max.", call. = FALSE)
   }
+  if (as.numeric(location_min) > as.numeric(location_max)) {
+    stop("location_min must be less than or equal to location_max.", call. = FALSE)
+  }
+  validate_show_message(show_message)
+  download_path <- prepare_download_directory(download_path)
 
-  # check input parameters
-  stopifnot(is.character(url), length(url) == 1)
-  stopifnot(is.character(username), length(username) == 1)
-  stopifnot(is.character(password), length(password) == 1)
+  cookie_file <- tempfile()
+  on.exit(unlink(cookie_file), add = TRUE)
+  report_request <- login_nedap(url, username, password, cookie_file)
+  location <- if (location_min == location_max) location_min else paste(location_min, location_max, sep = "_")
+  date <- if (date_min == date_max) date_min else paste(date_min, date_max, sep = "_")
+  download_csv(report_request, location_min, location_max, date_min, date_max,
+               download_path, location, date, show_message = show_message)
+  invisible(NULL)
+}
 
-  # create login request
-  login_request <- httr2::request(paste0(url, "/login/LoginPage.web")) |>
-    httr2::req_method("post") |>
+validate_text <- function(value, name) {
+  if (!is.character(value) || length(value) != 1L || is.na(value) || !nzchar(trimws(value))) {
+    stop(name, " must be a non-empty character string.", call. = FALSE)
+  }
+}
+
+validate_locations <- function(value, name = "location", scalar = FALSE) {
+  if (!is.character(value) || !length(value) || (scalar && length(value) != 1L) ||
+      anyNA(value) || any(!grepl("^[0-9]+$", value)) ||
+      any(!is.finite(as.numeric(value)))) {
+    stop(name, " must contain numeric station IDs as character strings.", call. = FALSE)
+  }
+}
+
+normalize_report_dates <- function(value, name = "date", scalar = FALSE) {
+  invalid <- function() {
+    stop(name, " must contain valid Date values or YYYY-MM-DD strings.", call. = FALSE)
+  }
+  if (!length(value) || (scalar && length(value) != 1L)) invalid()
+  if (inherits(value, "Date")) {
+    if (any(!is.finite(as.numeric(value)))) invalid()
+    value <- format(value, "%Y-%m-%d")
+  }
+  if (!is.character(value) || anyNA(value) || any(!grepl("^[0-9]{4}-[0-9]{2}-[0-9]{2}$", value))) {
+    invalid()
+  }
+  parsed <- as.Date(value, format = "%Y-%m-%d")
+  if (anyNA(parsed) || any(format(parsed, "%Y-%m-%d") != value)) invalid()
+  value
+}
+
+validate_show_message <- function(show_message) {
+  if (!is.logical(show_message) || length(show_message) != 1L || is.na(show_message)) {
+    stop("show_message must be TRUE or FALSE.", call. = FALSE)
+  }
+}
+
+prepare_download_directory <- function(path) {
+  validate_text(path, "download_path")
+  path <- path.expand(path)
+  if (!dir.exists(path)) dir.create(path, recursive = TRUE, showWarnings = FALSE)
+  if (!dir.exists(path)) stop("Cannot create download directory: ", path, call. = FALSE)
+  normalizePath(path, winslash = "/", mustWork = TRUE)
+}
+
+nedap_urls <- function(url, username, password) {
+  validate_text(url, "url")
+  validate_text(username, "username")
+  validate_text(password, "password")
+  root <- sub("/+$", "", url)
+  c(login = paste0(root, "/login/LoginPage.web"),
+    report = paste0(root, "/pigperformancetesting/reports/DownloadCsvDataReport.web"))
+}
+
+login_nedap <- function(url, username, password, cookie_file) {
+  urls <- nedap_urls(url, username, password)
+  login_response <- httr2::request(urls[["login"]]) |>
+    httr2::req_method("POST") |>
     httr2::req_body_form(select_username = username, input_password = password) |>
-    httr2::req_cookie_preserve(path = tempfile())
-
-  # perform the request and get response
-  login_response <- httr2::req_perform(login_request)
-
-  # check if login is successful
-  if (httr2::resp_status(login_response) != 200) {
-    stop("Failed to login, please check your username or password.")
-  }
-
-  # get the login respond
-  login_respond <- login_request |>
-    httr2::req_retry(max_tries = 3, is_transient = \(resp) httr2::resp_status(resp) %in% c(429, 500, 503), backoff = ~10) |>
-    httr2::req_error(is_error = is_error_response, body = error_message_body) |>
-    httr2::req_url(paste0(url, "/pigperformancetesting/reports/DownloadCsvDataReport.web"))
-
-  return(login_respond)
-}
-
-download_csv <- function(login_respond, location_min, location_max, date_min, date_max, download_path, show_message) {
-  # check if input parameters are missing
-  if (missing(login_respond) | missing(location_min) | missing(location_max) | missing(date_min) | missing(date_max) | missing(download_path)) {
-    stop("Missing required input parameter(s).")
-  }
-
-  # check input parameters
-  stopifnot(is.character(location_min), length(location_min) == 1)
-  stopifnot(is.character(location_max), length(location_max) == 1)
-  stopifnot(is.character(date_min), length(date_min) == 1)
-  stopifnot(is.character(date_max), length(date_max) == 1)
-  stopifnot(is.character(download_path), length(download_path) == 1)
-
-  # create params
-  params <- list(location_min = location_min, location_max = location_max, date_min = as.character(paste0(date_min, "T00:00:00Z")), date_max = as.character(paste0(date_max, "T00:00:00Z")))
-
-  # perform the request and get response
-  login_respond <- login_respond |>
-    httr2::req_url_query(generate = "1", !!!params) |>
+    httr2::req_cookie_preserve(cookie_file) |>
+    httr2::req_timeout(60) |>
     httr2::req_perform()
 
-  # check if the request is successful
-  if (httr2::resp_status(login_respond) != 200) {
-    stop("Failed to download csv, please check your parameters.")
+  if (httr2::resp_status(login_response) != 200L ||
+      grepl("<form\\b[^>]*frmLogin|<input\\b[^>]*name\\s*=\\s*['\"]?input_password",
+            httr2::resp_body_string(login_response), ignore.case = TRUE, perl = TRUE)) {
+    stop("Nedap login failed. Check the account and website URL.", call. = FALSE)
   }
 
-  # get the content and write to file
-  content <- httr2::resp_body_string(login_respond)
-  # check if location_min and location_max, date_min and date_max are the same
-  location <- if(location_min == location_max) location_min else paste(location_min, location_max, sep="_")
-  date <- if(date_min == date_max) date_min else paste(date_min, date_max, sep="_")
-  filename <- paste0("location", location, "_", date, "data_", Sys.Date(), "download.csv")
-  writeLines(content, file.path(download_path, filename))
-  if (show_message) {
-    cat(crayon::blue("\u25CF"), "Locations:", location, "and Dates:", date, "downloaded\n")
+  # The existing report endpoint used POST. Keep that method and share only cookies.
+  httr2::request(urls[["report"]]) |>
+    httr2::req_method("POST") |>
+    httr2::req_cookie_preserve(cookie_file) |>
+    httr2::req_timeout(120) |>
+    httr2::req_retry(max_tries = 3, is_transient = function(resp) {
+      httr2::resp_status(resp) %in% c(429L, 500L, 503L)
+    })
+}
+
+download_csv <- function(report_request, location_min, location_max, date_min, date_max,
+                         download_path, location, date, archive = FALSE, show_message = FALSE) {
+  response <- report_request |>
+    httr2::req_url_query(
+      generate = "1", location_min = location_min, location_max = location_max,
+      date_min = paste0(date_min, "T00:00:00Z"), date_max = paste0(date_max, "T00:00:00Z")
+    ) |>
+    httr2::req_perform()
+
+  content_type <- httr2::resp_header(response, "Content-Type")
+  if (httr2::resp_status(response) != 200L ||
+      (!is.null(content_type) && grepl("html|json|xml", content_type, ignore.case = TRUE))) {
+    stop("Nedap did not return a CSV report. Check the session and report parameters.", call. = FALSE)
   }
+
+  staged_file <- tempfile(".pptsdd-", tmpdir = download_path)
+  on.exit(unlink(staged_file), add = TRUE)
+  writeBin(httr2::resp_body_raw(response), staged_file)
+  empty <- save_report(staged_file, download_path, location, date, archive = archive)
+  if (show_message) message("Locations: ", location, " and dates: ", date, " downloaded")
+  empty
+}
+
+report_is_empty <- function(path) {
+  invalid <- function() {
+    stop("The downloaded report is missing or is not a valid CSV.", call. = FALSE)
+  }
+  size <- file.size(path)
+  if (is.na(size) || size == 0) invalid()
+  connection <- file(path, open = "rt", encoding = "UTF-8-BOM")
+  on.exit(close(connection), add = TRUE)
+
+  repeat {
+    header <- readLines(connection, n = 1L, warn = FALSE, skipNul = FALSE)
+    if (!length(header)) invalid()
+    header <- trimws(sub("^\ufeff", "", header))
+    if (nzchar(header)) break
+  }
+  if (substring(header, 1L, 1L) %in% c("<", "{", "[")) invalid()
+
+  separators <- c(",", ";", "\t")
+  header_fields <- vapply(separators, function(separator) {
+    header_connection <- textConnection(header)
+    on.exit(close(header_connection))
+    fields <- utils::count.fields(header_connection, sep = separator, quote = '"',
+                                  comment.char = "")
+    if (length(fields) == 1L && !is.na(fields)) fields else 0L
+  }, integer(1), USE.NAMES = FALSE)
+  delimiter <- which.max(header_fields)
+  if (header_fields[delimiter] < 2L) invalid()
+
+  fields <- withCallingHandlers(
+    utils::count.fields(path, sep = separators[delimiter], quote = '"', comment.char = ""),
+    warning = function(warning) invalid()
+  )
+  if (!length(fields) || is.na(fields[length(fields)]) ||
+      any(fields[!is.na(fields)] != header_fields[delimiter])) invalid()
+  sum(!is.na(fields)) == 1L
+}
+
+save_report <- function(source, download_path, location, date, archive = TRUE,
+                        download_date = format(Sys.Date(), "%Y-%m-%d")) {
+  empty <- report_is_empty(source)
+  target_dir <- download_path
+  if (archive) {
+    category <- if (empty) "EmptyCSVs" else "NonEmptyCSVs"
+    target_dir <- prepare_download_directory(file.path(download_path, category, location))
+  }
+  filename <- paste0("location", location, "_", date, "data_", download_date, "download.csv")
+  target <- file.path(target_dir, filename)
+  if (!suppressWarnings(file.rename(source, target))) {
+    stop("Cannot move the downloaded CSV to ", target, ".", call. = FALSE)
+  }
+  empty
+}
+
+report_summary <- function(empty, failures = character()) {
+  summary <- sprintf("Nedap CSVs: %d with data, %d empty, %d failed.",
+                     sum(!empty), sum(empty), length(failures))
+  if (length(failures)) stop(paste(c(summary, failures), collapse = "\n"), call. = FALSE)
+  message(summary)
 }

@@ -66,7 +66,7 @@ download_csv_schedule(taskname = "ppt_csv_download",
                       startdate = format(Sys.Date(), "%Y/%m/%d"),
                       rscript_args = list(url = Sys.getenv("url"),
                                           username = Sys.getenv("username"),
-                                          password = Sys.getenv("password"),
+                                          password_env = "password",
                                           location = c("606","607"),
                                           csv_position = "1",
                                           download_path = "C:/Users/Dell/Downloads/download_rename"))
@@ -100,7 +100,7 @@ get_csv_schedule(taskname = "ppt_csv_download",
                  startdate = format(Sys.Date(), "%Y/%m/%d"),
                  rscript_args = list(url = Sys.getenv("url"),
                                      username = Sys.getenv("username"),
-                                     password = Sys.getenv("password"),
+                                     password_env = "password",
                                      location = c("606","607"),
                                      download_path = "C:/Users/Dell/Downloads/download_rename"))
 ## delete download task
@@ -108,3 +108,17 @@ taskscheduleR::taskscheduler_delete(taskname = "ppt_csv_download")
 ## reset selenium webdriver service
 disconnect_from_browser()
 ```
+
+## Upgrading existing Windows download tasks
+
+Create the password environment variable for the Windows account that runs the
+task, then recreate the task with the updated package. The examples use the
+variable `password`. Set `password_env` in `rscript_args` to use a different name.
+For tasks running as your Windows user, a variable set in that user's
+`.Renviron` (for example under `R_USER`) can also be read by R at startup.
+A variable set only in the current interactive R session is unavailable to
+future scheduled processes unless their startup configuration sets it too.
+
+The updated task continues to download yesterday's data. Once the replacement
+task runs successfully, remove the old task's unused script and its
+`C:/Temp/config_<taskname>.txt` file, which may contain the original password.
