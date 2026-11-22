@@ -1,4 +1,4 @@
-# pptsdd <a href="https://tony2015116.github.io/pptsdd/"><img src="man/figures/logo.svg" width="120" align="right" alt="pptsdd 标志"></a>
+# pptsdd <a href="https://tony2015116.github.io/pptsdd/"><img src="man/figures/logo.png" width="120" height="139" align="right" alt="pptsdd 标志"></a>
 
 <!-- badges: start -->
 [![GitHub R package version](https://img.shields.io/github/r-package/v/tony2015116/pptsdd)](DESCRIPTION)
