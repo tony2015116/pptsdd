@@ -4,14 +4,15 @@
 #' 
 #' @description
 #'
-#' `connect_to_browser()` is used to start the selenium webdriver service.
+#' `connect_to_browser()` starts the local browser WebDriver service with
+#' wdauto. Chrome uses ChromeDriver directly, so Java is not required.
 #' 
-#' @param dest_dir Directory for browser drivers and the Selenium server.
+#' @param dest_dir Directory for browser drivers.
 #' @param browser Browser to start, either `chrome` or `edge`.
 #'
 #' @return NULL
 #' 
-#' @importFrom wdauto "get_cd" "get_ss" "auto_cs"
+#' @importFrom wdauto "get_cd" "auto_cs"
 #' @export
 #' @examples
 #' connect_to_browser(dest_dir = "C:/Users/Dell/Desktop/test")
@@ -19,8 +20,7 @@ connect_to_browser <- function(dest_dir, browser = c("chrome", "edge")) {
   browser <- match.arg(browser)
   if (browser == "chrome") {
     wdauto::get_cd(dest_dir)
-    wdauto::get_ss(dest_dir)
-    wdauto::auto_cs(dest_dir)
+    wdauto::auto_cs(dest_dir, backend = "chromedriver")
   } else {
     wdauto::get_cd(dest_dir, browser = "edge")
     wdauto::auto_cs(dest_dir, browser = "edge")

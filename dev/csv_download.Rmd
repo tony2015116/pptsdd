@@ -15,7 +15,6 @@ Store every call to library() that you need to run chunks line by line, as in a 
 ```{r development, include=FALSE}
 library(testthat)
 library(purrr)
-library(RSelenium)
 library(taskscheduleR)
 ```
 
@@ -57,21 +56,21 @@ usethis::use_mit_license("Guo Meng")
 #' 
 #' @description
 #'
-#' `connect_to_browser()` is used to start the selenium webdriver service.
+#' `connect_to_browser()` starts the local browser WebDriver service with
+#' wdauto. Chrome uses ChromeDriver directly, so Java is not required.
 #' 
-#' @param dest_dir Directory for browser drivers and the Selenium server.
+#' @param dest_dir Directory for browser drivers.
 #' @param browser Browser to start, either `chrome` or `edge`.
 #'
 #' @return NULL
 #' 
-#' @importFrom wdauto "get_cd" "get_ss" "auto_cs"
+#' @importFrom wdauto "get_cd" "auto_cs"
 #' @export
 connect_to_browser <- function(dest_dir, browser = c("chrome", "edge")) {
   browser <- match.arg(browser)
   if (browser == "chrome") {
     wdauto::get_cd(dest_dir)
-    wdauto::get_ss(dest_dir)
-    wdauto::auto_cs(dest_dir)
+    wdauto::auto_cs(dest_dir, backend = "chromedriver")
   } else {
     wdauto::get_cd(dest_dir, browser = "edge")
     wdauto::auto_cs(dest_dir, browser = "edge")
@@ -127,19 +126,7 @@ download_csv_auto <- function(url, username, password, csv_position, location, d
   staging <- prepare_download_directory(staging)
   on.exit(unlink(staging, recursive = TRUE), add = TRUE)
 
-  remDr <- if (browser == "edge") {
-    open_edge_session(staging)
-  } else {
-    browser_opts <- get_browser_options(browser = "chrome", staging)
-    driver <- RSelenium::remoteDriver(
-      browserName = browser_opts$browserName,
-      extraCapabilities = browser_opts$options,
-      remoteServerAddr = "127.0.0.1",
-      port = 4444
-    )
-    utils::capture.output(driver$open())
-    driver
-  }
+  remDr <- open_browser_session(browser, staging)
   on.exit(try(remDr$close(), silent = TRUE), add = TRUE, after = FALSE)
   remDr$setImplicitWaitTimeout(milliseconds = 10000)
   login_to_website(remDr, urls[["login"]], username, password, browser)
@@ -233,31 +220,7 @@ wait_for_browser_csv <- function(path, station, timeout = 120, poll_interval = 0
   }
 }
 
-get_browser_options <- function(browser = "chrome", download_path) {
-  # Check if the browser is 'chrome'
-  if (browser != "chrome") {
-    stop("Invalid browser specified. Use 'chrome'.") # Stop if it's not
-  }
-
-  download_path_temp <- normalizePath(download_path, winslash = "\\", mustWork = TRUE)
-
-  # Create a list of chrome options
-  browser_options <- list(
-    chromeOptions = list(
-      prefs = list(
-        "download.default_directory" = download_path_temp, # Set default download directory
-        "download.prompt_for_download" = FALSE,           # Don't prompt for download
-        "download.directory_upgrade" = TRUE,               # Upgrade download directory
-        "safebrowsing.enabled" = TRUE                      # Enable safe browsing
-      )
-    )
-  )
-
-  # Return the browser name and options as a list
-  return(list(browserName = browser, options = browser_options))
-}
-
-# Function to login to a website using Selenium
+# Function to login to a website through WebDriver
 login_to_website <- function(remDr, url, username, password, browser = "chrome") {
   remDr$navigate(url) # Navigate to the specified URL
 
@@ -287,17 +250,17 @@ login_to_website <- function(remDr, url, username, password, browser = "chrome")
 }
 
 click_browser_element <- function(driver, element, browser) {
-  if (browser == "edge") {
-    element$clickElement()
-  } else {
-    driver$mouseMoveToLocation(webElement = element)
-    driver$click()
-  }
+  element$clickElement()
 }
 
+# Chrome is served by wdauto at 127.0.0.1:4444/wd/hub (ChromeDriver or
+# Selenium Server) and Edge at 127.0.0.1:4445. Both speak the W3C protocol.
+webdriver_base <- function(browser) {
+  if (browser == "edge") "http://127.0.0.1:4445" else "http://127.0.0.1:4444/wd/hub"
+}
 
-edge_request <- function(path, body = NULL, method = NULL) {
-  request <- httr2::request(paste0("http://127.0.0.1:4445", path)) |>
+webdriver_request <- function(browser, path, body = NULL, method = NULL) {
+  request <- httr2::request(paste0(webdriver_base(browser), path)) |>
     httr2::req_options(noproxy = "127.0.0.1") |>
     httr2::req_timeout(90)
   if (!is.null(body)) {
@@ -310,21 +273,27 @@ edge_request <- function(path, body = NULL, method = NULL) {
   jsonlite::fromJSON(httr2::resp_body_string(response), simplifyVector = FALSE)$value
 }
 
-open_edge_session <- function(download_path) {
+open_browser_session <- function(browser, download_path) {
   options <- list(prefs = list(
     "download.default_directory" = normalizePath(download_path, winslash = "\\", mustWork = TRUE),
     "download.prompt_for_download" = FALSE,
     "download.directory_upgrade" = TRUE
   ))
-  session <- edge_request("/session", list(capabilities = list(alwaysMatch = list(
-    browserName = "MicrosoftEdge", "ms:edgeOptions" = options
-  ))))
+  capabilities <- if (browser == "edge") {
+    list(browserName = "MicrosoftEdge", "ms:edgeOptions" = options)
+  } else {
+    list(browserName = "chrome", "goog:chromeOptions" = options)
+  }
+  label <- if (browser == "edge") "Edge WebDriver" else "Chrome WebDriver"
+  session <- webdriver_request(browser, "/session", list(capabilities = list(alwaysMatch = capabilities)))
   id <- session$sessionId
-  validate_text(id, "Edge WebDriver session ID")
+  validate_text(id, paste(label, "session ID"))
   base <- paste0("/session/", utils::URLencode(id, reserved = TRUE))
   element_key <- "element-6066-11e4-a52e-4f735466cecf"
   empty <- structure(list(), names = character())
-  command <- function(path, body = NULL, method = NULL) edge_request(paste0(base, path), body, method)
+  command <- function(path, body = NULL, method = NULL) {
+    webdriver_request(browser, paste0(base, path), body, method)
+  }
 
   list(
     close = function() command("", method = "DELETE"),
@@ -333,16 +302,22 @@ open_edge_session <- function(download_path) {
     refresh = function() command("/refresh", empty),
     findElement = function(using, value) {
       id <- command("/element", list(using = using, value = value))[[element_key]]
-      validate_text(id, "Edge WebDriver element ID")
+      validate_text(id, paste(label, "element ID"))
       path <- paste0("/element/", utils::URLencode(id, reserved = TRUE))
+      reference <- stats::setNames(list(id), element_key)
       list(
         clearElement = function() command(paste0(path, "/clear"), empty),
-        clickElement = function() command(paste0(path, "/click"), empty),
+        clickElement = function() {
+          # A native click can be intercepted by an overlay; fall back to a DOM click.
+          tryCatch(command(paste0(path, "/click"), empty), error = function(error) {
+            command("/execute/sync", list(script = "arguments[0].click();", args = list(reference)))
+          })
+        },
         sendKeysToElement = function(keys) {
           text <- vapply(seq_along(keys), function(i) {
             if (!is.null(names(keys)) && identical(names(keys)[i], "key")) {
               if (identical(keys[[i]], "enter")) return("\uE007")
-              stop("Unsupported Edge WebDriver key.", call. = FALSE)
+              stop("Unsupported ", label, " key.", call. = FALSE)
             }
             keys[[i]]
           }, character(1))

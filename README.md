@@ -18,7 +18,7 @@
 
 ## 一、安装
 
-当前版本的安装环境为 **Windows 和 R 4.1.0 或更高版本**。包依赖 Windows 专用的 `taskscheduleR`，所以即使只用 HTTP 下载，安装时也需要该依赖。Chrome 下载需要 Google Chrome 和可从系统 PATH 调用的 Java。Edge 下载需要 Microsoft Edge 和支持 Edge 的新版 `wdauto`。
+当前版本的安装环境为 **Windows 和 R 4.1.0 或更高版本**。包依赖 Windows 专用的 `taskscheduleR`，所以即使只用 HTTP 下载，安装时也需要该依赖。Chrome 下载需要 Google Chrome，Edge 下载需要 Microsoft Edge，两者都需要 `wdauto` 0.2.0 或更高版本，不再需要 Java。国内网络可先设置 `options(wdauto.mirror = "npmmirror")` 再调用 `connect_to_browser()`。
 
 ```r
 install.packages("pak")
