@@ -86,43 +86,53 @@ local({
 
 local({
   env <- new.env(parent = asNamespace("pptsdd"))
-  for (name in c("download_csv_auto", "open_edge_session")) {
+  for (name in c("download_csv_auto", "open_browser_session")) {
     fn <- get(name, envir = asNamespace("pptsdd"))
     environment(fn) <- env
     env[[name]] <- fn
   }
   path <- tempfile()
   on.exit(unlink(path, recursive = TRUE))
-  calls <- list()
-  elements <- character()
-  staging <- NULL
-  env$edge_request <- function(route, body = NULL, method = NULL) {
-    calls[[length(calls) + 1L]] <<- list(route = route, body = body, method = method)
-    if (route == "/session") {
-      capabilities <- body$capabilities$alwaysMatch
-      stopifnot(identical(capabilities$browserName, "MicrosoftEdge"))
-      staging <<- capabilities[["ms:edgeOptions"]]$prefs[["download.default_directory"]]
-      return(list(sessionId = "mock-edge-session"))
-    }
-    if (endsWith(route, "/element")) {
-      elements <<- c(elements, body$value)
-      return(setNames(list(as.character(length(elements))), "element-6066-11e4-a52e-4f735466cecf"))
-    }
-    if (endsWith(route, "/click")) {
-      id <- as.integer(sub(".*/element/([0-9]+)/click$", "\\1", route))
-      if (grepl("reports_download_csv_data", elements[[id]], fixed = TRUE)) {
-        writeLines(c("pig,weight", "1,42"), file.path(staging, "location606_2024-03-01_report.csv"))
+  for (browser in c("edge", "chrome")) {
+    calls <- list()
+    elements <- character()
+    staging <- NULL
+    env$webdriver_request <- function(target, route, body = NULL, method = NULL) {
+      stopifnot(identical(target, browser))
+      calls[[length(calls) + 1L]] <<- list(route = route, body = body, method = method)
+      if (route == "/session") {
+        capabilities <- body$capabilities$alwaysMatch
+        key <- if (browser == "edge") "ms:edgeOptions" else "goog:chromeOptions"
+        stopifnot(identical(capabilities$browserName, if (browser == "edge") "MicrosoftEdge" else "chrome"))
+        staging <<- capabilities[[key]]$prefs[["download.default_directory"]]
+        return(list(sessionId = paste0("mock-", browser, "-session")))
       }
+      if (endsWith(route, "/element")) {
+        elements <<- c(elements, body$value)
+        return(setNames(list(as.character(length(elements))), "element-6066-11e4-a52e-4f735466cecf"))
+      }
+      if (endsWith(route, "/click")) {
+        id <- as.integer(sub(".*/element/([0-9]+)/click$", "\\1", route))
+        # Chrome simulates an intercepted click, which falls back to a DOM click.
+        if (browser == "chrome" && grepl("login_button", elements[[id]], fixed = TRUE)) stop("element click intercepted")
+        if (grepl("reports_download_csv_data", elements[[id]], fixed = TRUE)) {
+          writeLines(c("pig,weight", "1,42"), file.path(staging, "location606_2024-03-01_report.csv"))
+        }
+      }
+      invisible(NULL)
     }
-    invisible(NULL)
-  }
 
-  env$download_csv_auto("https://example.invalid", "tester", "fixture-password", "1",
-                        "606", "2024-02-29", path, browser = "edge")
-  report <- file.path(path, "NonEmptyCSVs", "606", "location606_2024-02-29data_2024-03-01download.csv")
-  stopifnot(identical(readLines(report), c("pig,weight", "1,42")),
-            identical(tail(calls, 1L)[[1L]]$method, "DELETE"),
-            any(vapply(calls, function(call) identical(call$body$text, paste0("606", "\uE007")), logical(1))))
+    env$download_csv_auto("https://example.invalid", "tester", "fixture-password", "1",
+                          "606", "2024-02-29", path, browser = browser)
+    report <- file.path(path, "NonEmptyCSVs", "606", "location606_2024-02-29data_2024-03-01download.csv")
+    stopifnot(identical(readLines(report), c("pig,weight", "1,42")),
+              identical(tail(calls, 1L)[[1L]]$method, "DELETE"),
+              any(vapply(calls, function(call) identical(call$body$text, paste0("606", "\uE007")), logical(1))))
+    if (browser == "chrome") {
+      stopifnot(any(vapply(calls, function(call) endsWith(call$route, "/execute/sync"), logical(1))))
+    }
+    unlink(report)
+  }
 
   args <- list(url = "https://example.invalid", username = "tester",
                password_env = "NEDAP_PASSWORD", location = "606", download_path = path,

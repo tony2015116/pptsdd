@@ -7,12 +7,13 @@
 connect_to_browser(dest_dir, browser = c("chrome", "edge"))
 }
 \arguments{
-\item{dest_dir}{Directory for browser drivers and the Selenium server.}
+\item{dest_dir}{Directory for browser drivers.}
 
 \item{browser}{Browser to start, either \code{chrome} or \code{edge}.}
 }
 \description{
-\code{connect_to_browser()} is used to start the selenium webdriver service.
+\code{connect_to_browser()} starts the local browser WebDriver service with
+wdauto. Chrome uses ChromeDriver directly, so Java is not required.
 }
 \examples{
 connect_to_browser(dest_dir = "C:/Users/Dell/Desktop/test")
