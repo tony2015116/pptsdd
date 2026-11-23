@@ -1,11 +1,11 @@
-# pptsdd <a href="https://tony2015116.github.io/pptsdd/"><img src="man/figures/logo.png" width="120" height="139" align="right" alt="pptsdd 标志"></a>
+# tidypptsdd <a href="https://tony2015116.github.io/tidypptsdd/"><img src="man/figures/logo.png" width="120" height="139" align="right" alt="tidypptsdd 标志"></a>
 
 <!-- badges: start -->
-[![GitHub R package version](https://img.shields.io/github/r-package/v/tony2015116/pptsdd)](DESCRIPTION)
-[![GitHub last commit](https://img.shields.io/github/last-commit/tony2015116/pptsdd)](https://github.com/tony2015116/pptsdd/commits/master/)
+[![GitHub R package version](https://img.shields.io/github/r-package/v/tony2015116/tidypptsdd)](DESCRIPTION)
+[![GitHub last commit](https://img.shields.io/github/last-commit/tony2015116/tidypptsdd)](https://github.com/tony2015116/tidypptsdd/commits/master/)
 <!-- badges: end -->
 
-**pptsdd**（Pig Performance Test Station Data Download）是一个 R 包，用于从 Nedap 生猪性能测定站下载 CSV。可以按站点和日期范围导出，也可以将每个站点每天的数据分别保存，并在 Windows 上定时下载前一天的报表。
+**tidypptsdd**（Pig Performance Test Station Data Download）是一个 R 包，用于从 Nedap 生猪性能测定站下载 CSV。可以按站点和日期范围导出，也可以将每个站点每天的数据分别保存，并在 Windows 上定时下载前一天的报表。
 
 | 需求 | 函数 | 下载方式 |
 | --- | --- | --- |
@@ -23,7 +23,16 @@
 ```r
 install.packages("pak")
 pak::pkg_install("tony2015116/wdauto")
-pak::pkg_install("tony2015116/pptsdd")
+pak::pkg_install("tony2015116/tidypptsdd")
+```
+
+### 从 pptsdd 升级
+
+本包原名 `pptsdd`，自 0.1.8 起改名为 `tidypptsdd`，函数名和参数都不变，只需把 `library(pptsdd)` 和 `pptsdd::` 改成 `tidypptsdd`。旧版创建的 Windows 定时任务调用的仍是 `pptsdd::`，升级后请用 `get_csv_schedule()` 或 `download_csv_schedule()` 重新创建，再删除旧任务和旧包：
+
+```r
+taskscheduleR::taskscheduler_delete("旧任务名")
+remove.packages("pptsdd")
 ```
 
 ## 二、配置测定站账号
@@ -39,12 +48,12 @@ NEDAP_PASSWORD="your_password"
 保存后重启 R。以下变量和输出目录供后面的示例共用。第一次试跑时，请把第 3 节示例中的站点编号和日期换成有数据的实际值。
 
 ```r
-library(pptsdd)
+library(tidypptsdd)
 
 url <- Sys.getenv("NEDAP_URL")
 username <- Sys.getenv("NEDAP_USERNAME")
 password <- Sys.getenv("NEDAP_PASSWORD")
-download_path <- file.path(path.expand("~"), "pptsdd-data")
+download_path <- file.path(path.expand("~"), "tidypptsdd-data")
 
 stopifnot(all(nzchar(c(url, username, password))))
 ```
@@ -84,7 +93,7 @@ get_csv_auto(
 先启动所选浏览器的 WebDriver，再通过 `csv_position` 指定 CSV 报表在网页列表中的位置。示例使用第 1 项，请根据实际页面调整。
 
 ```r
-driver_dir <- "C:/pptsdd-webdriver"
+driver_dir <- "C:/tidypptsdd-webdriver"
 dir.create(driver_dir, recursive = TRUE, showWarnings = FALSE)
 connect_to_browser(dest_dir = driver_dir)
 
@@ -139,7 +148,7 @@ get_csv_schedule(
 若需通过浏览器定时下载，改用 `download_csv_schedule()`，并将参数列表设为 `c(task_args, list(csv_position = "1"))`。使用 Edge 时，将列表设为 `c(task_args, list(csv_position = "1", browser = "edge"))`。任务运行时，所选浏览器的 WebDriver 服务需要已启动。
 
 - **密码**由任务执行账户在运行时读取。`password_env` 填变量名。可在该账户的 `.Renviron` 中配置，或为该账户设置 Windows 环境变量。
-- **验证**可在 Windows 任务计划程序里手动运行一次，查看输出目录和 `C:/Temp/pptsdd/` 下对应的 `.log` 文件。
+- **验证**可在 Windows 任务计划程序里手动运行一次，查看输出目录和 `C:/Temp/tidypptsdd/` 下对应的 `.log` 文件。
 - **删除任务**可运行 `taskscheduleR::taskscheduler_delete("nedap_csv_daily")`。
 
 ### 迁移旧版定时任务
@@ -157,4 +166,4 @@ get_csv_schedule(
 | 浏览器下载超时 | 检查所选浏览器、对应的 WebDriver 服务，以及 `csv_position` 对应的报表。 |
 | 手动下载成功，定时任务失败 | 检查任务执行账户能否读取密码变量、写入输出目录，并查看任务日志。 |
 
-[函数参考](https://tony2015116.github.io/pptsdd/reference/) · [更新记录](NEWS.md) · [许可证](LICENSE.md) · [反馈问题](https://github.com/tony2015116/pptsdd/issues)
+[函数参考](https://tony2015116.github.io/tidypptsdd/reference/) · [更新记录](NEWS.md) · [许可证](LICENSE.md) · [反馈问题](https://github.com/tony2015116/tidypptsdd/issues)

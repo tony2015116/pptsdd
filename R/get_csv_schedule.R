@@ -48,7 +48,7 @@ schedule_nedap_download <- function(downloader, taskname, schedule, starttime, s
   }
 
   lines <- scheduled_download_script(downloader, rscript_args)
-  directory <- prepare_download_directory("C:/Temp/pptsdd")
+  directory <- prepare_download_directory("C:/Temp/tidypptsdd")
   script <- tempfile("task-", tmpdir = directory, fileext = ".R")
   registered <- FALSE
   on.exit(if (!registered) unlink(script), add = TRUE)
@@ -110,5 +110,5 @@ scheduled_download_script <- function(downloader, args) {
     'arg_list$password <- Sys.getenv(password_env, unset = "")',
     'if (!nzchar(arg_list$password)) stop("Set the password environment variable for the scheduled account: ", password_env, call. = FALSE)',
     'arg_list$date <- Sys.Date() - 1L',
-    paste0("do.call(pptsdd::", downloader, ", arg_list)"))
+    paste0("do.call(tidypptsdd::", downloader, ", arg_list)"))
 }

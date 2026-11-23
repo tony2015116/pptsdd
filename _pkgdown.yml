@@ -1,4 +1,4 @@
-url: https://tony2015116.github.io/pptsdd/
+url: https://tony2015116.github.io/tidypptsdd/
 template:
   package: preferably
   params:
@@ -6,9 +6,9 @@ template:
 home:
   links:
   - text: Browse source code
-    href: https://github.com/tony2015116/pptsdd
+    href: https://github.com/tony2015116/tidypptsdd
   - text: Report a bug
-    href: https://github.com/tony2015116/pptsdd/issues
+    href: https://github.com/tony2015116/tidypptsdd/issues
   - text: Author Website
     href: https://www.rusersplace.com
 navbar:
@@ -21,7 +21,7 @@ navbar:
     href: news/index.html
   right:
   - icon: fab fa-github fa-lg
-    href: https://github.com/tony2015116/pptsdd
+    href: https://github.com/tony2015116/tidypptsdd
   - icon: fa fa-signal fa-lg
     href: https://tony2015116.gitee.io/pptsdd
 reference:
@@ -41,11 +41,11 @@ reference:
 news:
   releases:
   - text: Version 0.1.4
-    href: https://github.com/tony2015116/pptsdd/releases/tag/v0.1.4
+    href: https://github.com/tony2015116/tidypptsdd/releases/tag/v0.1.4
   - text: Version 0.1.5
-    href: https://github.com/tony2015116/pptsdd/releases/tag/v0.1.5
+    href: https://github.com/tony2015116/tidypptsdd/releases/tag/v0.1.5
   - text: Version 0.1.6
-    href: https://github.com/tony2015116/pptsdd/releases/tag/v0.1.6
+    href: https://github.com/tony2015116/tidypptsdd/releases/tag/v0.1.6
   - text: Version 0.1.7
-    href: https://github.com/tony2015116/pptsdd/releases/tag/v0.1.7
+    href: https://github.com/tony2015116/tidypptsdd/releases/tag/v0.1.7
 
