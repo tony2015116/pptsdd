@@ -1,5 +1,5 @@
 Package: tidypptsdd
-Title: Breeding Tools
+Title: Pig Performance Test Station Data Download
 Version: 0.1.8
 Authors@R: c(
     person("Guo Meng", , , "tony2015116@163.com", role = c("aut", "cre")),
