@@ -149,7 +149,7 @@ download_csv <- function(report_request, location_min, location_max, date_min, d
     stop("Nedap did not return a CSV report. Check the session and report parameters.", call. = FALSE)
   }
 
-  staged_file <- tempfile(".pptsdd-", tmpdir = download_path)
+  staged_file <- tempfile(".tidypptsdd-", tmpdir = download_path)
   on.exit(unlink(staged_file), add = TRUE)
   writeBin(httr2::resp_body_raw(response), staged_file)
   empty <- save_report(staged_file, download_path, location, date, archive = archive)

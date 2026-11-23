@@ -122,7 +122,7 @@ download_csv_auto <- function(url, username, password, csv_position, location, d
   validate_locations(location)
   date <- normalize_report_dates(date)
   download_path <- prepare_download_directory(download_path)
-  staging <- tempfile(".pptsdd-", tmpdir = download_path)
+  staging <- tempfile(".tidypptsdd-", tmpdir = download_path)
   staging <- prepare_download_directory(staging)
   on.exit(unlink(staging, recursive = TRUE), add = TRUE)
 
@@ -559,7 +559,7 @@ download_csv <- function(report_request, location_min, location_max, date_min, d
     stop("Nedap did not return a CSV report. Check the session and report parameters.", call. = FALSE)
   }
 
-  staged_file <- tempfile(".pptsdd-", tmpdir = download_path)
+  staged_file <- tempfile(".tidypptsdd-", tmpdir = download_path)
   on.exit(unlink(staged_file), add = TRUE)
   writeBin(httr2::resp_body_raw(response), staged_file)
   empty <- save_report(staged_file, download_path, location, date, archive = archive)
@@ -739,7 +739,7 @@ schedule_nedap_download <- function(downloader, taskname, schedule, starttime, s
   }
 
   lines <- scheduled_download_script(downloader, rscript_args)
-  directory <- prepare_download_directory("C:/Temp/pptsdd")
+  directory <- prepare_download_directory("C:/Temp/tidypptsdd")
   script <- tempfile("task-", tmpdir = directory, fileext = ".R")
   registered <- FALSE
   on.exit(if (!registered) unlink(script), add = TRUE)
@@ -801,7 +801,7 @@ scheduled_download_script <- function(downloader, args) {
     'arg_list$password <- Sys.getenv(password_env, unset = "")',
     'if (!nzchar(arg_list$password)) stop("Set the password environment variable for the scheduled account: ", password_env, call. = FALSE)',
     'arg_list$date <- Sys.Date() - 1L',
-    paste0("do.call(pptsdd::", downloader, ", arg_list)"))
+    paste0("do.call(tidypptsdd::", downloader, ", arg_list)"))
 }
 ```
 

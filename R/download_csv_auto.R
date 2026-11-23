@@ -37,7 +37,7 @@ download_csv_auto <- function(url, username, password, csv_position, location, d
   validate_locations(location)
   date <- normalize_report_dates(date)
   download_path <- prepare_download_directory(download_path)
-  staging <- tempfile(".pptsdd-", tmpdir = download_path)
+  staging <- tempfile(".tidypptsdd-", tmpdir = download_path)
   staging <- prepare_download_directory(staging)
   on.exit(unlink(staging, recursive = TRUE), add = TRUE)
 

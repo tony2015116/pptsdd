@@ -1,10 +1,10 @@
-library(pptsdd)
+library(tidypptsdd)
 
-normalize_report_dates <- pptsdd:::normalize_report_dates
-report_is_empty <- pptsdd:::report_is_empty
-save_report <- pptsdd:::save_report
-wait_for_browser_csv <- pptsdd:::wait_for_browser_csv
-scheduled_download_script <- pptsdd:::scheduled_download_script
+normalize_report_dates <- tidypptsdd:::normalize_report_dates
+report_is_empty <- tidypptsdd:::report_is_empty
+save_report <- tidypptsdd:::save_report
+wait_for_browser_csv <- tidypptsdd:::wait_for_browser_csv
+scheduled_download_script <- tidypptsdd:::scheduled_download_script
 
 expect_error <- function(expr, message) {
   result <- tryCatch(force(expr), error = identity)
@@ -85,9 +85,9 @@ local({
 })
 
 local({
-  env <- new.env(parent = asNamespace("pptsdd"))
+  env <- new.env(parent = asNamespace("tidypptsdd"))
   for (name in c("download_csv_auto", "open_browser_session")) {
-    fn <- get(name, envir = asNamespace("pptsdd"))
+    fn <- get(name, envir = asNamespace("tidypptsdd"))
     environment(fn) <- env
     env[[name]] <- fn
   }
