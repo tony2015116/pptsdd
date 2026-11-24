@@ -33,7 +33,7 @@ Note: when you will use other flat templates, this part will be in a separate fi
 fusen::fill_description(
   pkg = here::here(),
   fields = list(
-    Title = "Breeding Tools",
+    Title = "Pig Performance Test Station Data Download",
     Description = "An R package that can automatically or periodically download data from the Nedap website in pig farm.",
     `Authors@R` = c(
       person("Guo Meng", email = "tony2015116@163.com", role = c("aut", "cre")),
