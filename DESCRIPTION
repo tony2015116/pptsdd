@@ -8,6 +8,8 @@ Authors@R: c(
 Description: An R package that can automatically or periodically download
     data from the Nedap website in pig farm.
 License: CC BY-NC-ND 4.0 + file LICENSE
+URL: https://tony2015116.github.io/tidypptsdd/, https://github.com/tony2015116/tidypptsdd
+BugReports: https://github.com/tony2015116/tidypptsdd/issues
 Depends:
     R (>= 4.1.0)
 Imports: 
@@ -27,3 +29,5 @@ Config/fusen/version: 0.5.2
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
+Remotes:
+    tony2015116/wdauto

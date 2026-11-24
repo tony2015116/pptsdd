@@ -35,6 +35,8 @@ fusen::fill_description(
   fields = list(
     Title = "Pig Performance Test Station Data Download",
     Description = "An R package that can automatically or periodically download data from the Nedap website in pig farm.",
+    URL = "https://tony2015116.github.io/tidypptsdd/, https://github.com/tony2015116/tidypptsdd",
+    BugReports = "https://github.com/tony2015116/tidypptsdd/issues",
     `Authors@R` = c(
       person("Guo Meng", email = "tony2015116@163.com", role = c("aut", "cre")),
       person(given = "Guo Meng", role = "cph")

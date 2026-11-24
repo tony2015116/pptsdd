@@ -1,7 +1,7 @@
 # tidypptsdd <a href="https://tony2015116.github.io/tidypptsdd/"><img src="man/figures/logo.png" width="120" height="139" align="right" alt="tidypptsdd 标志"></a>
 
 <!-- badges: start -->
-[![GitHub R package version](https://img.shields.io/github/r-package/v/tony2015116/tidypptsdd)](DESCRIPTION)
+[![GitHub R package version](https://img.shields.io/github/r-package/v/tony2015116/tidypptsdd)](https://github.com/tony2015116/tidypptsdd/blob/master/DESCRIPTION)
 [![GitHub last commit](https://img.shields.io/github/last-commit/tony2015116/tidypptsdd)](https://github.com/tony2015116/tidypptsdd/commits/master/)
 <!-- badges: end -->
 
@@ -15,6 +15,11 @@
 | 每天在指定时间下载前一天的数据 | `get_csv_schedule()` / `download_csv_schedule()` | Windows 任务计划程序 |
 
 能用 HTTP 取得所需报表时，从 `get_csv()` 或 `get_csv_auto()` 开始。需要通过网页菜单选择报表时，使用 Chrome 或 Edge。
+
+[中文使用说明](https://tony2015116.github.io/tidypptsdd/articles/tidypptsdd-zh.html) ·
+[速查表](https://tony2015116.github.io/tidypptsdd/cheatsheet-zh.html) ·
+[Get started](https://tony2015116.github.io/tidypptsdd/articles/tidypptsdd.html) ·
+[Cheatsheet](https://tony2015116.github.io/tidypptsdd/cheatsheet.html)
 
 ## 一、安装
 
@@ -93,8 +98,7 @@ get_csv_auto(
 先启动所选浏览器的 WebDriver，再通过 `csv_position` 指定 CSV 报表在网页列表中的位置。示例使用第 1 项，请根据实际页面调整。
 
 ```r
-driver_dir <- "C:/tidypptsdd-webdriver"
-dir.create(driver_dir, recursive = TRUE, showWarnings = FALSE)
+driver_dir <- "C:/webdriver"
 connect_to_browser(dest_dir = driver_dir)
 
 download_csv_auto(
@@ -166,4 +170,4 @@ get_csv_schedule(
 | 浏览器下载超时 | 检查所选浏览器、对应的 WebDriver 服务，以及 `csv_position` 对应的报表。 |
 | 手动下载成功，定时任务失败 | 检查任务执行账户能否读取密码变量、写入输出目录，并查看任务日志。 |
 
-[函数参考](https://tony2015116.github.io/tidypptsdd/reference/) · [更新记录](NEWS.md) · [许可证](LICENSE.md) · [反馈问题](https://github.com/tony2015116/tidypptsdd/issues)
+[函数参考](https://tony2015116.github.io/tidypptsdd/reference/) · [更新记录](https://tony2015116.github.io/tidypptsdd/news/index.html) · [许可证](LICENSE.md) · [反馈问题](https://github.com/tony2015116/tidypptsdd/issues)
