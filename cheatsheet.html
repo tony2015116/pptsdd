@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>tidypptsdd cheatsheet</title>
+<meta name="description" content="tidypptsdd 0.1.8 cheatsheet: download CSV reports from Nedap pig performance test stations.">
+<link rel="icon" href="favicon.ico">
+<style>
+:root {
+  --bg: #f4f7f4;
+  --paper: #ffffff;
+  --ink: #1d2621;
+  --muted: #5b6862;
+  --line: #dfe6e1;
+  --code-bg: #f3f6f4;
+  --mint: #17804a;
+  --mint-soft: #e1f3e9;
+  --io: #1f6f8b;     --io-soft: #e3f0f5;
+  --rs: #2a6e3f;     --rs-soft: #e5f1e8;
+  --cv: #a8571a;     --cv-soft: #f8ebe0;
+  --st: #6a4c93;     --st-soft: #efe9f6;
+  --ut: #4f5d68;     --ut-soft: #e9edf0;
+  --c-com: #6f7d75;
+  --c-str: #8a4b12;
+  --c-fn:  #1f5f34;
+  --c-arg: #1f5d7a;
+  --c-num: #8f2f5a;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121714; --paper: #1a211d; --ink: #e3ebe5; --muted: #9db0a5;
+    --line: #2c3731; --code-bg: #141a16; --mint: #5fd398; --mint-soft: #183326;
+    --io: #6cb8d4; --io-soft: #17303a; --rs: #6fc28a; --rs-soft: #1f3326;
+    --cv: #e39a5f; --cv-soft: #3a2717; --st: #b79ae0; --st-soft: #2c2340;
+    --ut: #a8b7c2; --ut-soft: #252d33;
+    --c-com: #7f9187; --c-str: #e3b27a; --c-fn: #8ad6a2; --c-arg: #8cc6e0; --c-num: #e597bb;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121714; --paper: #1a211d; --ink: #e3ebe5; --muted: #9db0a5;
+  --line: #2c3731; --code-bg: #141a16; --mint: #5fd398; --mint-soft: #183326;
+  --io: #6cb8d4; --io-soft: #17303a; --rs: #6fc28a; --rs-soft: #1f3326;
+  --cv: #e39a5f; --cv-soft: #3a2717; --st: #b79ae0; --st-soft: #2c2340;
+  --ut: #a8b7c2; --ut-soft: #252d33;
+  --c-com: #7f9187; --c-str: #e3b27a; --c-fn: #8ad6a2; --c-arg: #8cc6e0; --c-num: #e597bb;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+a { color: var(--mint); }
+code, pre, .sig { font-family: ui-monospace, "SFMono-Regular", "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace; }
+.wrap { max-width: 1320px; margin: 0 auto; padding: 24px 24px 48px; }
+
+/* ---------- header ---------- */
+.top {
+  display: grid; grid-template-columns: auto 1fr auto; gap: 20px; align-items: center;
+  background: var(--paper); border: 1px solid var(--line); border-radius: 14px;
+  padding: 18px 22px; border-top: 6px solid var(--mint);
+}
+.top img { width: 74px; height: auto; display: block; }
+.top h1 { margin: 0; font-size: 28px; letter-spacing: -0.01em; line-height: 1.15; }
+.top h1 .ver {
+  display: inline-block; vertical-align: middle; margin-left: 8px; font-size: 13px; font-weight: 600;
+  background: var(--mint); color: var(--paper); border-radius: 999px; padding: 2px 10px; letter-spacing: 0;
+}
+.top p { margin: 4px 0 0; color: var(--muted); max-width: 70ch; }
+.links { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+.links a, .links button {
+  font: inherit; font-size: 13px; text-decoration: none; color: var(--ink); background: var(--mint-soft);
+  border: 1px solid var(--line); border-radius: 8px; padding: 6px 11px; cursor: pointer;
+}
+.links a:hover, .links button:hover { border-color: var(--mint); }
+
+/* ---------- pipeline strip ---------- */
+.flow {
+  margin: 16px 0; display: grid; grid-template-columns: repeat(6, 1fr); gap: 0;
+  background: var(--paper); border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
+}
+.flow > div { padding: 12px 14px; position: relative; border-right: 1px solid var(--line); }
+.flow > div:last-child { border-right: 0; }
+.flow > div:not(:last-child)::after {
+  content: ""; position: absolute; right: -7px; top: 50%; width: 12px; height: 12px; z-index: 1;
+  background: var(--paper); border-top: 1px solid var(--line); border-right: 1px solid var(--line);
+  transform: translateY(-50%) rotate(45deg);
+}
+.flow .step { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.flow .fns { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12.5px; margin-top: 3px; }
+.flow .io .step { color: var(--io); } .flow .rs .step { color: var(--rs); }
+.flow .cv .step { color: var(--cv); } .flow .st .step { color: var(--st); }
+.flow .files .step { color: var(--muted); }
+
+/* ---------- grid of panels ---------- */
+.grid { columns: 3 380px; column-gap: 16px; }
+.panel {
+  break-inside: avoid; display: inline-block; width: 100%; margin: 0 0 16px;
+  background: var(--paper); border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
+}
+.panel > h2 {
+  margin: 0; padding: 10px 16px; font-size: 15px; letter-spacing: .02em; color: var(--accent);
+  background: var(--soft); border-bottom: 1px solid var(--line);
+  display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+}
+.panel > h2 small { font-weight: 500; font-size: 12px; color: var(--muted); }
+.panel > h2 a { color: inherit; text-decoration: none; }
+.panel > h2 a:hover { text-decoration: underline; }
+.io { --accent: var(--io); --soft: var(--io-soft); }
+.rs { --accent: var(--rs); --soft: var(--rs-soft); }
+.cv { --accent: var(--cv); --soft: var(--cv-soft); }
+.st { --accent: var(--st); --soft: var(--st-soft); }
+.ut { --accent: var(--ut); --soft: var(--ut-soft); }
+.mt { --accent: var(--mint); --soft: var(--mint-soft); }
+
+.fn { padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.fn:last-child { border-bottom: 0; }
+.sig { font-size: 12.5px; line-height: 1.45; color: var(--muted); word-break: break-word; }
+.sig b { color: var(--accent); font-size: 13.5px; }
+.sig b a { color: inherit; text-decoration: none; }
+.sig b a:hover { text-decoration: underline; }
+.fn p { margin: 5px 0 0; }
+.fn ul { margin: 6px 0 0; padding-left: 18px; }
+.fn li { margin: 2px 0; }
+.fn li code, .fn p code, td code, .note code { font-size: 12.5px; background: var(--code-bg); border-radius: 4px; padding: 0 3px; }
+.tag {
+  display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+  color: var(--accent); border: 1px solid currentColor; border-radius: 4px; padding: 0 5px; margin-left: 4px; vertical-align: 1px;
+}
+
+pre {
+  margin: 8px 0 0; padding: 10px 12px; background: var(--code-bg); border: 1px solid var(--line);
+  border-radius: 8px; font-size: 12.3px; line-height: 1.5; overflow-x: auto; white-space: pre;
+}
+pre .com { color: var(--c-com); font-style: italic; }
+pre .str { color: var(--c-str); }
+pre .fnm { color: var(--c-fn); font-weight: 700; }
+pre .arg { color: var(--c-arg); }
+pre .num { color: var(--c-num); }
+
+table { border-collapse: collapse; width: 100%; font-size: 12.8px; margin-top: 6px; }
+th, td { text-align: left; vertical-align: top; padding: 4px 6px; border-bottom: 1px solid var(--line); }
+th { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+
+.note {
+  margin-top: 8px; padding: 7px 10px; border-left: 3px solid var(--accent); background: var(--soft);
+  border-radius: 0 6px 6px 0; font-size: 13px;
+}
+
+/* ---------- mini data diagrams ---------- */
+.dia { display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.dia .arrow { color: var(--muted); font-size: 16px; }
+.mini { display: inline-grid; gap: 2px; font: 10px/1 ui-monospace, Menlo, Consolas, monospace; }
+.mini span {
+  min-width: 22px; height: 17px; padding: 0 3px; display: flex; align-items: center; justify-content: center;
+  border-radius: 3px; background: var(--code-bg); border: 1px solid var(--line); color: var(--muted); white-space: nowrap;
+}
+.mini .h { font-weight: 700; color: var(--ink); }
+.mini .a { background: #cfe9d7; border-color: #a9d6b7; color: #1d4a2a; }
+.mini .b { background: #d6e7f5; border-color: #aecde6; color: #1c3f5c; }
+.mini .c { background: #f5e1cf; border-color: #e6c3a3; color: #5a3312; }
+.mini .n { background: var(--soft); border-color: var(--accent); color: var(--accent); font-weight: 700; }
+.c2 { grid-template-columns: repeat(2, auto); } .c3 { grid-template-columns: repeat(3, auto); }
+.c4 { grid-template-columns: repeat(4, auto); }
+.listbox { display: inline-flex; flex-direction: column; gap: 3px; font: 10px/1 ui-monospace, Menlo, Consolas, monospace; }
+.listbox span { padding: 3px 6px; border-radius: 3px; border: 1px dashed var(--accent); color: var(--accent); }
+
+footer { margin-top: 8px; color: var(--muted); font-size: 12.5px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+
+/* ---------- responsive ---------- */
+@media (max-width: 900px) {
+  .flow { grid-template-columns: repeat(3, 1fr); }
+  .flow > div:nth-child(3) { border-right: 0; }
+  .flow > div:nth-child(-n+3) { border-bottom: 1px solid var(--line); }
+  .flow > div:nth-child(3)::after { display: none; }
+}
+@media (max-width: 640px) {
+  .wrap { padding: 16px 16px 32px; }
+  .top { grid-template-columns: auto 1fr; }
+  .top img { width: 56px; }
+  .top h1 { font-size: 22px; }
+  .links { grid-column: 1 / -1; justify-content: flex-start; }
+  .flow { grid-template-columns: 1fr 1fr; }
+  .flow > div { border-right: 0 !important; border-bottom: 1px solid var(--line); }
+  .flow > div::after { display: none; }
+  .grid { columns: 1; }
+}
+
+/* ---------- print: landscape, compact ---------- */
+@page { size: A4 landscape; margin: 9mm; }
+@media print {
+  :root { --bg: #fff; }
+  body { font-size: 10.5px; background: #fff; }
+  .wrap { max-width: none; padding: 0; }
+  .links { display: none; }
+  .top { padding: 8px 12px; border-radius: 8px; }
+  .top img { width: 48px; }
+  .top h1 { font-size: 20px; }
+  .flow { margin: 8px 0; border-radius: 8px; }
+  .flow > div { padding: 6px 10px; }
+  .grid { columns: 4; column-gap: 8px; }
+  .panel { margin-bottom: 8px; border-radius: 8px; }
+  .panel > h2 { padding: 5px 10px; font-size: 12px; }
+  .fn { padding: 6px 10px; }
+  pre { font-size: 9.3px; padding: 5px 7px; }
+  .sig { font-size: 9.6px; } .sig b { font-size: 10.5px; }
+  table { font-size: 9.6px; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <img src="reference/figures/logo.png" alt="tidypptsdd logo" onerror="this.style.display='none'">
+  <div>
+    <h1>tidypptsdd cheatsheet <span class="ver">v0.1.8</span></h1>
+    <p>Pig Performance Test Station Data Download: get CSV reports from Nedap test stations over HTTP or through Chrome and Edge, one file per station and day, and schedule daily downloads on Windows.</p>
+  </div>
+  <nav class="links">
+    <a href="index.html">Home</a>
+    <a href="reference/index.html">Reference</a>
+    <a href="articles/tidypptsdd.html">Get started</a>
+    <a href="https://github.com/tony2015116/tidypptsdd">GitHub</a>
+    <a href="cheatsheet-zh.html" hreflang="zh-CN" lang="zh-CN">中文</a>
+    <button type="button" onclick="window.print()">Print / PDF</button>
+  </nav>
+</header>
+
+<section class="flow" aria-label="tidypptsdd workflow">
+  <div class="files"><div class="step">Account</div><div class="fns">~/.Renviron<br>NEDAP_URL …</div></div>
+  <div class="io"><div class="step">1 · HTTP</div><div class="fns">get_csv()<br>get_csv_auto()</div></div>
+  <div class="rs"><div class="step">1 · Browser</div><div class="fns">connect_to_browser()<br>download_csv_auto()</div></div>
+  <div class="cv"><div class="step">2 · Schedule</div><div class="fns">get_csv_schedule()<br>download_csv_schedule()</div></div>
+  <div class="st"><div class="step">3 · Files</div><div class="fns">NonEmptyCSVs/<br>EmptyCSVs/</div></div>
+  <div class="ut"><div class="step">4 · Stop</div><div class="fns">disconnect_from_browser()</div></div>
+</section>
+
+<main class="grid">
+
+<section class="panel mt">
+  <h2>Common arguments <small>all download functions</small></h2>
+  <div class="fn">
+    <table>
+      <tr><th>Argument</th><th>Meaning</th></tr>
+      <tr><td><code>url</code></td><td>Root address of the station website</td></tr>
+      <tr><td><code>username</code>, <code>password</code></td><td>Website account</td></tr>
+      <tr><td><code>location</code></td><td>Station numbers as strings: <code>c("606", "608")</code></td></tr>
+      <tr><td><code>date</code></td><td><code>Date</code> values or <code>"YYYY-MM-DD"</code></td></tr>
+      <tr><td><code>download_path</code></td><td>Output folder; created when missing</td></tr>
+    </table>
+    <pre><code>pak::pkg_install("tony2015116/tidypptsdd")
+library(tidypptsdd)
+# ~/.Renviron: NEDAP_URL, NEDAP_USERNAME,
+# NEDAP_PASSWORD; restart R afterwards
+url &lt;- Sys.getenv("NEDAP_URL")
+username &lt;- Sys.getenv("NEDAP_USERNAME")
+password &lt;- Sys.getenv("NEDAP_PASSWORD")
+download_path &lt;- "D:/nedap-csv"</code></pre>
+    <div class="note">Windows and R &ge; 4.1.0. Browser downloads need Chrome or Edge and wdauto &ge; 0.2.0; Java is not needed.</div>
+  </div>
+</section>
+
+<section class="panel io">
+  <h2><a href="reference/get_csv.html">HTTP downloads</a> <small>no browser</small></h2>
+  <div class="fn">
+    <div class="sig"><b><a href="reference/get_csv.html">get_csv</a></b>(url, username, password, location_min, location_max, date_min, date_max, download_path, show_message = FALSE)</div>
+    <p>One CSV for a <b>range</b> of stations and dates, saved in <code>download_path</code>.</p>
+  </div>
+  <div class="fn">
+    <div class="sig"><b><a href="reference/get_csv_auto.html">get_csv_auto</a></b>(url, username, password, location, date, download_path, show_message = FALSE)</div>
+    <p>One CSV <b>per station and day</b>, filed into <code>NonEmptyCSVs/</code> or <code>EmptyCSVs/</code>.</p>
+    <pre><code>get_csv_auto(
+  url, username, password,
+  location = c("606", "608"),
+  date = seq(as.Date("2024-02-18"),
+             as.Date("2024-02-19"),
+             by = "day"),
+  download_path = download_path)</code></pre>
+    <div class="note">Start here when the default CSV export is the report you need.</div>
+  </div>
+</section>
+
+<section class="panel rs">
+  <h2><a href="reference/download_csv_auto.html">Browser downloads</a> <small>Chrome or Edge</small></h2>
+  <div class="fn">
+    <div class="sig"><b><a href="reference/connect_to_browser.html">connect_to_browser</a></b>(dest_dir, browser = "chrome")</div>
+    <p>Downloads the driver and starts the WebDriver service through wdauto.</p>
+  </div>
+  <div class="fn">
+    <div class="sig"><b><a href="reference/download_csv_auto.html">download_csv_auto</a></b>(url, username, password, csv_position, location, date, download_path, browser = "chrome")</div>
+    <p><code>csv_position</code> is the position of the report in the website's CSV list, as a string (<code>"1"</code>).</p>
+    <pre><code>options(wdauto.mirror = "npmmirror")  # China
+connect_to_browser("C:/webdriver")
+download_csv_auto(
+  url, username, password,
+  csv_position = "1",
+  location = c("606", "608"),
+  date = "2024-02-18",
+  download_path = download_path)</code></pre>
+  </div>
+  <div class="fn">
+    <div class="sig"><b><a href="reference/disconnect_from_browser.html">disconnect_from_browser</a></b>(browser = "chrome")</div>
+    <p>Stops the service. For Edge pass <code>browser = "edge"</code> to all three functions.</p>
+  </div>
+</section>
+
+<section class="panel cv">
+  <h2><a href="reference/get_csv_schedule.html">Daily schedule</a> <small>yesterday's data</small></h2>
+  <div class="fn">
+    <div class="sig"><b><a href="reference/get_csv_schedule.html">get_csv_schedule</a></b>(taskname, schedule, starttime, startdate, rscript_args = NULL, ...)</div>
+    <div class="sig" style="margin-top:4px"><b><a href="reference/download_csv_schedule.html">download_csv_schedule</a></b>(taskname, schedule, starttime, startdate, rscript_args = NULL, ...)</div>
+    <p>Registers a Windows task that runs <code>get_csv_auto()</code> / <code>download_csv_auto()</code> for the previous day.</p>
+    <table>
+      <tr><th><code>rscript_args</code></th><th>Content</th></tr>
+      <tr><td>required</td><td><code>url</code>, <code>username</code>, <code>location</code>, <code>download_path</code></td></tr>
+      <tr><td>password</td><td><code>password_env = "NEDAP_PASSWORD"</code>, the variable name</td></tr>
+      <tr><td>browser only</td><td><code>csv_position</code>; optional <code>browser</code></td></tr>
+    </table>
+    <pre><code>get_csv_schedule(
+  taskname = "nedap_csv_daily",
+  schedule = "DAILY",
+  starttime = "20:00",
+  startdate = format(Sys.Date() + 1,
+                     "%Y/%m/%d"),
+  rscript_args = list(
+    url = url, username = username,
+    password_env = "NEDAP_PASSWORD",
+    location = c("606", "608"),
+    download_path = download_path))</code></pre>
+    <ul>
+      <li><code>startdate</code> uses the Windows regional date format</li>
+      <li>Scripts and logs: <code>C:/Temp/tidypptsdd/</code></li>
+    </ul>
+    <pre><code># delete the task
+taskscheduleR::taskscheduler_delete(
+  "nedap_csv_daily")</code></pre>
+  </div>
+</section>
+
+<section class="panel st">
+  <h2>Output files <small>one report per station and day</small></h2>
+  <div class="fn">
+    <pre><code>download_path/
+  NonEmptyCSVs/606/*.csv  # with data rows
+  EmptyCSVs/608/*.csv     # header only</code></pre>
+    <p>File names contain the report date and the download date: <code>location606_2024-02-18data_2024-02-20download.csv</code>.</p>
+    <p><code>get_csv()</code> saves its single report directly in <code>download_path</code>.</p>
+  </div>
+</section>
+
+<section class="panel ut">
+  <h2>Troubleshooting</h2>
+  <div class="fn">
+    <table>
+      <tr><th>Symptom</th><th>Check</th></tr>
+      <tr><td>Login fails / not a CSV</td><td>Root URL, account, report permissions; export the same report by hand</td></tr>
+      <tr><td>Reports in <code>EmptyCSVs</code></td><td>Does the station have data that day?</td></tr>
+      <tr><td>Browser timeout</td><td>Browser, its WebDriver service, <code>csv_position</code></td></tr>
+      <tr><td>Fails only as a task</td><td>Task account can read the password variable and write the folder; task log</td></tr>
+    </table>
+  </div>
+</section>
+
+<section class="panel mt">
+  <h2><a href="news/index.html">From pptsdd</a> <small>renamed in 0.1.8</small></h2>
+  <div class="fn">
+    <ul>
+      <li>Function names and arguments are unchanged: use <code>library(tidypptsdd)</code> and <code>tidypptsdd::</code></li>
+      <li>Tasks created by pptsdd call <code>pptsdd::</code>; create them again, then delete the old tasks</li>
+      <li>Then <code>remove.packages("pptsdd")</code></li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <span>tidypptsdd 0.1.8 &middot; CC BY-NC-ND 4.0 &middot; Guo Meng</span>
+  <span><a href="https://tony2015116.github.io/tidypptsdd/">tony2015116.github.io/tidypptsdd</a> &middot; <a href="https://github.com/tony2015116/wdauto">wdauto</a> &middot; <a href="https://github.com/tony2015116/tidypptsdd/issues">Report a bug</a></span>
+</footer>
+</div>
+
+<script>
+/* Lightweight R syntax highlighting for code blocks (no external library). */
+(function () {
+  var fns = ["get_csv_auto","get_csv_schedule","get_csv","connect_to_browser","download_csv_auto","disconnect_from_browser","download_csv_schedule"];
+  var fnRe = new RegExp("^(" + fns.join("|") + ")\\b");
+  function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function hl(src) {
+    var out = "", i = 0, m;
+    while (i < src.length) {
+      var rest = src.slice(i), ch = src[i];
+      if (ch === "#") {
+        var end = src.indexOf("\n", i); if (end < 0) end = src.length;
+        out += '<span class="com">' + esc(src.slice(i, end)) + "</span>"; i = end; continue;
+      }
+      if (ch === '"') {
+        var j = i + 1;
+        while (j < src.length && src[j] !== '"') { if (src[j] === "\\") j++; j++; }
+        out += '<span class="str">' + esc(src.slice(i, j + 1)) + "</span>"; i = j + 1; continue;
+      }
+      if ((m = rest.match(fnRe)) && !/[\w.]/.test(src[i - 1] || "")) {
+        out += '<span class="fnm">' + m[0] + "</span>"; i += m[0].length; continue;
+      }
+      if ((m = rest.match(/^([A-Za-z_.][\w.]*)(\s*=)(?!=)/)) && !/[\w.$]/.test(src[i - 1] || "")) {
+        out += '<span class="arg">' + m[1] + "</span>" + m[2]; i += m[0].length; continue;
+      }
+      if ((m = rest.match(/^\d+(\.\d+)?/)) && !/[\w.]/.test(src[i - 1] || "")) {
+        out += '<span class="num">' + m[0] + "</span>"; i += m[0].length; continue;
+      }
+      if ((m = rest.match(/^[A-Za-z_.][\w.]*/))) { out += esc(m[0]); i += m[0].length; continue; }
+      out += esc(ch); i++;
+    }
+    return out;
+  }
+  var blocks = document.querySelectorAll("pre code");
+  for (var k = 0; k < blocks.length; k++) blocks[k].innerHTML = hl(blocks[k].textContent);
+})();
+</script>
+</body>
+</html>

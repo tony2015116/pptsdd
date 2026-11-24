@@ -1,0 +1,80 @@
+# Direct web scraping CSVs
+
+`get_csv()` allows you to directly download CSV files from the web. You
+can download CSV data for a specific location range or date range.
+
+## Usage
+
+``` r
+get_csv(
+  url,
+  username,
+  password,
+  location_min,
+  location_max,
+  date_min,
+  date_max,
+  download_path,
+  show_message = FALSE
+)
+```
+
+## Arguments
+
+- url:
+
+  A character string specifying the URL to log into.
+
+- username:
+
+  A character string specifying the username for login.
+
+- password:
+
+  A character string specifying the password for login.
+
+- location_min:
+
+  A character string specifying the minimum location.
+
+- location_max:
+
+  A character string specifying the maximum location.
+
+- date_min:
+
+  The earliest date as a Date or YYYY-MM-DD string.
+
+- date_max:
+
+  The latest date as a Date or YYYY-MM-DD string.
+
+- download_path:
+
+  A character string specifying the path where the downloaded CSV file
+  should be saved.
+
+- show_message:
+
+  A logical value. If TRUE, a message will be displayed after the
+  download. Default is FALSE.
+
+## Value
+
+CSVs in the path of download_path.
+
+## Examples
+
+``` r
+# Download CSV data for a specific location range or date range.
+get_csv(url = Sys.getenv("url"),
+        username = Sys.getenv("username"),
+        password = Sys.getenv("password"),
+        location_min = "607",
+        location_max = "608",
+        date_min = "2024-02-18",
+        date_max = "2024-02-19",
+        download_path = "C:/Users/Dell/Downloads/download_temp", 
+        show_message = TRUE)
+#> Error: url must be a non-empty character string.
+```
