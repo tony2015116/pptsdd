@@ -1,7 +1,7 @@
 url: https://tony2015116.github.io/tidypptsdd/
 
 template:
-  bootstrap: 5
+  #bootstrap: 5
   bootswatch: cosmo
   theme: arrow-dark            # syntax highlighting of code blocks
 
