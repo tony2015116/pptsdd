@@ -1,5 +1,5 @@
 Package: tidypptsdd
-Title: Breeding Tools
+Title: Pig Performance Test Station Data Download
 Version: 0.1.8
 Authors@R: c(
     person("Guo Meng", , , "tony2015116@163.com", role = c("aut", "cre")),
@@ -8,6 +8,8 @@ Authors@R: c(
 Description: An R package that can automatically or periodically download
     data from the Nedap website in pig farm.
 License: CC BY-NC-ND 4.0 + file LICENSE
+URL: https://tony2015116.github.io/tidypptsdd/, https://github.com/tony2015116/tidypptsdd
+BugReports: https://github.com/tony2015116/tidypptsdd/issues
 Depends:
     R (>= 4.1.0)
 Imports: 
