@@ -1,0 +1,5 @@
+/* pkgdown 2.2 builds Bootstrap 3 pages without the body offset for the
+   fixed navbar, so the page header and logo slide under it. */
+body {
+  padding-top: 60px;
+}
