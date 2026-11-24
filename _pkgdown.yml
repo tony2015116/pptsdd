@@ -1,51 +1,73 @@
 url: https://tony2015116.github.io/tidypptsdd/
+
 template:
-  package: preferably
-  params:
-    toggle: manual
+  bootstrap: 5
+  bootswatch: cosmo
+  theme: arrow-dark            # syntax highlighting of code blocks
+
 home:
+  title: "tidypptsdd: Pig Performance Test Station Data Download"
+  description: >
+    Download CSV reports from Nedap pig performance test stations over HTTP
+    or through Chrome and Edge, file one report per station and day, and
+    schedule daily downloads with the Windows Task Scheduler.
   links:
-  - text: Browse source code
-    href: https://github.com/tony2015116/tidypptsdd
-  - text: Report a bug
-    href: https://github.com/tony2015116/tidypptsdd/issues
-  - text: Author Website
+  - text: Author website
     href: https://www.rusersplace.com
+
 navbar:
-  left:
-  - text: Introduction
-    href: articles/basic-usage.html
-  - text: Functions
-    href: reference/index.html
-  - text: Changelog
-    href: news/index.html
-  right:
-  - icon: fab fa-github fa-lg
-    href: https://github.com/tony2015116/tidypptsdd
-  - icon: fa fa-signal fa-lg
-    href: https://tony2015116.gitee.io/pptsdd
-reference:
-- title: Selenium Web Scraping
-  desc: download csv data from nedap pig performance test station website in chrome browser
+  structure:
+    left:  [intro, zh, reference, articles, cheatsheet, news]
+    right: [search, github]
+  components:
+    zh:
+      text: 中文说明
+      href: articles/tidypptsdd-zh.html
+      aria-label: 中文使用说明
+    cheatsheet:
+      text: Cheatsheet
+      icon: fas fa-file-alt
+      aria-label: Cheatsheet
+      menu:
+      - text: English
+        href: cheatsheet.html
+      - text: 中文
+        href: cheatsheet-zh.html
+    github:
+      icon: fab fa-github fa-lg
+      href: https://github.com/tony2015116/tidypptsdd
+      aria-label: GitHub
+
+# vignettes/tidypptsdd.Rmd is the "Get started" page.
+articles:
+- title: 中文
+  navbar: 中文
   contents:
-  - connect_to_browser
-  - download_csv_auto
-  - download_csv_schedule
-  - disconnect_from_browser
-- title: Direct Web Scraping
-  desc: download csv data directly from nedap pig performance test station website
+  - articles/tidypptsdd-zh
+
+reference:
+- title: HTTP downloads
+  desc: >
+    Log in and request the CSV report directly, without a browser. Start
+    here when the report you need is the default CSV export.
   contents:
   - get_csv
   - get_csv_auto
+- title: Browser downloads
+  desc: >
+    Choose a CSV report from the website menu in Chrome or Edge. The
+    WebDriver service is managed by wdauto.
+  contents:
+  - connect_to_browser
+  - download_csv_auto
+  - disconnect_from_browser
+- title: Scheduled downloads
+  desc: >
+    Register a Windows Task Scheduler task that downloads the previous day's
+    reports.
+  contents:
   - get_csv_schedule
-news:
-  releases:
-  - text: Version 0.1.4
-    href: https://github.com/tony2015116/tidypptsdd/releases/tag/v0.1.4
-  - text: Version 0.1.5
-    href: https://github.com/tony2015116/tidypptsdd/releases/tag/v0.1.5
-  - text: Version 0.1.6
-    href: https://github.com/tony2015116/tidypptsdd/releases/tag/v0.1.6
-  - text: Version 0.1.7
-    href: https://github.com/tony2015116/tidypptsdd/releases/tag/v0.1.7
+  - download_csv_schedule
 
+news:
+  cran_dates: false

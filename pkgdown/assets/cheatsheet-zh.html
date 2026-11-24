@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>tidypptsdd 速查表</title>
+<meta name="description" content="tidypptsdd 0.1.8 速查表：从 Nedap 生猪性能测定站下载 CSV 报表。">
+<link rel="icon" href="favicon.ico">
+<style>
+:root {
+  --bg: #f4f7f4;
+  --paper: #ffffff;
+  --ink: #1d2621;
+  --muted: #5b6862;
+  --line: #dfe6e1;
+  --code-bg: #f3f6f4;
+  --mint: #17804a;
+  --mint-soft: #e1f3e9;
+  --io: #1f6f8b;     --io-soft: #e3f0f5;
+  --rs: #2a6e3f;     --rs-soft: #e5f1e8;
+  --cv: #a8571a;     --cv-soft: #f8ebe0;
+  --st: #6a4c93;     --st-soft: #efe9f6;
+  --ut: #4f5d68;     --ut-soft: #e9edf0;
+  --c-com: #6f7d75;
+  --c-str: #8a4b12;
+  --c-fn:  #1f5f34;
+  --c-arg: #1f5d7a;
+  --c-num: #8f2f5a;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121714; --paper: #1a211d; --ink: #e3ebe5; --muted: #9db0a5;
+    --line: #2c3731; --code-bg: #141a16; --mint: #5fd398; --mint-soft: #183326;
+    --io: #6cb8d4; --io-soft: #17303a; --rs: #6fc28a; --rs-soft: #1f3326;
+    --cv: #e39a5f; --cv-soft: #3a2717; --st: #b79ae0; --st-soft: #2c2340;
+    --ut: #a8b7c2; --ut-soft: #252d33;
+    --c-com: #7f9187; --c-str: #e3b27a; --c-fn: #8ad6a2; --c-arg: #8cc6e0; --c-num: #e597bb;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121714; --paper: #1a211d; --ink: #e3ebe5; --muted: #9db0a5;
+  --line: #2c3731; --code-bg: #141a16; --mint: #5fd398; --mint-soft: #183326;
+  --io: #6cb8d4; --io-soft: #17303a; --rs: #6fc28a; --rs-soft: #1f3326;
+  --cv: #e39a5f; --cv-soft: #3a2717; --st: #b79ae0; --st-soft: #2c2340;
+  --ut: #a8b7c2; --ut-soft: #252d33;
+  --c-com: #7f9187; --c-str: #e3b27a; --c-fn: #8ad6a2; --c-arg: #8cc6e0; --c-num: #e597bb;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+a { color: var(--mint); }
+code, pre, .sig { font-family: ui-monospace, "SFMono-Regular", "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace; }
+.wrap { max-width: 1320px; margin: 0 auto; padding: 24px 24px 48px; }
+
+/* ---------- header ---------- */
+.top {
+  display: grid; grid-template-columns: auto 1fr auto; gap: 20px; align-items: center;
+  background: var(--paper); border: 1px solid var(--line); border-radius: 14px;
+  padding: 18px 22px; border-top: 6px solid var(--mint);
+}
+.top img { width: 74px; height: auto; display: block; }
+.top h1 { margin: 0; font-size: 28px; letter-spacing: -0.01em; line-height: 1.15; }
+.top h1 .ver {
+  display: inline-block; vertical-align: middle; margin-left: 8px; font-size: 13px; font-weight: 600;
+  background: var(--mint); color: var(--paper); border-radius: 999px; padding: 2px 10px; letter-spacing: 0;
+}
+.top p { margin: 4px 0 0; color: var(--muted); max-width: 70ch; }
+.links { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+.links a, .links button {
+  font: inherit; font-size: 13px; text-decoration: none; color: var(--ink); background: var(--mint-soft);
+  border: 1px solid var(--line); border-radius: 8px; padding: 6px 11px; cursor: pointer;
+}
+.links a:hover, .links button:hover { border-color: var(--mint); }
+
+/* ---------- pipeline strip ---------- */
+.flow {
+  margin: 16px 0; display: grid; grid-template-columns: repeat(6, 1fr); gap: 0;
+  background: var(--paper); border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
+}
+.flow > div { padding: 12px 14px; position: relative; border-right: 1px solid var(--line); }
+.flow > div:last-child { border-right: 0; }
+.flow > div:not(:last-child)::after {
+  content: ""; position: absolute; right: -7px; top: 50%; width: 12px; height: 12px; z-index: 1;
+  background: var(--paper); border-top: 1px solid var(--line); border-right: 1px solid var(--line);
+  transform: translateY(-50%) rotate(45deg);
+}
+.flow .step { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.flow .fns { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12.5px; margin-top: 3px; }
+.flow .io .step { color: var(--io); } .flow .rs .step { color: var(--rs); }
+.flow .cv .step { color: var(--cv); } .flow .st .step { color: var(--st); }
+.flow .files .step { color: var(--muted); }
+
+/* ---------- grid of panels ---------- */
+.grid { columns: 3 380px; column-gap: 16px; }
+.panel {
+  break-inside: avoid; display: inline-block; width: 100%; margin: 0 0 16px;
+  background: var(--paper); border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
+}
+.panel > h2 {
+  margin: 0; padding: 10px 16px; font-size: 15px; letter-spacing: .02em; color: var(--accent);
+  background: var(--soft); border-bottom: 1px solid var(--line);
+  display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+}
+.panel > h2 small { font-weight: 500; font-size: 12px; color: var(--muted); }
+.panel > h2 a { color: inherit; text-decoration: none; }
+.panel > h2 a:hover { text-decoration: underline; }
+.io { --accent: var(--io); --soft: var(--io-soft); }
+.rs { --accent: var(--rs); --soft: var(--rs-soft); }
+.cv { --accent: var(--cv); --soft: var(--cv-soft); }
+.st { --accent: var(--st); --soft: var(--st-soft); }
+.ut { --accent: var(--ut); --soft: var(--ut-soft); }
+.mt { --accent: var(--mint); --soft: var(--mint-soft); }
+
+.fn { padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.fn:last-child { border-bottom: 0; }
+.sig { font-size: 12.5px; line-height: 1.45; color: var(--muted); word-break: break-word; }
+.sig b { color: var(--accent); font-size: 13.5px; }
+.sig b a { color: inherit; text-decoration: none; }
+.sig b a:hover { text-decoration: underline; }
+.fn p { margin: 5px 0 0; }
+.fn ul { margin: 6px 0 0; padding-left: 18px; }
+.fn li { margin: 2px 0; }
+.fn li code, .fn p code, td code, .note code { font-size: 12.5px; background: var(--code-bg); border-radius: 4px; padding: 0 3px; }
+.tag {
+  display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+  color: var(--accent); border: 1px solid currentColor; border-radius: 4px; padding: 0 5px; margin-left: 4px; vertical-align: 1px;
+}
+
+pre {
+  margin: 8px 0 0; padding: 10px 12px; background: var(--code-bg); border: 1px solid var(--line);
+  border-radius: 8px; font-size: 12.3px; line-height: 1.5; overflow-x: auto; white-space: pre;
+}
+pre .com { color: var(--c-com); font-style: italic; }
+pre .str { color: var(--c-str); }
+pre .fnm { color: var(--c-fn); font-weight: 700; }
+pre .arg { color: var(--c-arg); }
+pre .num { color: var(--c-num); }
+
+table { border-collapse: collapse; width: 100%; font-size: 12.8px; margin-top: 6px; }
+th, td { text-align: left; vertical-align: top; padding: 4px 6px; border-bottom: 1px solid var(--line); }
+th { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+
+.note {
+  margin-top: 8px; padding: 7px 10px; border-left: 3px solid var(--accent); background: var(--soft);
+  border-radius: 0 6px 6px 0; font-size: 13px;
+}
+
+/* ---------- mini data diagrams ---------- */
+.dia { display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.dia .arrow { color: var(--muted); font-size: 16px; }
+.mini { display: inline-grid; gap: 2px; font: 10px/1 ui-monospace, Menlo, Consolas, monospace; }
+.mini span {
+  min-width: 22px; height: 17px; padding: 0 3px; display: flex; align-items: center; justify-content: center;
+  border-radius: 3px; background: var(--code-bg); border: 1px solid var(--line); color: var(--muted); white-space: nowrap;
+}
+.mini .h { font-weight: 700; color: var(--ink); }
+.mini .a { background: #cfe9d7; border-color: #a9d6b7; color: #1d4a2a; }
+.mini .b { background: #d6e7f5; border-color: #aecde6; color: #1c3f5c; }
+.mini .c { background: #f5e1cf; border-color: #e6c3a3; color: #5a3312; }
+.mini .n { background: var(--soft); border-color: var(--accent); color: var(--accent); font-weight: 700; }
+.c2 { grid-template-columns: repeat(2, auto); } .c3 { grid-template-columns: repeat(3, auto); }
+.c4 { grid-template-columns: repeat(4, auto); }
+.listbox { display: inline-flex; flex-direction: column; gap: 3px; font: 10px/1 ui-monospace, Menlo, Consolas, monospace; }
+.listbox span { padding: 3px 6px; border-radius: 3px; border: 1px dashed var(--accent); color: var(--accent); }
+
+footer { margin-top: 8px; color: var(--muted); font-size: 12.5px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+
+/* ---------- responsive ---------- */
+@media (max-width: 900px) {
+  .flow { grid-template-columns: repeat(3, 1fr); }
+  .flow > div:nth-child(3) { border-right: 0; }
+  .flow > div:nth-child(-n+3) { border-bottom: 1px solid var(--line); }
+  .flow > div:nth-child(3)::after { display: none; }
+}
+@media (max-width: 640px) {
+  .wrap { padding: 16px 16px 32px; }
+  .top { grid-template-columns: auto 1fr; }
+  .top img { width: 56px; }
+  .top h1 { font-size: 22px; }
+  .links { grid-column: 1 / -1; justify-content: flex-start; }
+  .flow { grid-template-columns: 1fr 1fr; }
+  .flow > div { border-right: 0 !important; border-bottom: 1px solid var(--line); }
+  .flow > div::after { display: none; }
+  .grid { columns: 1; }
+}
+
+/* ---------- print: landscape, compact ---------- */
+@page { size: A4 landscape; margin: 9mm; }
+@media print {
+  :root { --bg: #fff; }
+  body { font-size: 10.5px; background: #fff; }
+  .wrap { max-width: none; padding: 0; }
+  .links { display: none; }
+  .top { padding: 8px 12px; border-radius: 8px; }
+  .top img { width: 48px; }
+  .top h1 { font-size: 20px; }
+  .flow { margin: 8px 0; border-radius: 8px; }
+  .flow > div { padding: 6px 10px; }
+  .grid { columns: 4; column-gap: 8px; }
+  .panel { margin-bottom: 8px; border-radius: 8px; }
+  .panel > h2 { padding: 5px 10px; font-size: 12px; }
+  .fn { padding: 6px 10px; }
+  pre { font-size: 9.3px; padding: 5px 7px; }
+  .sig { font-size: 9.6px; } .sig b { font-size: 10.5px; }
+  table { font-size: 9.6px; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <img src="reference/figures/logo.png" alt="tidypptsdd 标志" onerror="this.style.display='none'">
+  <div>
+    <h1>tidypptsdd 速查表 <span class="ver">v0.1.8</span></h1>
+    <p>生猪性能测定站数据下载：通过 HTTP 或 Chrome / Edge 从 Nedap 测定站下载 CSV 报表，按站点和日期逐份保存，并在 Windows 上每天定时下载。</p>
+  </div>
+  <nav class="links">
+    <a href="index.html">主页</a>
+    <a href="reference/index.html">函数参考</a>
+    <a href="articles/tidypptsdd-zh.html">中文说明</a>
+    <a href="https://github.com/tony2015116/tidypptsdd">GitHub</a>
+    <a href="cheatsheet.html" hreflang="en" lang="en">English</a>
+    <button type="button" onclick="window.print()">打印 / PDF</button>
+  </nav>
+</header>
+
+<section class="flow" aria-label="tidypptsdd 工作流程">
+  <div class="files"><div class="step">账号</div><div class="fns">~/.Renviron<br>NEDAP_URL …</div></div>
+  <div class="io"><div class="step">1 · HTTP</div><div class="fns">get_csv()<br>get_csv_auto()</div></div>
+  <div class="rs"><div class="step">1 · 浏览器</div><div class="fns">connect_to_browser()<br>download_csv_auto()</div></div>
+  <div class="cv"><div class="step">2 · 定时</div><div class="fns">get_csv_schedule()<br>download_csv_schedule()</div></div>
+  <div class="st"><div class="step">3 · 文件</div><div class="fns">NonEmptyCSVs/<br>EmptyCSVs/</div></div>
+  <div class="ut"><div class="step">4 · 停止</div><div class="fns">disconnect_from_browser()</div></div>
+</section>
+
+<main class="grid">
+
+<section class="panel mt">
+  <h2>通用参数 <small>所有下载函数</small></h2>
+  <div class="fn">
+    <table>
+      <tr><th>参数</th><th>含义</th></tr>
+      <tr><td><code>url</code></td><td>测定站网站根地址</td></tr>
+      <tr><td><code>username</code>、<code>password</code></td><td>网站账号和密码</td></tr>
+      <tr><td><code>location</code></td><td>站点编号，用字符串：<code>c("606", "608")</code></td></tr>
+      <tr><td><code>date</code></td><td><code>Date</code> 或 <code>"YYYY-MM-DD"</code></td></tr>
+      <tr><td><code>download_path</code></td><td>输出文件夹，不存在时自动创建</td></tr>
+    </table>
+    <pre><code>pak::pkg_install("tony2015116/tidypptsdd")
+library(tidypptsdd)
+# ~/.Renviron 中写入 NEDAP_URL、
+# NEDAP_USERNAME、NEDAP_PASSWORD，再重启 R
+url &lt;- Sys.getenv("NEDAP_URL")
+username &lt;- Sys.getenv("NEDAP_USERNAME")
+password &lt;- Sys.getenv("NEDAP_PASSWORD")
+download_path &lt;- "D:/nedap-csv"</code></pre>
+    <div class="note">需要 Windows 和 R &ge; 4.1.0。浏览器下载需要 Chrome 或 Edge，以及 wdauto &ge; 0.2.0，不再需要 Java。</div>
+  </div>
+</section>
+
+<section class="panel io">
+  <h2><a href="reference/get_csv.html">HTTP 下载</a> <small>不需要浏览器</small></h2>
+  <div class="fn">
+    <div class="sig"><b><a href="reference/get_csv.html">get_csv</a></b>(url, username, password, location_min, location_max, date_min, date_max, download_path, show_message = FALSE)</div>
+    <p>按站点<b>范围</b>和日期<b>范围</b>导出一份 CSV，直接保存到 <code>download_path</code>。</p>
+  </div>
+  <div class="fn">
+    <div class="sig"><b><a href="reference/get_csv_auto.html">get_csv_auto</a></b>(url, username, password, location, date, download_path, show_message = FALSE)</div>
+    <p><b>每个站点、每一天</b>分别保存一份 CSV，归档到 <code>NonEmptyCSVs/</code> 或 <code>EmptyCSVs/</code>。</p>
+    <pre><code>get_csv_auto(
+  url, username, password,
+  location = c("606", "608"),
+  date = seq(as.Date("2024-02-18"),
+             as.Date("2024-02-19"),
+             by = "day"),
+  download_path = download_path)</code></pre>
+    <div class="note">需要的是默认 CSV 报表时，优先用这两个函数。</div>
+  </div>
+</section>
+
+<section class="panel rs">
+  <h2><a href="reference/download_csv_auto.html">浏览器下载</a> <small>Chrome 或 Edge</small></h2>
+  <div class="fn">
+    <div class="sig"><b><a href="reference/connect_to_browser.html">connect_to_browser</a></b>(dest_dir, browser = "chrome")</div>
+    <p>通过 wdauto 下载驱动并启动 WebDriver 服务。</p>
+  </div>
+  <div class="fn">
+    <div class="sig"><b><a href="reference/download_csv_auto.html">download_csv_auto</a></b>(url, username, password, csv_position, location, date, download_path, browser = "chrome")</div>
+    <p><code>csv_position</code> 是报表在网页 CSV 列表中的位置，用字符串表示（<code>"1"</code>）。</p>
+    <pre><code>options(wdauto.mirror = "npmmirror")  # 国内
+connect_to_browser("C:/webdriver")
+download_csv_auto(
+  url, username, password,
+  csv_position = "1",
+  location = c("606", "608"),
+  date = "2024-02-18",
+  download_path = download_path)</code></pre>
+  </div>
+  <div class="fn">
+    <div class="sig"><b><a href="reference/disconnect_from_browser.html">disconnect_from_browser</a></b>(browser = "chrome")</div>
+    <p>停止服务。使用 Edge 时，三个函数都加上 <code>browser = "edge"</code>。</p>
+  </div>
+</section>
+
+<section class="panel cv">
+  <h2><a href="reference/get_csv_schedule.html">每日定时下载</a> <small>前一天的数据</small></h2>
+  <div class="fn">
+    <div class="sig"><b><a href="reference/get_csv_schedule.html">get_csv_schedule</a></b>(taskname, schedule, starttime, startdate, rscript_args = NULL, ...)</div>
+    <div class="sig" style="margin-top:4px"><b><a href="reference/download_csv_schedule.html">download_csv_schedule</a></b>(taskname, schedule, starttime, startdate, rscript_args = NULL, ...)</div>
+    <p>创建 Windows 定时任务，每次运行时用 <code>get_csv_auto()</code> / <code>download_csv_auto()</code> 下载前一天的数据。</p>
+    <table>
+      <tr><th><code>rscript_args</code></th><th>内容</th></tr>
+      <tr><td>必填</td><td><code>url</code>、<code>username</code>、<code>location</code>、<code>download_path</code></td></tr>
+      <tr><td>密码</td><td><code>password_env = "NEDAP_PASSWORD"</code>，填变量名</td></tr>
+      <tr><td>仅浏览器</td><td><code>csv_position</code>；可选 <code>browser</code></td></tr>
+    </table>
+    <pre><code>get_csv_schedule(
+  taskname = "nedap_csv_daily",
+  schedule = "DAILY",
+  starttime = "20:00",
+  startdate = format(Sys.Date() + 1,
+                     "%Y/%m/%d"),
+  rscript_args = list(
+    url = url, username = username,
+    password_env = "NEDAP_PASSWORD",
+    location = c("606", "608"),
+    download_path = download_path))</code></pre>
+    <ul>
+      <li><code>startdate</code> 按 Windows 地区设置的日期格式填写</li>
+      <li>任务脚本和日志：<code>C:/Temp/tidypptsdd/</code></li>
+    </ul>
+    <pre><code># 删除任务
+taskscheduleR::taskscheduler_delete(
+  "nedap_csv_daily")</code></pre>
+  </div>
+</section>
+
+<section class="panel st">
+  <h2>输出文件 <small>每站每天一份</small></h2>
+  <div class="fn">
+    <pre><code>download_path/
+  NonEmptyCSVs/606/*.csv  # 有数据行
+  EmptyCSVs/608/*.csv     # 只有表头</code></pre>
+    <p>文件名包含报表日期和下载日期：<code>location606_2024-02-18data_2024-02-20download.csv</code>。</p>
+    <p><code>get_csv()</code> 的单份报表直接保存在 <code>download_path</code> 下。</p>
+  </div>
+</section>
+
+<section class="panel ut">
+  <h2>排查问题</h2>
+  <div class="fn">
+    <table>
+      <tr><th>现象</th><th>检查</th></tr>
+      <tr><td>登录失败 / 返回的不是 CSV</td><td>根地址、账号和报表权限；在浏览器中手动导出同一份报表试试</td></tr>
+      <tr><td>CSV 被归到 <code>EmptyCSVs</code></td><td>该站点当天在网页中是否有数据</td></tr>
+      <tr><td>浏览器下载超时</td><td>浏览器、对应的 WebDriver 服务、<code>csv_position</code></td></tr>
+      <tr><td>手动成功，定时任务失败</td><td>任务账户能否读取密码变量、写入输出目录；查看任务日志</td></tr>
+    </table>
+  </div>
+</section>
+
+<section class="panel mt">
+  <h2><a href="news/index.html">从 pptsdd 升级</a> <small>0.1.8 起改名</small></h2>
+  <div class="fn">
+    <ul>
+      <li>函数名和参数都不变：改用 <code>library(tidypptsdd)</code> 和 <code>tidypptsdd::</code></li>
+      <li>旧版创建的定时任务调用的是 <code>pptsdd::</code>，需要重新创建，再删除旧任务</li>
+      <li>最后 <code>remove.packages("pptsdd")</code></li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <span>tidypptsdd 0.1.8 &middot; CC BY-NC-ND 4.0 &middot; Guo Meng</span>
+  <span><a href="https://tony2015116.github.io/tidypptsdd/">tony2015116.github.io/tidypptsdd</a> &middot; <a href="https://github.com/tony2015116/wdauto">wdauto</a> &middot; <a href="https://github.com/tony2015116/tidypptsdd/issues">反馈问题</a></span>
+</footer>
+</div>
+
+<script>
+/* 代码块的轻量 R 语法高亮（不依赖外部库）。 */
+(function () {
+  var fns = ["get_csv_auto","get_csv_schedule","get_csv","connect_to_browser","download_csv_auto","disconnect_from_browser","download_csv_schedule"];
+  var fnRe = new RegExp("^(" + fns.join("|") + ")\\b");
+  function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function hl(src) {
+    var out = "", i = 0, m;
+    while (i < src.length) {
+      var rest = src.slice(i), ch = src[i];
+      if (ch === "#") {
+        var end = src.indexOf("\n", i); if (end < 0) end = src.length;
+        out += '<span class="com">' + esc(src.slice(i, end)) + "</span>"; i = end; continue;
+      }
+      if (ch === '"') {
+        var j = i + 1;
+        while (j < src.length && src[j] !== '"') { if (src[j] === "\\") j++; j++; }
+        out += '<span class="str">' + esc(src.slice(i, j + 1)) + "</span>"; i = j + 1; continue;
+      }
+      if ((m = rest.match(fnRe)) && !/[\w.]/.test(src[i - 1] || "")) {
+        out += '<span class="fnm">' + m[0] + "</span>"; i += m[0].length; continue;
+      }
+      if ((m = rest.match(/^([A-Za-z_.][\w.]*)(\s*=)(?!=)/)) && !/[\w.$]/.test(src[i - 1] || "")) {
+        out += '<span class="arg">' + m[1] + "</span>" + m[2]; i += m[0].length; continue;
+      }
+      if ((m = rest.match(/^\d+(\.\d+)?/)) && !/[\w.]/.test(src[i - 1] || "")) {
+        out += '<span class="num">' + m[0] + "</span>"; i += m[0].length; continue;
+      }
+      if ((m = rest.match(/^[A-Za-z_.][\w.]*/))) { out += esc(m[0]); i += m[0].length; continue; }
+      out += esc(ch); i++;
+    }
+    return out;
+  }
+  var blocks = document.querySelectorAll("pre code");
+  for (var k = 0; k < blocks.length; k++) blocks[k].innerHTML = hl(blocks[k].textContent);
+})();
+</script>
+</body>
+</html>

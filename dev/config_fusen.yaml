@@ -10,10 +10,10 @@ csv_download.Rmd:
   - R/get_csv_auto.R
   - R/get_csv_schedule.R
   tests: []
-  vignettes: vignettes/basic-usage.Rmd
+  vignettes: []
   inflate:
     flat_file: dev/csv_download.Rmd
-    vignette_name: Basic Usage
+    vignette_name: .na
     open_vignette: true
     check: true
     document: true
